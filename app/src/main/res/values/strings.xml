@@ -3,4 +3,9 @@
     <string name="expand_button_content_description">See more or less about pet</string>
     <string name="pet_age">Age</string>
     <string name="pet_weight">Weight</string>
+    <string name="water_change">Water</string>
+    <string name="water_last_change">Last changed:</string>
+    <string name="water_time_hours">hours ago</string>
+    <string name="pet_hunger">Meals</string>
+    <string name="pet_activities">Activities</string>
 </resources>
