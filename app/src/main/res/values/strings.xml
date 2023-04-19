@@ -1,11 +1,24 @@
 <resources>
     <string name="app_name">PetApp</string>
     <string name="expand_button_content_description">See more or less about pet</string>
+    <string name="pet_name">Name</string>
+    <string name="pet_name_placeholder">enter pet name</string>
     <string name="pet_age">Age</string>
     <string name="pet_weight">Weight</string>
+    <string name="pet_species">Species</string>
+    <string name="pet_breed">Breed</string>
     <string name="water_change">Water</string>
     <string name="water_last_change">Last changed:</string>
     <string name="water_time_hours">hours ago</string>
     <string name="pet_hunger">Meals</string>
     <string name="pet_activities">Activities</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="account">Account</string>
+    <string name="settings">Settings</string>
+    <string name="help">Get help</string>
+    <string name="to_account">move to your account</string>
+    <string name="to_settings">move to settings</string>
+    <string name="to_help">move to help</string>
+    <string name="open_tab_menu">open top app bar menu</string>
 </resources>
