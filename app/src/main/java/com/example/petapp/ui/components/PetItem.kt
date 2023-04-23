@@ -26,7 +26,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.petapp.R
 import com.example.petapp.model.*
-import java.util.Calendar
+import java.text.DateFormat
+import java.util.*
 
 private enum class PetStatsEnum(@StringRes val stringId: Int?) {
     NONE(null),
@@ -129,7 +130,8 @@ fun PetHunger(meals: List<PetMeal>, modifier: Modifier = Modifier) {
                         modifier = Modifier.size(56.dp)
                     )
                 }
-                Text(text = "${it.date.hours}:${it.date.minutes}")
+                //Locale should be picked by user in settings
+                Text(text = DateFormat.getTimeInstance(DateFormat.SHORT, Locale.GERMAN).format(it.date))
             }
         }
     }
@@ -172,7 +174,7 @@ fun PetItemButton(
 
 //may be change later, depends on image location
 @Composable
-fun PetIcon(@DrawableRes petIcon: Int = R.drawable.nika, modifier: Modifier = Modifier) {
+fun PetIcon( modifier: Modifier = Modifier, @DrawableRes petIcon: Int = R.drawable.nika) {
     Image(
         modifier = modifier
             .size(88.dp)

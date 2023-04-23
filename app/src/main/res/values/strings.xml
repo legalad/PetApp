@@ -4,7 +4,11 @@
     <string name="pet_name">Name</string>
     <string name="pet_name_placeholder">enter pet name</string>
     <string name="pet_age">Age</string>
+    <string name="birth_date">Birth date</string>
     <string name="pet_weight">Weight</string>
+    <string name="pet_height">Height</string>
+    <string name="pet_width">Width</string>
+    <string name="pet_circuit">Circuit</string>
     <string name="pet_species">Species</string>
     <string name="pet_breed">Breed</string>
     <string name="water_change">Water</string>
@@ -21,4 +25,16 @@
     <string name="to_settings">move to settings</string>
     <string name="to_help">move to help</string>
     <string name="open_tab_menu">open top app bar menu</string>
+    <string name="pet_form_headline">New pet friend?</string>
+    <string name="pet_form_description">Fill out information about your pet</string>
+    <string name="next">next</string>
+    <string name="pet_form_subheadline_general">General</string>
+    <string name="pet_form_subheadline_dimensions">Dimensions</string>
+    <string name="pet_weight_unit">KG</string>
+    <string name="pet_dimensions_unit">Meters</string>
+    <string name="previous">prev</string>
+    <string name="pet_form_subheadline_extras">Extra information</string>
+    <string name="pet_description_label">Description</string>
+    <string name="pet_description_placeholder">Write everything you want about your pet!</string>
+    <string name="done">Done</string>
 </resources>

@@ -8,6 +8,22 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.petapp.ui.components.PetItemsPrev
 
+object PetAppNavGraph {
+    const val ROOT = "root_graph"
+    const val AUTH = "auth_graph"
+    const val MAIN = "main_graph"
+}
+
+@Composable
+fun RootNavGraph(
+    modifier: Modifier = Modifier,
+    navController: NavHostController = rememberNavController()
+) {
+    NavHost(navController = navController, route = PetAppNavGraph.ROOT, startDestination = PetAppNavGraph.MAIN){
+
+    }
+}
+
 @Composable
 fun PetAppNavGraph(
     modifier: Modifier = Modifier,

@@ -1,48 +1,94 @@
 package com.example.petapp.ui.components.forms
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
+import androidx.annotation.StringRes
+import androidx.compose.foundation.clickable
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.example.petapp.R
 import java.util.*
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(showBackground = true)
-@Composable
-fun DatePickerPrevV1() {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        val state = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
-        DatePicker(state = state, modifier = Modifier.padding(16.dp))
 
-        Text("Entered date timestamp: ${state.selectedDateMillis ?: "no input"}")
-    }
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DatePicker(
+    @StringRes label: Int,
+    value: String,
+    onValueChange: () -> Unit,
+    onTextFieldClicked: () -> Unit,
+    openDialog: Boolean,
+    datePickerState: DatePickerState,
+    confirmEnabled: Boolean,
+    onDismissRequest: () -> Unit,
+    onConfirmedButtonClicked: () -> Unit,
+    onDismissButtonClicked: () -> Unit
+) {
+    DatePickerOutlinedTextField(
+        label = label,
+        value = value,
+        onValueChange = onValueChange,
+        onTextFieldClicked = onTextFieldClicked
+    )
+    if (openDialog) DatePickerDialogItem(
+        openDialog = openDialog,
+        datePickerState = datePickerState,
+        confirmEnabled = confirmEnabled,
+        onDismissRequest = onDismissRequest,
+        onConfirmedButtonClicked = onConfirmedButtonClicked,
+        onDismissButtonClicked = onDismissButtonClicked
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DatePickerOutlinedTextField(
+    @StringRes label: Int,
+    value: String,
+    onValueChange: () -> Unit,
+    onTextFieldClicked: () -> Unit
+) {
+    OutlinedTextField(
+        label = { Text(text = "Birth date") },
+        value = value,
+        onValueChange = { onValueChange },
+        leadingIcon = {
+            Icon(
+                painter = painterResource(id = R.drawable.baseline_calendar_month_24),
+                contentDescription = null
+            )
+        },
+        enabled = false,
+        modifier = Modifier.clickable(onClick = onTextFieldClicked),
+        colors = TextFieldDefaults.outlinedTextFieldColors(
+            disabledBorderColor = MaterialTheme.colorScheme.outline,
+            disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant)
+    )
 }
 
 //sprawdzic czy tu state powinien byc w sumie
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatePickerDialogItem(
-    openDialog: State<Boolean>,
+    openDialog: Boolean,
     datePickerState: DatePickerState,
-    confirmEnabled: State<Boolean>,
+    confirmEnabled: Boolean,
     onDismissRequest: () -> Unit,
     onConfirmedButtonClicked: () -> Unit,
     onDismissButtonClicked: () -> Unit
 ) {
-    if (openDialog.value) {
+    if (openDialog) {
         DatePickerDialog(
             onDismissRequest = onDismissRequest,
             confirmButton = {
                 TextButton(
                     onClick = onConfirmedButtonClicked,
-                    enabled = confirmEnabled.value
+                    enabled = confirmEnabled
                 ) {
                     Text(stringResource(R.string.ok))
                 }
@@ -64,13 +110,35 @@ fun DatePickerDialogItem(
 @Preview
 @Composable
 fun DatePickerDialogItemPrev() {
-    val openDialog = remember {  mutableStateOf(true)  }
+    val openDialog = remember { mutableStateOf(true) }
     val datePickerState = rememberDatePickerState()
     val confirmEnabled = derivedStateOf { datePickerState.selectedDateMillis != null }
     DatePickerDialogItem(
-        openDialog = openDialog,
+        openDialog = openDialog.value,
         datePickerState = datePickerState,
-        confirmEnabled = confirmEnabled,
+        confirmEnabled = confirmEnabled.value,
+        onDismissRequest = { openDialog.value = false },
+        onConfirmedButtonClicked = { openDialog.value = false },
+        onDismissButtonClicked = { openDialog.value = false })
+}
+
+@SuppressLint("UnrememberedMutableState")
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Composable
+fun DatePickerPrev() {
+    val value = remember { mutableStateOf("") }
+    val openDialog = remember { mutableStateOf(false) }
+    val datePickerState = rememberDatePickerState()
+    val confirmEnabled = derivedStateOf { datePickerState.selectedDateMillis != null }
+    DatePicker(
+        label = R.string.pet_age,
+        value = value.value,
+        onValueChange = { /*TODO*/ },
+        onTextFieldClicked = { openDialog.value = true },
+        openDialog = openDialog.value,
+        datePickerState = datePickerState,
+        confirmEnabled = confirmEnabled.value,
         onDismissRequest = { openDialog.value = false },
         onConfirmedButtonClicked = { openDialog.value = false },
         onDismissButtonClicked = { openDialog.value = false })

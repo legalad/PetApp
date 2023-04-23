@@ -19,6 +19,7 @@ fun ExposedDropdownMenu(
     onExpandedChange: (Boolean) -> Unit,
     onDropdownMenuItemClicked: (String) -> Unit,
     onDismissRequest: () -> Unit,
+    enabled: Boolean = true,
     readOnly: Boolean = true,
     textFieldOnValueChanged: (String) -> Unit = {}
 ) {
@@ -26,14 +27,17 @@ fun ExposedDropdownMenu(
         expanded = expanded,
         onExpandedChange = onExpandedChange
     ) {
-        TextField(
+        OutlinedTextField(
             label = { Text(text = stringResource(id = label)) },
             value = selectedOption,
             onValueChange = { textFieldOnValueChanged(it) },
+            enabled = enabled,
             modifier = Modifier.menuAnchor(),
             readOnly = readOnly,
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+            colors = ExposedDropdownMenuDefaults.textFieldColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            ),
         )
         ExposedDropdownMenu(
             expanded = expanded,
@@ -61,6 +65,7 @@ fun ExposedDropdownMenuPrev() {
         label = R.string.pet_species,
         options = options,
         expanded = expanded,
+        enabled = true,
         selectedOption = selectedOptionText,
         onExpandedChange = { expanded = !expanded },
         onDropdownMenuItemClicked = {
@@ -82,6 +87,7 @@ fun EditableExposedDropdownMenuPrev() {
         label = R.string.pet_species,
         options = options,
         expanded = expanded,
+        enabled = true,
         selectedOption = selectedOptionText,
         onExpandedChange = { expanded = !expanded },
         onDropdownMenuItemClicked = {
