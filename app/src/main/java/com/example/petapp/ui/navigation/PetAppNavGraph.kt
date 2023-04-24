@@ -6,7 +6,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.petapp.ui.components.PetItemsPrev
+import com.example.petapp.ui.addpet.AddPetScreen
+import com.example.petapp.ui.addpet.AddPetViewModel
 
 object PetAppNavGraph {
     const val ROOT = "root_graph"
@@ -33,7 +34,7 @@ fun PetAppNavGraph(
     NavHost(
         navController = navController, startDestination = startDestination, modifier = modifier) {
         composable(PetAppDestination.PET_MANAGER_ROUTE.name) {
-            PetItemsPrev()
+            AddPetScreen(viewModel = AddPetViewModel(), modifier = Modifier)
         }
     }
 }

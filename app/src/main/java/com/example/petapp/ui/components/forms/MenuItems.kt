@@ -25,7 +25,7 @@ fun ExposedDropdownMenu(
 ) {
     ExposedDropdownMenuBox(
         expanded = expanded,
-        onExpandedChange = onExpandedChange
+        onExpandedChange = { onExpandedChange(it) }
     ) {
         OutlinedTextField(
             label = { Text(text = stringResource(id = label)) },

@@ -1,4 +1,4 @@
-package com.example.petapp.ui.pet
+package com.example.petapp.ui.addpet
 
 import android.annotation.SuppressLint
 import androidx.annotation.StringRes
@@ -14,11 +14,95 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.petapp.R
+import com.example.petapp.ui.components.ErrorScreen
+import com.example.petapp.ui.components.LoadingScreen
 import com.example.petapp.ui.components.forms.*
 
 @Composable
-fun PetScreen() {
+fun AddPetScreen(
+    viewModel: AddPetViewModel,
+    modifier: Modifier
+) {
+    when (viewModel.uiState) {
+        is AddPetUiState.Error -> ErrorScreen(message = "Can't add new pet")
+        is AddPetUiState.Loading -> LoadingScreen()
+        is AddPetUiState.Success -> AddPetResultScreen(viewModel)
+    }
+}
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddPetResultScreen(viewModel: AddPetViewModel) {
+    val uiState = viewModel.successUiState.collectAsState().value
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier
+            .fillMaxSize()
+            .padding(60.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.pet_form_headline),
+            style = MaterialTheme.typography.headlineMedium
+        )
+        Text(
+            text = stringResource(R.string.pet_form_description),
+            style = MaterialTheme.typography.bodySmall
+        )
+        Spacer(modifier = Modifier.padding(20.dp))
+    when (uiState.screenStage) {
+        is AddPetScreenStage.General -> GeneralPetForm(
+            nameFieldValue = uiState.nameFieldValue,
+            onNameFieldValueChanged = viewModel::onNameFieldValueChanged,
+            onNameFieldCancelClicked = viewModel::onNameFieldCancelClicked,
+            datePickerTextFieldValue = uiState.datePickerTextFieldValue,
+            onDatePickerTextFieldValueChanged = viewModel::onDatePickerTextFieldValueChanged,
+            onDatePickerTextFieldClicked = viewModel::onDatePickerTextFieldClicked,
+            datePickerOpenDialog = uiState.datePickerOpenDialog,
+            datePickerState = uiState.datePickerState,
+            datePickerConfirmEnabled = uiState.datePickerConfirmEnabled,
+            datePickerOnDismissRequest = viewModel::datePickerOnDismissRequest,
+            datePickerOnConfirmedButtonClicked = viewModel::datePickerOnConfirmedButtonClicked,
+            datePickerOnDismissedButtonClicked = viewModel::datePickerOnDismissedButtonClicked,
+            speciesOptions = uiState.speciesMenuOptions,
+            speciesMenuExpanded = uiState.speciesMenuExpanded,
+            speciesMenuSelectedOption = uiState.speciesMenuSelectedOptionText,
+            speciesMenuOnExpandedChanged = viewModel::speciesMenuOnExpandedChanged,
+            speciesMenuOnDropdownMenuItemClicked = viewModel::speciesMenuOnDropdownMenuItemClicked,
+            speciesMenuOnDismissRequest = viewModel::speciesMenuOnDismissRequest,
+            breedOptions = uiState.breedMenuOptions,
+            breedMenuExpanded = uiState.breedMenuExpanded,
+            breedMenuEnabled = uiState.breedMenuEnabled,
+            breedMenuSelectedOption = uiState.breedMenuSelectedOptionText,
+            breedMenuOnExpandedChanged = viewModel::breedMenuOnExpandedChanged,
+            breedMenuOnDropdownMenuItemClicked = viewModel::breedMenuOnDropdownMenuItemClicked,
+            breedMenuOnDismissRequest = viewModel::breedMenuOnDismissRequest,
+            onCancelButtonClicked = { /*TODO*/ },
+            onNextButtonClicked = viewModel::onNavigateButtonClicked)
+        is AddPetScreenStage.Dimensions -> DimensionsPetForm(
+            weightFieldValue = uiState.weightFieldValue,
+            onWeightFieldValueChanged = viewModel::onWeightFieldValueChanged,
+            onWeightFieldCancelClicked = viewModel::onWeightFieldCancelClicked,
+            onWeightFieldFocusCleared = viewModel::onWeightFieldFocusCleared,
+            heightFieldValue = uiState.heightFieldValue,
+            onHeightFieldValueChanged = viewModel::onHeightFieldValueChanged,
+            onHeightFieldCancelClicked = viewModel::onHeightFieldCancelClicked,
+            onHeightFieldFocusCleared = viewModel::onHeightFieldFocusCleared,
+            lengthFieldValue = uiState.lengthFieldValue,
+            onLengthFieldValueChanged = viewModel::onLengthFieldValueChanged,
+            onLengthFieldCancelClicked = viewModel::onLengthFieldCancelClicked,
+            onLengthFieldFocusCleared = viewModel::onLengthFieldFocusCleared,
+            circuitFieldValue = uiState.circuitFieldValue,
+            onCircuitFieldValueChanged = viewModel::onCircuitFieldValueChanged,
+            onCircuitFieldCancelClicked = viewModel::onCircuitFieldCancelClicked,
+            onCircuitFieldFocusCleared = viewModel::onCircuitFieldFocusCleared,
+            onPrevButtonClicked = viewModel::onNavigateButtonClicked,
+            onNextButtonClicked = viewModel::onNavigateButtonClicked)
+        is AddPetScreenStage.Final -> AdditionalInfoPetForm(
+            descriptionTextFieldValue = uiState.descriptionFieldValue,
+            onDescriptionTextFieldValueChanged = viewModel::onDescriptionTextFieldValueChanged,
+            onPrevButtonClicked = viewModel::onNavigateButtonClicked,
+            onDoneButtonClicked =viewModel::onDoneButtonClicked )
+    }
+    }
 }
 
 @Composable
@@ -44,7 +128,7 @@ fun PetForm() {
 @Composable
 fun GeneralPetForm(
     nameFieldValue: String,
-    onNameFiledValueChanged: (String) -> Unit,
+    onNameFieldValueChanged: (String) -> Unit,
     onNameFieldCancelClicked: () -> Unit,
     datePickerTextFieldValue: String,
     onDatePickerTextFieldValueChanged: () -> Unit,
@@ -69,7 +153,7 @@ fun GeneralPetForm(
     breedMenuOnDropdownMenuItemClicked: (String) -> Unit,
     breedMenuOnDismissRequest: () -> Unit,
     onCancelButtonClicked: () -> Unit,
-    onNextButtonClicked: () -> Unit
+    onNextButtonClicked: (stage: AddPetScreenStage) -> Unit
 
 ) {
     Column(
@@ -87,7 +171,7 @@ fun GeneralPetForm(
                 fieldPlaceholder = R.string.pet_name_placeholder,
                 leadingIcon = R.drawable.baseline_pets_24,
                 fieldValue = nameFieldValue,
-                onValueChanged = onNameFiledValueChanged,
+                onValueChanged = onNameFieldValueChanged,
                 onCancelClicked = onNameFieldCancelClicked
             )
             DatePicker(
@@ -126,7 +210,7 @@ fun GeneralPetForm(
             leftButtonStringId = R.string.cancel,
             rightButtonStringId = R.string.next,
             onLeftButtonClicked = onCancelButtonClicked,
-            onRightButtonClicked = onNextButtonClicked
+            onRightButtonClicked = { onNextButtonClicked(AddPetScreenStage.Dimensions) }
         )
     }
 }
@@ -171,16 +255,16 @@ fun DimensionsPetForm(
     onHeightFieldValueChanged: (String) -> Unit,
     onHeightFieldCancelClicked: () -> Unit,
     onHeightFieldFocusCleared: () -> Unit,
-    widthFieldValue: String,
-    onWidthFieldValueChanged: (String) -> Unit,
-    onWidthFieldCancelClicked: () -> Unit,
-    onWidthFieldFocusCleared: () -> Unit,
+    lengthFieldValue: String,
+    onLengthFieldValueChanged: (String) -> Unit,
+    onLengthFieldCancelClicked: () -> Unit,
+    onLengthFieldFocusCleared: () -> Unit,
     circuitFieldValue: String,
     onCircuitFieldValueChanged: (String) -> Unit,
     onCircuitFieldCancelClicked: () -> Unit,
     onCircuitFieldFocusCleared: () -> Unit,
-    onPrevButtonClicked: () -> Unit,
-    onNextButtonClicked: () -> Unit
+    onPrevButtonClicked: (stage: AddPetScreenStage) -> Unit,
+    onNextButtonClicked: (stage: AddPetScreenStage) -> Unit
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -222,10 +306,10 @@ fun DimensionsPetForm(
                 fieldLabel = R.string.pet_width,
                 fieldPlaceholder = R.string.pet_dimensions_unit,
                 leadingIcon = R.drawable.width_24,
-                fieldValue = widthFieldValue,
-                onValueChanged = onWidthFieldValueChanged,
-                onCancelClicked = onWidthFieldCancelClicked,
-                onFocusClear = onWidthFieldFocusCleared,
+                fieldValue = lengthFieldValue,
+                onValueChanged = onLengthFieldValueChanged,
+                onCancelClicked = onLengthFieldCancelClicked,
+                onFocusClear = onLengthFieldFocusCleared,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next
@@ -248,8 +332,8 @@ fun DimensionsPetForm(
         PetFormsBottomNavButtons(
             leftButtonStringId = R.string.previous,
             rightButtonStringId = R.string.next,
-            onLeftButtonClicked = onPrevButtonClicked,
-            onRightButtonClicked = onNextButtonClicked
+            onLeftButtonClicked = { onPrevButtonClicked(AddPetScreenStage.General) },
+            onRightButtonClicked = { onNextButtonClicked(AddPetScreenStage.Final) }
         )
     }
 }
@@ -258,7 +342,7 @@ fun DimensionsPetForm(
 fun AdditionalInfoPetForm(
     descriptionTextFieldValue: String,
     onDescriptionTextFieldValueChanged: (String) -> Unit,
-    onPrevButtonClicked: () -> Unit,
+    onPrevButtonClicked: (stage: AddPetScreenStage) -> Unit,
     onDoneButtonClicked: () -> Unit
 ) {
     Column(
@@ -282,7 +366,7 @@ fun AdditionalInfoPetForm(
         PetFormsBottomNavButtons(
             leftButtonStringId = R.string.previous,
             rightButtonStringId = R.string.done,
-            onLeftButtonClicked = onPrevButtonClicked,
+            onLeftButtonClicked = { onPrevButtonClicked(AddPetScreenStage.Dimensions) },
             onRightButtonClicked = onDoneButtonClicked
         )
     }
@@ -321,7 +405,7 @@ fun GeneralPetFormPrev() {
         Spacer(modifier = Modifier.padding(20.dp))
         GeneralPetForm(
             nameFieldValue = value.value,
-            onNameFiledValueChanged = { value.value = it },
+            onNameFieldValueChanged = { value.value = it },
             onNameFieldCancelClicked = { value.value = "" },
             datePickerTextFieldValue = "",
             onDatePickerTextFieldValueChanged = { /*TODO*/ },
@@ -361,7 +445,7 @@ fun GeneralPetFormPrev() {
 fun DimensionsPetFormPrev() {
     val weightValue = remember { mutableStateOf("") }
     val heightValue = remember { mutableStateOf("") }
-    val widthValue = remember { mutableStateOf("") }
+    val lengthValue = remember { mutableStateOf("") }
     val circuitValue = remember { mutableStateOf("") }
 
     Column(
@@ -387,10 +471,10 @@ fun DimensionsPetFormPrev() {
             onHeightFieldValueChanged = { heightValue.value = it },
             onHeightFieldCancelClicked = { heightValue.value = "" },
             onHeightFieldFocusCleared = { /*TODO*/ },
-            widthFieldValue = widthValue.value,
-            onWidthFieldValueChanged = { widthValue.value = it },
-            onWidthFieldCancelClicked = { widthValue.value = "" },
-            onWidthFieldFocusCleared = { /*TODO*/ },
+            lengthFieldValue = lengthValue.value,
+            onLengthFieldValueChanged = { lengthValue.value = it },
+            onLengthFieldCancelClicked = { lengthValue.value = "" },
+            onLengthFieldFocusCleared = { /*TODO*/ },
             circuitFieldValue = circuitValue.value,
             onCircuitFieldValueChanged = { circuitValue.value = it },
             onCircuitFieldCancelClicked = { circuitValue.value = "" },
