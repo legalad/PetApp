@@ -2,11 +2,16 @@ package com.example.petapp.ui.components.forms
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.platform.LocalFocusManager
@@ -17,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.petapp.R
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OutlinedTextFieldWithLeadingIcon(
     @StringRes fieldLabel: Int,
@@ -26,7 +32,12 @@ fun OutlinedTextFieldWithLeadingIcon(
     onValueChanged: (String) -> Unit,
     onCancelClicked: () -> Unit,
     modifier: Modifier = Modifier,
-    onFocusClear: () -> Unit = {},
+    enabled: Boolean = true,
+    isError: Boolean = false,
+    colors: TextFieldColors = TextFieldDefaults.outlinedTextFieldColors(),
+    @StringRes supportingText:  Int = R.string.blank,
+    onFocusClear: () -> Unit = { },
+    onTextFieldClicked: () -> Unit = { },
     hideKeyboard: Boolean = false,
     focusManager: FocusManager = LocalFocusManager.current,
     keyboardOptions: KeyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
@@ -34,38 +45,62 @@ fun OutlinedTextFieldWithLeadingIcon(
         focusManager.clearFocus()
     })
 ) {
-    /*var text by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue("example", TextRange(0, 7)))
-    }*/
-    OutlinedTextField(
-        value = fieldValue,
-        label = { Text(text = stringResource(id = fieldLabel)) },
-        onValueChange = onValueChanged,
-        placeholder = { Text(text = stringResource(id = fieldPlaceholder)) },
-        leadingIcon = {
+
+    val interactionSource = remember { MutableInteractionSource() }
+    val isFocused = interactionSource.collectIsFocusedAsState()
+    var inputChanged = remember { mutableStateOf(false) }
+
+    Column (modifier = modifier){
+        OutlinedTextField(
+            value = fieldValue,
+            label = { Text(text = stringResource(id = fieldLabel)) },
+            onValueChange = {
+                onValueChanged(it)
+                inputChanged.value = true
+            },
+            placeholder = { Text(text = stringResource(id = fieldPlaceholder)) },
+            leadingIcon = {
                 Icon(
-                    painter =  painterResource(id = leadingIcon),
+                    painter = painterResource(id = leadingIcon),
                     contentDescription = null
                 )
-        },
-        trailingIcon = {
-            if (fieldValue.isNotBlank()) IconButton(onClick = onCancelClicked) {
-                Icon(
-                    painter = painterResource(id = R.drawable.round_cancel_24),
-                    contentDescription = stringResource(
-                        R.string.cancel
+            },
+            trailingIcon = {
+                if (fieldValue.isNotBlank() && isFocused.value) IconButton(onClick = onCancelClicked) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.round_cancel_24),
+                        contentDescription = stringResource(
+                            R.string.cancel
+                        )
                     )
-                )
-            }
-        },
-        singleLine = true,
-        keyboardOptions = keyboardOptions,
-        keyboardActions = keyboardActions,
-        modifier = modifier
-    )
-    if (hideKeyboard) {
-        focusManager.clearFocus()
-        onFocusClear()
+                }
+            },
+            singleLine = true,
+            enabled = enabled,
+            colors = colors,
+            isError = (isError && !isFocused.value /*&& inputChanged.value*/),
+            supportingText = {
+                if (isError && !isFocused.value /*&& inputChanged.value*/) {
+                    Text(
+                        text = stringResource(
+                            id = supportingText
+                        )
+                    )
+                }
+            },
+            keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions,
+            interactionSource = interactionSource,
+            modifier = Modifier.clickable(
+                interactionSource = interactionSource,
+                onClick = onTextFieldClicked,
+                indication = null
+            )
+        )
+        if (hideKeyboard) {
+            focusManager.clearFocus()
+            onFocusClear()
+        }
     }
 }
 
@@ -99,7 +134,8 @@ fun OutlinedTextFieldWithLeadingIcon() {
             fieldValue = "",
             leadingIcon = R.drawable.baseline_pets_24,
             onValueChanged = {},
-            onCancelClicked = {})
+            onCancelClicked = {},
+            supportingText = R.string.blank)
     }
 }
 

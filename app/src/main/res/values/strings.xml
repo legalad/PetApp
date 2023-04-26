@@ -37,4 +37,8 @@
     <string name="pet_description_label">Description</string>
     <string name="pet_description_placeholder">Write everything you want about your pet!</string>
     <string name="done">Done</string>
+    <string name="pet_form_general_name_error_message">Pet name can not be empty</string>
+    <string name="blank" />
+    <string name="pet_form_name_supporting_text">Name should consist of at least one letter</string>
+    <string name="pet_form_species_error_message">Species selection is nessesary</string>
 </resources>

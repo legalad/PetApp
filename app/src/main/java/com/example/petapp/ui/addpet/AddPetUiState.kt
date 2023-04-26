@@ -4,6 +4,7 @@ import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
+import com.example.petapp.R
 import java.text.DateFormat
 import java.util.Calendar
 
@@ -37,7 +38,27 @@ sealed interface AddPetUiState {
         val lengthFieldValue: String = "",
         val circuitFieldValue: String = "",
         val descriptionFieldValue: String = "",
-        val screenStage: AddPetScreenStage = AddPetScreenStage.General
+        val screenStage: AddPetScreenStage = AddPetScreenStage.General,
+        val hideKeyboard: Boolean = false,
+        val isNameValid: Boolean = true,
+        val isNameChanged: Boolean = false,
+        val isNameInputChanged: Boolean = false,
+        val nameErrorMessage: Int = R.string.blank,
+        val isBirthDateValid: Boolean = false,
+        val birtDateErrorMessage: Int = R.string.blank,
+        val isSpeciesValid: Boolean = false,
+        val speciesErrorMessage: Int = R.string.blank,
+        val isBreedValid: Boolean = false,
+        val breedErrorMessage: Int = R.string.blank,
+        val isWeightValid: Boolean = false,
+        val weightErrorMessage: Int = R.string.blank,
+        val isHeightValid: Boolean = false,
+        val heightErrorMessage: Int = R.string.blank,
+        val isLengthValid: Boolean = false,
+        val lengthErrorMessage: Int = R.string.blank,
+        val isCircuitValid: Boolean = false,
+        val circuitErrorMessage: Int = R.string.blank
+
     ) : AddPetUiState
     object Loading : AddPetUiState
     data class Error (val errorMessage: String) : AddPetUiState

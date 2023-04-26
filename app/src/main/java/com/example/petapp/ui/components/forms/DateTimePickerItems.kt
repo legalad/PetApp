@@ -3,11 +3,19 @@ package com.example.petapp.ui.components.forms
 import android.annotation.SuppressLint
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.petapp.R
 import java.util.*
@@ -18,20 +26,44 @@ import java.util.*
 fun DatePicker(
     @StringRes label: Int,
     value: String,
-    onValueChange: () -> Unit,
+    onValueChange: (String) -> Unit,
     onTextFieldClicked: () -> Unit,
     openDialog: Boolean,
     datePickerState: DatePickerState,
     confirmEnabled: Boolean,
     onDismissRequest: () -> Unit,
     onConfirmedButtonClicked: () -> Unit,
-    onDismissButtonClicked: () -> Unit
+    onDismissButtonClicked: () -> Unit,
+    modifier: Modifier = Modifier,
+    isError: Boolean = false,
+    @StringRes supportingText: Int = R.string.blank
+
 ) {
-    DatePickerOutlinedTextField(
+    /*DatePickerOutlinedTextField(
         label = label,
         value = value,
         onValueChange = onValueChange,
-        onTextFieldClicked = onTextFieldClicked
+        onTextFieldClicked = onTextFieldClicked,
+        modifier = modifier
+    )*/
+    OutlinedTextFieldWithLeadingIcon(
+        fieldLabel = label,
+        fieldPlaceholder = R.string.blank,
+        leadingIcon = R.drawable.baseline_calendar_month_24,
+        fieldValue = value,
+        onValueChanged = onValueChange,
+        onCancelClicked = onTextFieldClicked,
+        supportingText = supportingText,
+        onTextFieldClicked = onTextFieldClicked,
+        enabled = false,
+        isError = isError,
+        colors = TextFieldDefaults.outlinedTextFieldColors(
+            disabledBorderColor = MaterialTheme.colorScheme.outline,
+            disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+        ),
+        modifier = modifier
     )
     if (openDialog) DatePickerDialogItem(
         openDialog = openDialog,
@@ -48,27 +80,44 @@ fun DatePicker(
 fun DatePickerOutlinedTextField(
     @StringRes label: Int,
     value: String,
-    onValueChange: () -> Unit,
-    onTextFieldClicked: () -> Unit
+    onValueChange: (value: String) -> Unit,
+    onTextFieldClicked: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = false,
+    focusManager: FocusManager = LocalFocusManager.current,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(imeAction = ImeAction.Next, keyboardType = KeyboardType.Number),
+    keyboardActions: KeyboardActions = KeyboardActions(onNext = {
+        focusManager.clearFocus()
+    })
 ) {
-    OutlinedTextField(
-        label = { Text(text = "Birth date") },
-        value = value,
-        onValueChange = { onValueChange },
-        leadingIcon = {
-            Icon(
-                painter = painterResource(id = R.drawable.baseline_calendar_month_24),
-                contentDescription = null
+    val interactionSource = remember { MutableInteractionSource() }
+    Column (modifier = modifier){
+        OutlinedTextField(
+            label = { Text(text = "Birth date") },
+            value = value,
+            onValueChange = { onValueChange },
+            leadingIcon = {
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_calendar_month_24),
+                    contentDescription = null
+                )
+            },
+            enabled = enabled,
+            modifier = Modifier.clickable(
+                interactionSource = interactionSource,
+                onClick = onTextFieldClicked,
+                indication = null
+            ),
+            keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions,
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                disabledBorderColor = MaterialTheme.colorScheme.outline,
+                disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
             )
-        },
-        enabled = false,
-        modifier = Modifier.clickable(onClick = onTextFieldClicked),
-        colors = TextFieldDefaults.outlinedTextFieldColors(
-            disabledBorderColor = MaterialTheme.colorScheme.outline,
-            disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant)
-    )
+        )
+    }
 }
 
 //sprawdzic czy tu state powinien byc w sumie

@@ -1,6 +1,7 @@
 package com.example.petapp.ui.components.forms
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -16,29 +17,33 @@ fun ExposedDropdownMenu(
     options: List<String>,
     expanded: Boolean,
     selectedOption: String,
-    onExpandedChange: (Boolean) -> Unit,
+    onExpandedChange: () -> Unit,
     onDropdownMenuItemClicked: (String) -> Unit,
     onDismissRequest: () -> Unit,
     enabled: Boolean = true,
     readOnly: Boolean = true,
-    textFieldOnValueChanged: (String) -> Unit = {}
+    textFieldOnValueChanged: (String) -> Unit = {},
+    modifier: Modifier = Modifier
 ) {
+
     ExposedDropdownMenuBox(
         expanded = expanded,
-        onExpandedChange = { onExpandedChange(it) }
+        onExpandedChange = { onExpandedChange() }
     ) {
-        OutlinedTextField(
-            label = { Text(text = stringResource(id = label)) },
-            value = selectedOption,
-            onValueChange = { textFieldOnValueChanged(it) },
-            enabled = enabled,
-            modifier = Modifier.menuAnchor(),
-            readOnly = readOnly,
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            colors = ExposedDropdownMenuDefaults.textFieldColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            ),
-        )
+        Column (modifier = modifier) {
+            OutlinedTextField(
+                label = { Text(text = stringResource(id = label)) },
+                value = selectedOption,
+                onValueChange = { textFieldOnValueChanged(it) },
+                enabled = enabled,
+                modifier = Modifier.menuAnchor(),
+                readOnly = readOnly,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                colors = ExposedDropdownMenuDefaults.textFieldColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+            )
+        }
         ExposedDropdownMenu(
             expanded = expanded,
             onDismissRequest = onDismissRequest

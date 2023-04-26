@@ -2,6 +2,8 @@ package com.example.petapp.ui.addpet
 
 import android.annotation.SuppressLint
 import androidx.annotation.StringRes
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
@@ -12,6 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.petapp.R
 import com.example.petapp.ui.components.ErrorScreen
@@ -34,11 +37,26 @@ fun AddPetScreen(
 @Composable
 fun AddPetResultScreen(viewModel: AddPetViewModel) {
     val uiState = viewModel.successUiState.collectAsState().value
+    val interactionSource = remember { MutableInteractionSource() }
+    val contentModifier: Modifier = Modifier
+        .height(340.dp)
+        .wrapContentHeight(Alignment.CenterVertically)
+    val textFieldHeight: Dp = 90.dp
+
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Top,
+        modifier = Modifier
             .fillMaxSize()
-            .padding(60.dp)
+            .clickable(
+                onClick = {
+                    viewModel.hideKeyboard()
+                },
+                interactionSource = interactionSource,
+                indication = null
+            )
     ) {
+        Spacer(modifier = Modifier.padding(30.dp))
         Text(
             text = stringResource(R.string.pet_form_headline),
             style = MaterialTheme.typography.headlineMedium
@@ -76,31 +94,46 @@ fun AddPetResultScreen(viewModel: AddPetViewModel) {
             breedMenuOnDropdownMenuItemClicked = viewModel::breedMenuOnDropdownMenuItemClicked,
             breedMenuOnDismissRequest = viewModel::breedMenuOnDismissRequest,
             onCancelButtonClicked = { /*TODO*/ },
-            onNextButtonClicked = viewModel::onNavigateButtonClicked)
+            onNextButtonClicked = viewModel::onGeneralDoneButtonClicked,
+            isKeyboardHide = uiState.hideKeyboard,
+            onFocusCleared = viewModel::onFocusCleared,
+            isNameValid = !uiState.isNameValid,
+            nameErrorMessage = uiState.nameErrorMessage,
+            modifier = contentModifier,
+            textFieldHeight = textFieldHeight)
         is AddPetScreenStage.Dimensions -> DimensionsPetForm(
             weightFieldValue = uiState.weightFieldValue,
             onWeightFieldValueChanged = viewModel::onWeightFieldValueChanged,
             onWeightFieldCancelClicked = viewModel::onWeightFieldCancelClicked,
-            onWeightFieldFocusCleared = viewModel::onWeightFieldFocusCleared,
             heightFieldValue = uiState.heightFieldValue,
             onHeightFieldValueChanged = viewModel::onHeightFieldValueChanged,
             onHeightFieldCancelClicked = viewModel::onHeightFieldCancelClicked,
-            onHeightFieldFocusCleared = viewModel::onHeightFieldFocusCleared,
             lengthFieldValue = uiState.lengthFieldValue,
             onLengthFieldValueChanged = viewModel::onLengthFieldValueChanged,
             onLengthFieldCancelClicked = viewModel::onLengthFieldCancelClicked,
-            onLengthFieldFocusCleared = viewModel::onLengthFieldFocusCleared,
             circuitFieldValue = uiState.circuitFieldValue,
             onCircuitFieldValueChanged = viewModel::onCircuitFieldValueChanged,
             onCircuitFieldCancelClicked = viewModel::onCircuitFieldCancelClicked,
-            onCircuitFieldFocusCleared = viewModel::onCircuitFieldFocusCleared,
             onPrevButtonClicked = viewModel::onNavigateButtonClicked,
-            onNextButtonClicked = viewModel::onNavigateButtonClicked)
+            onNextButtonClicked = viewModel::onNavigateButtonClicked,
+            isKeyboardHide = uiState.hideKeyboard,
+            onFocusCleared = viewModel::onFocusCleared,
+            isWeightValid = uiState.isWeightValid,
+            isHeightValid = uiState.isHeightValid,
+            isLengthValid = uiState.isLengthValid,
+            isCircuitValid = uiState.isCircuitValid,
+            weightErrorMessage = uiState.weightErrorMessage,
+            heightErrorMessage = uiState.heightErrorMessage,
+            lengthErrorMessage = uiState.lengthErrorMessage,
+            circuitErrorMessage = uiState.circuitErrorMessage,
+            modifier = contentModifier,
+            textFieldHeight = textFieldHeight)
         is AddPetScreenStage.Final -> AdditionalInfoPetForm(
             descriptionTextFieldValue = uiState.descriptionFieldValue,
             onDescriptionTextFieldValueChanged = viewModel::onDescriptionTextFieldValueChanged,
             onPrevButtonClicked = viewModel::onNavigateButtonClicked,
-            onDoneButtonClicked =viewModel::onDoneButtonClicked )
+            onDoneButtonClicked = viewModel::onDoneButtonClicked,
+            modifier = contentModifier)
     }
     }
 }
@@ -131,7 +164,7 @@ fun GeneralPetForm(
     onNameFieldValueChanged: (String) -> Unit,
     onNameFieldCancelClicked: () -> Unit,
     datePickerTextFieldValue: String,
-    onDatePickerTextFieldValueChanged: () -> Unit,
+    onDatePickerTextFieldValueChanged: (String) -> Unit,
     onDatePickerTextFieldClicked: () -> Unit,
     datePickerOpenDialog: Boolean,
     datePickerState: DatePickerState,
@@ -142,18 +175,24 @@ fun GeneralPetForm(
     speciesOptions: List<String>,
     speciesMenuExpanded: Boolean,
     speciesMenuSelectedOption: String,
-    speciesMenuOnExpandedChanged: (Boolean) -> Unit,
+    speciesMenuOnExpandedChanged: () -> Unit,
     speciesMenuOnDropdownMenuItemClicked: (String) -> Unit,
     speciesMenuOnDismissRequest: () -> Unit,
     breedOptions: List<String>,
     breedMenuExpanded: Boolean,
     breedMenuEnabled: Boolean,
     breedMenuSelectedOption: String,
-    breedMenuOnExpandedChanged: (Boolean) -> Unit,
+    breedMenuOnExpandedChanged: () -> Unit,
     breedMenuOnDropdownMenuItemClicked: (String) -> Unit,
     breedMenuOnDismissRequest: () -> Unit,
     onCancelButtonClicked: () -> Unit,
-    onNextButtonClicked: (stage: AddPetScreenStage) -> Unit
+    onNextButtonClicked: () -> Unit,
+    isKeyboardHide: Boolean,
+    onFocusCleared: () -> Unit,
+    isNameValid: Boolean,
+    @StringRes nameErrorMessage: Int,
+    textFieldHeight: Dp,
+    modifier: Modifier = Modifier,
 
 ) {
     Column(
@@ -162,9 +201,7 @@ fun GeneralPetForm(
     ) {
         PetFormsSubHeadline(headlineStringId = R.string.pet_form_subheadline_general)
         Column(
-            modifier = Modifier
-                .height(300.dp)
-                .wrapContentHeight(Alignment.CenterVertically)
+            modifier = modifier
         ) {
             OutlinedTextFieldWithLeadingIcon(
                 fieldLabel = R.string.pet_name,
@@ -172,7 +209,12 @@ fun GeneralPetForm(
                 leadingIcon = R.drawable.baseline_pets_24,
                 fieldValue = nameFieldValue,
                 onValueChanged = onNameFieldValueChanged,
-                onCancelClicked = onNameFieldCancelClicked
+                onCancelClicked = onNameFieldCancelClicked,
+                hideKeyboard = isKeyboardHide,
+                onFocusClear = onFocusCleared,
+                isError = isNameValid,
+                supportingText = nameErrorMessage,
+                modifier = Modifier.height(textFieldHeight)
             )
             DatePicker(
                 label = R.string.birth_date,
@@ -184,7 +226,8 @@ fun GeneralPetForm(
                 confirmEnabled = datePickerConfirmEnabled,
                 onDismissRequest = datePickerOnDismissRequest,
                 onConfirmedButtonClicked = datePickerOnConfirmedButtonClicked,
-                onDismissButtonClicked = datePickerOnDismissedButtonClicked
+                onDismissButtonClicked = datePickerOnDismissedButtonClicked,
+                modifier = Modifier.height(textFieldHeight)
             )
             ExposedDropdownMenu(
                 label = R.string.pet_species,
@@ -193,7 +236,8 @@ fun GeneralPetForm(
                 selectedOption = speciesMenuSelectedOption,
                 onExpandedChange = speciesMenuOnExpandedChanged,
                 onDropdownMenuItemClicked = speciesMenuOnDropdownMenuItemClicked,
-                onDismissRequest = speciesMenuOnDismissRequest
+                onDismissRequest = speciesMenuOnDismissRequest,
+                modifier = Modifier.height(textFieldHeight)
             )
             ExposedDropdownMenu(
                 label = R.string.pet_breed,
@@ -203,14 +247,15 @@ fun GeneralPetForm(
                 selectedOption = breedMenuSelectedOption,
                 onExpandedChange = breedMenuOnExpandedChanged,
                 onDropdownMenuItemClicked = breedMenuOnDropdownMenuItemClicked,
-                onDismissRequest = breedMenuOnDismissRequest
+                onDismissRequest = breedMenuOnDismissRequest,
+                modifier = Modifier.height(textFieldHeight)
             )
         }
         PetFormsBottomNavButtons(
             leftButtonStringId = R.string.cancel,
             rightButtonStringId = R.string.next,
             onLeftButtonClicked = onCancelButtonClicked,
-            onRightButtonClicked = { onNextButtonClicked(AddPetScreenStage.Dimensions) }
+            onRightButtonClicked = { onNextButtonClicked() }
         )
     }
 }
@@ -250,31 +295,38 @@ fun DimensionsPetForm(
     weightFieldValue: String,
     onWeightFieldValueChanged: (String) -> Unit,
     onWeightFieldCancelClicked: () -> Unit,
-    onWeightFieldFocusCleared: () -> Unit,
     heightFieldValue: String,
     onHeightFieldValueChanged: (String) -> Unit,
     onHeightFieldCancelClicked: () -> Unit,
-    onHeightFieldFocusCleared: () -> Unit,
     lengthFieldValue: String,
     onLengthFieldValueChanged: (String) -> Unit,
     onLengthFieldCancelClicked: () -> Unit,
-    onLengthFieldFocusCleared: () -> Unit,
     circuitFieldValue: String,
     onCircuitFieldValueChanged: (String) -> Unit,
     onCircuitFieldCancelClicked: () -> Unit,
-    onCircuitFieldFocusCleared: () -> Unit,
     onPrevButtonClicked: (stage: AddPetScreenStage) -> Unit,
-    onNextButtonClicked: (stage: AddPetScreenStage) -> Unit
-) {
+    onNextButtonClicked: (stage: AddPetScreenStage) -> Unit,
+    isKeyboardHide: Boolean,
+    onFocusCleared: () -> Unit,
+    isWeightValid: Boolean,
+    isHeightValid: Boolean,
+    isLengthValid: Boolean,
+    isCircuitValid: Boolean,
+    @StringRes weightErrorMessage: Int,
+    @StringRes heightErrorMessage: Int,
+    @StringRes lengthErrorMessage: Int,
+    @StringRes circuitErrorMessage: Int,
+    textFieldHeight: Dp,
+    modifier: Modifier = Modifier
+
+    ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.width(IntrinsicSize.Max)
     ) {
         PetFormsSubHeadline(headlineStringId = R.string.pet_form_subheadline_dimensions)
         Column(
-            modifier = Modifier
-                .height(300.dp)
-                .wrapContentHeight(Alignment.CenterVertically)
+            modifier = modifier
         ) {
             OutlinedTextFieldWithLeadingIcon(
                 fieldLabel = R.string.pet_weight,
@@ -283,11 +335,15 @@ fun DimensionsPetForm(
                 fieldValue = weightFieldValue,
                 onValueChanged = onWeightFieldValueChanged,
                 onCancelClicked = onWeightFieldCancelClicked,
-                onFocusClear = onWeightFieldFocusCleared,
+                onFocusClear = onFocusCleared,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next
-                )
+                ),
+                hideKeyboard = isKeyboardHide,
+                isError = isWeightValid,
+                supportingText = weightErrorMessage,
+                modifier = Modifier.height(textFieldHeight)
             )
             OutlinedTextFieldWithLeadingIcon(
                 fieldLabel = R.string.pet_height,
@@ -296,11 +352,15 @@ fun DimensionsPetForm(
                 fieldValue = heightFieldValue,
                 onValueChanged = onHeightFieldValueChanged,
                 onCancelClicked = onHeightFieldCancelClicked,
-                onFocusClear = onHeightFieldFocusCleared,
+                onFocusClear = onFocusCleared,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next
-                )
+                ),
+                hideKeyboard = isKeyboardHide,
+                isError = isHeightValid,
+                supportingText = heightErrorMessage,
+                modifier = Modifier.height(textFieldHeight)
             )
             OutlinedTextFieldWithLeadingIcon(
                 fieldLabel = R.string.pet_width,
@@ -309,11 +369,15 @@ fun DimensionsPetForm(
                 fieldValue = lengthFieldValue,
                 onValueChanged = onLengthFieldValueChanged,
                 onCancelClicked = onLengthFieldCancelClicked,
-                onFocusClear = onLengthFieldFocusCleared,
+                onFocusClear = onFocusCleared,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next
-                )
+                ),
+                hideKeyboard = isKeyboardHide,
+                isError = isLengthValid,
+                supportingText = lengthErrorMessage,
+                modifier = Modifier.height(textFieldHeight)
             )
             OutlinedTextFieldWithLeadingIcon(
                 fieldLabel = R.string.pet_circuit,
@@ -322,11 +386,15 @@ fun DimensionsPetForm(
                 fieldValue = circuitFieldValue,
                 onValueChanged = onCircuitFieldValueChanged,
                 onCancelClicked = onCircuitFieldCancelClicked,
-                onFocusClear = onCircuitFieldFocusCleared,
+                onFocusClear = onFocusCleared,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Done
-                )
+                ),
+                hideKeyboard = isKeyboardHide,
+                isError = isCircuitValid,
+                supportingText = circuitErrorMessage,
+                modifier = Modifier.height(textFieldHeight)
             )
         }
         PetFormsBottomNavButtons(
@@ -343,7 +411,8 @@ fun AdditionalInfoPetForm(
     descriptionTextFieldValue: String,
     onDescriptionTextFieldValueChanged: (String) -> Unit,
     onPrevButtonClicked: (stage: AddPetScreenStage) -> Unit,
-    onDoneButtonClicked: () -> Unit
+    onDoneButtonClicked: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -351,9 +420,7 @@ fun AdditionalInfoPetForm(
     ) {
         PetFormsSubHeadline(headlineStringId = R.string.pet_form_subheadline_extras)
         Column(
-            modifier = Modifier
-                .height(300.dp)
-                .wrapContentHeight(Alignment.CenterVertically)
+            modifier = modifier
         ) {
             OutlinedTextField(
                 value = descriptionTextFieldValue,
@@ -436,7 +503,12 @@ fun GeneralPetFormPrev() {
             },
             breedMenuOnDismissRequest = { breedMenuExpanded = false },
             onCancelButtonClicked = { /*TODO*/ },
-            onNextButtonClicked = { /*TODO*/ })
+            onNextButtonClicked = { /*TODO*/ },
+            isKeyboardHide = false,
+            onFocusCleared = {},
+            isNameValid = false,
+            nameErrorMessage = R.string.blank,
+            textFieldHeight = 90.dp)
     }
 }
 
@@ -466,21 +538,28 @@ fun DimensionsPetFormPrev() {
             weightFieldValue = weightValue.value,
             onWeightFieldValueChanged = { weightValue.value = it },
             onWeightFieldCancelClicked = { weightValue.value = "" },
-            onWeightFieldFocusCleared = { /*TODO*/ },
             heightFieldValue = heightValue.value,
             onHeightFieldValueChanged = { heightValue.value = it },
             onHeightFieldCancelClicked = { heightValue.value = "" },
-            onHeightFieldFocusCleared = { /*TODO*/ },
             lengthFieldValue = lengthValue.value,
             onLengthFieldValueChanged = { lengthValue.value = it },
             onLengthFieldCancelClicked = { lengthValue.value = "" },
-            onLengthFieldFocusCleared = { /*TODO*/ },
             circuitFieldValue = circuitValue.value,
             onCircuitFieldValueChanged = { circuitValue.value = it },
             onCircuitFieldCancelClicked = { circuitValue.value = "" },
-            onCircuitFieldFocusCleared = {/*TODO*/ },
             onNextButtonClicked = {/*TODO*/},
-            onPrevButtonClicked = { /*TODO*/ })
+            onPrevButtonClicked = { /*TODO*/ },
+            isKeyboardHide = false,
+            onFocusCleared = {},
+            isWeightValid = false,
+            isHeightValid = false,
+            isLengthValid = false,
+            isCircuitValid = false,
+            weightErrorMessage = R.string.blank,
+            heightErrorMessage = R.string.blank,
+            lengthErrorMessage = R.string.blank,
+            circuitErrorMessage = R.string.blank,
+            textFieldHeight = 90.dp)
     }
 }
 
