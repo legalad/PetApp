@@ -7,6 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.android.datastore.UserPreferences
 import com.example.petapp.R
 
 
@@ -20,10 +21,10 @@ fun ExposedDropdownMenu(
     onExpandedChange: () -> Unit,
     onDropdownMenuItemClicked: (String) -> Unit,
     onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
     enabled: Boolean = true,
     readOnly: Boolean = true,
-    textFieldOnValueChanged: (String) -> Unit = {},
-    modifier: Modifier = Modifier
+    textFieldOnValueChanged: (String) -> Unit = {}
 ) {
 
     ExposedDropdownMenuBox(
@@ -52,6 +53,111 @@ fun ExposedDropdownMenu(
                 DropdownMenuItem(
                     text = { Text(item) },
                     onClick = {onDropdownMenuItemClicked(item)},
+                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                )
+            }
+        }
+    }
+}
+
+//TODO: hoist expanded state when combine flows in settings view model
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SettingsExposedDropdownMenu(
+    @StringRes label: Int,
+    expanded: Boolean,
+    selectedOption: UserPreferences.Language,
+    onExpandedChange: () -> Unit,
+    onDropdownMenuItemClicked: (UserPreferences.Language) -> Unit,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    readOnly: Boolean = true,
+    textFieldOnValueChanged: (String) -> Unit = {}
+) {
+    val options = UserPreferences.Language.values()
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
+        Column (modifier = modifier) {
+            OutlinedTextField(
+                label = { Text(text = stringResource(id = label)) },
+                value = selectedOption.name.lowercase(),
+                onValueChange = { textFieldOnValueChanged(it) },
+                enabled = enabled,
+                modifier = Modifier.menuAnchor(),
+                readOnly = readOnly,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                colors = ExposedDropdownMenuDefaults.textFieldColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+            )
+        }
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            options.forEach { item ->
+                DropdownMenuItem(
+                    text = { Text(item.name.lowercase()) },
+                    onClick = {onDropdownMenuItemClicked(item)
+                              expanded = false
+                              },
+                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SettingsExposedDropdownMenu(
+    @StringRes label: Int,
+    expanded: Boolean,
+    selectedOption: UserPreferences.Unit,
+    onExpandedChange: () -> Unit,
+    onDropdownMenuItemClicked: (UserPreferences.Unit) -> Unit,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    readOnly: Boolean = true,
+    textFieldOnValueChanged: (String) -> Unit = {}
+) {
+    val options = UserPreferences.Unit.values()
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
+        Column (modifier = modifier) {
+            OutlinedTextField(
+                label = { Text(text = stringResource(id = label)) },
+                value = selectedOption.name.lowercase(),
+                onValueChange = { textFieldOnValueChanged(it) },
+                enabled = enabled,
+                modifier = Modifier.menuAnchor(),
+                readOnly = readOnly,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                colors = ExposedDropdownMenuDefaults.textFieldColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+            )
+        }
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            options.forEach { item ->
+                DropdownMenuItem(
+                    text = { Text(item.name.lowercase()) },
+                    onClick = {onDropdownMenuItemClicked(item)
+                        expanded = false
+                    },
                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                 )
             }

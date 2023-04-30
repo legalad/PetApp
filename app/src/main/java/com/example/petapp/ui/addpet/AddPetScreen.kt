@@ -100,7 +100,9 @@ fun AddPetResultScreen(viewModel: AddPetViewModel) {
             isNameValid = !uiState.isNameValid,
             nameErrorMessage = uiState.nameErrorMessage,
             modifier = contentModifier,
-            textFieldHeight = textFieldHeight)
+            textFieldHeight = textFieldHeight,
+            isBirthdateValid = !uiState.isBirthDateValid,
+            birthDateErrorMessage = uiState.birtDateErrorMessage)
         is AddPetScreenStage.Dimensions -> DimensionsPetForm(
             weightFieldValue = uiState.weightFieldValue,
             onWeightFieldValueChanged = viewModel::onWeightFieldValueChanged,
@@ -115,13 +117,13 @@ fun AddPetResultScreen(viewModel: AddPetViewModel) {
             onCircuitFieldValueChanged = viewModel::onCircuitFieldValueChanged,
             onCircuitFieldCancelClicked = viewModel::onCircuitFieldCancelClicked,
             onPrevButtonClicked = viewModel::onNavigateButtonClicked,
-            onNextButtonClicked = viewModel::onNavigateButtonClicked,
+            onNextButtonClicked = viewModel::onDimensionsDoneButtonClicked,
             isKeyboardHide = uiState.hideKeyboard,
             onFocusCleared = viewModel::onFocusCleared,
-            isWeightValid = uiState.isWeightValid,
-            isHeightValid = uiState.isHeightValid,
-            isLengthValid = uiState.isLengthValid,
-            isCircuitValid = uiState.isCircuitValid,
+            isWeightValid = !uiState.isWeightValid,
+            isHeightValid = !uiState.isHeightValid,
+            isLengthValid = !uiState.isLengthValid,
+            isCircuitValid = !uiState.isCircuitValid,
             weightErrorMessage = uiState.weightErrorMessage,
             heightErrorMessage = uiState.heightErrorMessage,
             lengthErrorMessage = uiState.lengthErrorMessage,
@@ -191,6 +193,8 @@ fun GeneralPetForm(
     onFocusCleared: () -> Unit,
     isNameValid: Boolean,
     @StringRes nameErrorMessage: Int,
+    isBirthdateValid: Boolean,
+    @StringRes birthDateErrorMessage: Int,
     textFieldHeight: Dp,
     modifier: Modifier = Modifier,
 
@@ -227,6 +231,8 @@ fun GeneralPetForm(
                 onDismissRequest = datePickerOnDismissRequest,
                 onConfirmedButtonClicked = datePickerOnConfirmedButtonClicked,
                 onDismissButtonClicked = datePickerOnDismissedButtonClicked,
+                isError = isBirthdateValid,
+                supportingText = birthDateErrorMessage,
                 modifier = Modifier.height(textFieldHeight)
             )
             ExposedDropdownMenu(
@@ -305,7 +311,7 @@ fun DimensionsPetForm(
     onCircuitFieldValueChanged: (String) -> Unit,
     onCircuitFieldCancelClicked: () -> Unit,
     onPrevButtonClicked: (stage: AddPetScreenStage) -> Unit,
-    onNextButtonClicked: (stage: AddPetScreenStage) -> Unit,
+    onNextButtonClicked: () -> Unit,
     isKeyboardHide: Boolean,
     onFocusCleared: () -> Unit,
     isWeightValid: Boolean,
@@ -401,7 +407,7 @@ fun DimensionsPetForm(
             leftButtonStringId = R.string.previous,
             rightButtonStringId = R.string.next,
             onLeftButtonClicked = { onPrevButtonClicked(AddPetScreenStage.General) },
-            onRightButtonClicked = { onNextButtonClicked(AddPetScreenStage.Final) }
+            onRightButtonClicked = { onNextButtonClicked() }
         )
     }
 }
@@ -508,7 +514,9 @@ fun GeneralPetFormPrev() {
             onFocusCleared = {},
             isNameValid = false,
             nameErrorMessage = R.string.blank,
-            textFieldHeight = 90.dp)
+            textFieldHeight = 90.dp,
+            isBirthdateValid = true,
+            birthDateErrorMessage = R.string.blank)
     }
 }
 

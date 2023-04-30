@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+
+
+option java_package = "com.example.android.datastore";
+option java_multiple_files = true;
+
+
+message UserPreferences {
+  Language language = 1;
+  Unit unit = 2;
+
+  enum Unit {
+    METRIC = 0;
+    IMPERIAL = 1;
+  }
+  enum Language {
+    ENGLISH = 0;
+    POLISH = 1;
+    GERMAN = 2;
+  }
+
+}

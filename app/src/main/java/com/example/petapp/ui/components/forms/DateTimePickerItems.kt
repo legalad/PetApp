@@ -57,11 +57,18 @@ fun DatePicker(
         onTextFieldClicked = onTextFieldClicked,
         enabled = false,
         isError = isError,
-        colors = TextFieldDefaults.outlinedTextFieldColors(
+        colors = if (!isError) TextFieldDefaults.outlinedTextFieldColors(
             disabledBorderColor = MaterialTheme.colorScheme.outline,
             disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
             disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            disabledSupportingTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+        ) else TextFieldDefaults.outlinedTextFieldColors(
+            disabledBorderColor = MaterialTheme.colorScheme.error,
+            disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            disabledTextColor = MaterialTheme.colorScheme.error,
+            disabledLabelColor = MaterialTheme.colorScheme.error,
+            disabledSupportingTextColor = MaterialTheme.colorScheme.error
         ),
         modifier = modifier
     )

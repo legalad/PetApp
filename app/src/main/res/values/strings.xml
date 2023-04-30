@@ -41,4 +41,8 @@
     <string name="blank" />
     <string name="pet_form_name_supporting_text">Name should consist of at least one letter</string>
     <string name="pet_form_species_error_message">Species selection is nessesary</string>
+    <string name="pet_form_weight_error_message">Weight can not be empty</string>
+    <string name="pet_form_general_birthdate_error_message">You did not choose birth date</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_unit">Unit</string>
 </resources>

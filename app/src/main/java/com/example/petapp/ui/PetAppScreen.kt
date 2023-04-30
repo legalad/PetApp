@@ -12,6 +12,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.example.petapp.ui.components.PetAppTopAppBar
+import com.example.petapp.ui.navigation.PetAppDestination
 import com.example.petapp.ui.navigation.PetAppNavGraph
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,10 +32,10 @@ fun PetAppScreen() {
                 onDropdownMenuIconClicked = { expanded.value = true },
                 onDismissRequest = { expanded.value = false },
                 onAccountIconClicked = { /*TODO*/ },
-                onSettingsIconClicked = { /*TODO*/ })
+                onSettingsIconClicked = { navController.navigate(PetAppDestination.SETTINGS_ROUTE.name) })
                  },
         content = {innerPadding ->
-            PetAppNavGraph(modifier = Modifier.padding(innerPadding))
+            PetAppNavGraph(navController = navController ,modifier = Modifier.padding(innerPadding))
         }
     )
 }

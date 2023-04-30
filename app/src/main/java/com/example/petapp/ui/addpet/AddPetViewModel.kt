@@ -1,12 +1,12 @@
 package com.example.petapp.ui.addpet
 
-import android.util.Log
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.petapp.R
+import com.example.petapp.model.util.Validators
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -82,7 +82,8 @@ class AddPetViewModel : ViewModel(), AddPetOperations, AddPetDataValidation {
         _successUiState.update {
             it.copy(
                 datePickerTextFieldValue = DateFormat.getDateInstance(DateFormat.SHORT).format(it.datePickerState.selectedDateMillis),
-                datePickerOpenDialog = false)
+                datePickerOpenDialog = false,
+                isBirthDateChanged = true)
         }
         validateBirthDate()
     }
@@ -159,21 +160,27 @@ class AddPetViewModel : ViewModel(), AddPetOperations, AddPetDataValidation {
     fun onGeneralDoneButtonClicked() {
         val uiStateValue = _successUiState.value
 
-        Log.d("WLIDACJA", uiStateValue.isNameValid.toString())
-        Log.d("WLIDACJA", uiStateValue.isBirthDateValid.toString())
-        Log.d("WLIDACJA", uiStateValue.isSpeciesValid.toString())
-
-
         validateName(uiStateValue.nameFieldValue)
         validateBirthDate()
+        //cant validate species is bug in expanded value changed
         validateSpecies()
 
-        Log.d("WLIDACJA", uiStateValue.isNameValid.toString())
-        Log.d("WLIDACJA", uiStateValue.isBirthDateValid.toString())
-        Log.d("WLIDACJA", uiStateValue.isSpeciesValid.toString())
-
-        if(uiStateValue.isNameValid && uiStateValue.isBirthDateValid && uiStateValue.isSpeciesValid && uiStateValue.isNameChanged) {
+        //cant validate species is bug in expanded value changed
+        if(uiStateValue.isNameValid && uiStateValue.isBirthDateValid /*&& uiStateValue.isSpeciesValid*/ && uiStateValue.isNameChanged && uiStateValue.isBirthDateChanged) {
             onNavigateButtonClicked(stage = AddPetScreenStage.Dimensions)
+        }
+    }
+
+    fun onDimensionsDoneButtonClicked() {
+        val uiStateValue = _successUiState.value
+        validateWeight()
+
+        if (uiStateValue.isWeightValid && uiStateValue.isWeightChanged
+            && uiStateValue.isHeightValid
+            && uiStateValue.isLengthValid
+            && uiStateValue.isCircuitValid
+        ) {
+            onNavigateButtonClicked(stage = AddPetScreenStage.Final)
         }
     }
 
@@ -183,8 +190,10 @@ class AddPetViewModel : ViewModel(), AddPetOperations, AddPetDataValidation {
 
     override fun onWeightFieldValueChanged(value: String) {
         _successUiState.update {
-            it.copy(weightFieldValue = value)
+            it.copy(weightFieldValue = Validators.validateNumberToTwoDecimalPlaces(value),
+                    isWeightChanged = true)
         }
+        validateWeight()
     }
 
     override fun onWeightFieldCancelClicked() {
@@ -195,7 +204,7 @@ class AddPetViewModel : ViewModel(), AddPetOperations, AddPetDataValidation {
 
     override fun onHeightFieldValueChanged(value: String) {
         _successUiState.update {
-            it.copy(heightFieldValue = value)
+            it.copy(heightFieldValue = Validators.validateNumberToTwoDecimalPlaces(value))
         }
     }
 
@@ -207,7 +216,7 @@ class AddPetViewModel : ViewModel(), AddPetOperations, AddPetDataValidation {
 
     override fun onLengthFieldValueChanged(value: String) {
         _successUiState.update {
-            it.copy(lengthFieldValue = value)
+            it.copy(lengthFieldValue = Validators.validateNumberToTwoDecimalPlaces(value))
         }
     }
 
@@ -219,7 +228,7 @@ class AddPetViewModel : ViewModel(), AddPetOperations, AddPetDataValidation {
 
     override fun onCircuitFieldValueChanged(value: String) {
         _successUiState.update {
-            it.copy(circuitFieldValue = value)
+            it.copy(circuitFieldValue = Validators.validateNumberToTwoDecimalPlaces(value))
         }
     }
 
@@ -249,7 +258,6 @@ class AddPetViewModel : ViewModel(), AddPetOperations, AddPetDataValidation {
 
     override fun validateName(value: String): Int {
 
-        Log.d("WALIDACJA", value.isNotEmpty().toString())
         return if (value.isNotEmpty()) {
             _successUiState.update {
                 it.copy(isNameValid = true,
@@ -267,9 +275,22 @@ class AddPetViewModel : ViewModel(), AddPetOperations, AddPetDataValidation {
     }
 
     override fun validateBirthDate() {
-        _successUiState.update {
-            it.copy(isBirthDateValid = true)
+
+        //add validation
+
+        if (!_successUiState.value.isBirthDateChanged) {
+            _successUiState.update {
+                it.copy(
+                    birtDateErrorMessage = R.string.pet_form_general_birthdate_error_message,
+                    isBirthDateValid = false)
+            }
+        } else {
+            _successUiState.update {
+                it.copy(isBirthDateValid = true,
+                        birtDateErrorMessage = R.string.blank)
+            }
         }
+
     }
 
     override fun validateSpecies() {
@@ -290,11 +311,25 @@ class AddPetViewModel : ViewModel(), AddPetOperations, AddPetDataValidation {
     }
 
     override fun validateWeight() {
-        TODO("Not yet implemented")
+    val value = _successUiState.value.weightFieldValue
+    if (value.isNotEmpty()) {
+            _successUiState.update {
+                it.copy(isWeightValid = true,
+                    weightErrorMessage = R.string.blank)
+            }
+        } else {
+        _successUiState.update {
+            it.copy(
+                isWeightValid = false,
+                weightErrorMessage = R.string.pet_form_weight_error_message
+            )
+        }
+    }
     }
 
+
     override fun validateHeight() {
-        TODO("Not yet implemented")
+
     }
 
     override fun validateLength() {
