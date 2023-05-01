@@ -60,7 +60,6 @@ fun ExposedDropdownMenu(
     }
 }
 
-//TODO: hoist expanded state when combine flows in settings view model
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsExposedDropdownMenu(
@@ -76,11 +75,10 @@ fun SettingsExposedDropdownMenu(
     textFieldOnValueChanged: (String) -> Unit = {}
 ) {
     val options = UserPreferences.Language.values()
-    var expanded by remember { mutableStateOf(false) }
 
     ExposedDropdownMenuBox(
         expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
+        onExpandedChange = { onExpandedChange() }
     ) {
         Column (modifier = modifier) {
             OutlinedTextField(
@@ -98,13 +96,12 @@ fun SettingsExposedDropdownMenu(
         }
         ExposedDropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { onDismissRequest() }
         ) {
             options.forEach { item ->
                 DropdownMenuItem(
                     text = { Text(item.name.lowercase()) },
                     onClick = {onDropdownMenuItemClicked(item)
-                              expanded = false
                               },
                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                 )
@@ -128,11 +125,11 @@ fun SettingsExposedDropdownMenu(
     textFieldOnValueChanged: (String) -> Unit = {}
 ) {
     val options = UserPreferences.Unit.values()
-    var expanded by remember { mutableStateOf(false) }
+    /*var expanded by remember { mutableStateOf(false) }*/
 
     ExposedDropdownMenuBox(
         expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
+        onExpandedChange = { onExpandedChange() }
     ) {
         Column (modifier = modifier) {
             OutlinedTextField(
@@ -150,13 +147,12 @@ fun SettingsExposedDropdownMenu(
         }
         ExposedDropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { onDismissRequest()}
         ) {
             options.forEach { item ->
                 DropdownMenuItem(
                     text = { Text(item.name.lowercase()) },
                     onClick = {onDropdownMenuItemClicked(item)
-                        expanded = false
                     },
                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                 )

@@ -9,6 +9,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.petapp.ui.addpet.AddPetScreen
 import com.example.petapp.ui.addpet.AddPetViewModel
+import com.example.petapp.ui.dashboard.DashboardScreen
+import com.example.petapp.ui.dashboard.DashboardViewModel
 import com.example.petapp.ui.settings.SettingsScreen
 import com.example.petapp.ui.settings.SettingsViewModel
 
@@ -32,16 +34,21 @@ fun RootNavGraph(
 fun PetAppNavGraph(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
-    startDestination: String = PetAppDestination.PET_MANAGER_ROUTE.toString()
+    startDestination: String = PetAppDestination.DASHBOARD_ROUTE.toString()
 ) {
     NavHost(
         navController = navController, startDestination = startDestination, modifier = modifier) {
         composable(PetAppDestination.PET_MANAGER_ROUTE.name) {
-            AddPetScreen(viewModel = AddPetViewModel(), modifier = Modifier)
+            val addPetViewModel = hiltViewModel<AddPetViewModel>()
+            AddPetScreen(viewModel = addPetViewModel,{navController.navigate(PetAppDestination.DASHBOARD_ROUTE.name)}, modifier = Modifier)
         }
         composable(PetAppDestination.SETTINGS_ROUTE.name) {
             val settingsViewModel = hiltViewModel<SettingsViewModel>()
             SettingsScreen(viewModel = settingsViewModel, modifier = Modifier)
+        }
+        composable(PetAppDestination.DASHBOARD_ROUTE.name) {
+            val dashboardVieModel = hiltViewModel<DashboardViewModel>()
+            DashboardScreen(viewModel = dashboardVieModel, {navController.navigate(PetAppDestination.PET_MANAGER_ROUTE.name)}, modifier = Modifier)
         }
     }
 }

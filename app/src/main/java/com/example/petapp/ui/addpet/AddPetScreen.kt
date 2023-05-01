@@ -24,18 +24,19 @@ import com.example.petapp.ui.components.forms.*
 @Composable
 fun AddPetScreen(
     viewModel: AddPetViewModel,
+    navigateToDashboard: () -> Unit,
     modifier: Modifier
 ) {
     when (viewModel.uiState) {
         is AddPetUiState.Error -> ErrorScreen(message = "Can't add new pet")
         is AddPetUiState.Loading -> LoadingScreen()
-        is AddPetUiState.Success -> AddPetResultScreen(viewModel)
+        is AddPetUiState.Success -> AddPetResultScreen(viewModel, navigateToDashboard)
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddPetResultScreen(viewModel: AddPetViewModel) {
+fun AddPetResultScreen(viewModel: AddPetViewModel, navigateToDashboard: () -> Unit) {
     val uiState = viewModel.successUiState.collectAsState().value
     val interactionSource = remember { MutableInteractionSource() }
     val contentModifier: Modifier = Modifier
@@ -93,7 +94,7 @@ fun AddPetResultScreen(viewModel: AddPetViewModel) {
             breedMenuOnExpandedChanged = viewModel::breedMenuOnExpandedChanged,
             breedMenuOnDropdownMenuItemClicked = viewModel::breedMenuOnDropdownMenuItemClicked,
             breedMenuOnDismissRequest = viewModel::breedMenuOnDismissRequest,
-            onCancelButtonClicked = { /*TODO*/ },
+            onCancelButtonClicked = { navigateToDashboard() },
             onNextButtonClicked = viewModel::onGeneralDoneButtonClicked,
             isKeyboardHide = uiState.hideKeyboard,
             onFocusCleared = viewModel::onFocusCleared,
@@ -135,27 +136,9 @@ fun AddPetResultScreen(viewModel: AddPetViewModel) {
             onDescriptionTextFieldValueChanged = viewModel::onDescriptionTextFieldValueChanged,
             onPrevButtonClicked = viewModel::onNavigateButtonClicked,
             onDoneButtonClicked = viewModel::onDoneButtonClicked,
+            navigateToDashboard = navigateToDashboard,
             modifier = contentModifier)
     }
-    }
-}
-
-@Composable
-fun PetForm() {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier
-            .fillMaxSize()
-            .padding(60.dp)
-    ) {
-        Text(
-            text = stringResource(R.string.pet_form_headline),
-            style = MaterialTheme.typography.headlineMedium
-        )
-        Text(
-            text = stringResource(R.string.pet_form_description),
-            style = MaterialTheme.typography.bodySmall
-        )
-        Spacer(modifier = Modifier.padding(20.dp))
     }
 }
 
@@ -418,6 +401,7 @@ fun AdditionalInfoPetForm(
     onDescriptionTextFieldValueChanged: (String) -> Unit,
     onPrevButtonClicked: (stage: AddPetScreenStage) -> Unit,
     onDoneButtonClicked: () -> Unit,
+    navigateToDashboard: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -440,7 +424,9 @@ fun AdditionalInfoPetForm(
             leftButtonStringId = R.string.previous,
             rightButtonStringId = R.string.done,
             onLeftButtonClicked = { onPrevButtonClicked(AddPetScreenStage.Dimensions) },
-            onRightButtonClicked = onDoneButtonClicked
+            onRightButtonClicked = { onDoneButtonClicked()
+                navigateToDashboard()
+            }
         )
     }
 }
@@ -593,7 +579,8 @@ fun AdditionalInfoPetFormPrev() {
         AdditionalInfoPetForm(
             descriptionTextFieldValue = descriptionValue.value,
             onDescriptionTextFieldValueChanged = { descriptionValue.value = it },
-            onPrevButtonClicked = { /*TODO*/ },
-            onDoneButtonClicked = { /*TODO*/ })
+            onPrevButtonClicked = { },
+            onDoneButtonClicked = {  },
+            navigateToDashboard = {})
     }
 }

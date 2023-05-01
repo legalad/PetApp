@@ -45,16 +45,16 @@ fun SettingsResultScreen(viewModel: SettingsViewModel) {
             label = R.string.settings_language,
             expanded = uiState.languageMenuExpanded,
             selectedOption = uiState.language,
-            onExpandedChange = { /*TODO*/ },
+            onExpandedChange = viewModel::languageMenuOnExpandedChanged,
             onDropdownMenuItemClicked = viewModel::onDropdownMenuLanguageClicked,
-            onDismissRequest = { /*TODO*/ })
+            onDismissRequest = viewModel::languageMenuOnDismissRequest)
         Spacer(modifier = Modifier.padding(5.dp))
         SettingsExposedDropdownMenu(
             label = R.string.settings_unit,
             expanded = uiState.unitMenuExpanded,
             selectedOption = uiState.unit,
-            onExpandedChange = { /*TODO*/ },
+            onExpandedChange = viewModel::unitMenuOnExpandedChanged,
             onDropdownMenuItemClicked = viewModel::onDropdownMenuUnitClicked,
-            onDismissRequest = { /*TODO*/ })
+            onDismissRequest = viewModel::unitMenuOnDismissRequest)
     }
 }

@@ -5,16 +5,27 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.petapp.R
+import com.example.petapp.data.*
+import com.example.petapp.model.Species
 import com.example.petapp.model.util.Validators
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.text.DateFormat
+import java.util.*
+import javax.inject.Inject
 
 
 @OptIn(ExperimentalMaterial3Api::class)
-class AddPetViewModel : ViewModel(), AddPetOperations, AddPetDataValidation {
+@HiltViewModel
+class AddPetViewModel @Inject constructor(
+    private val dashboardRepository: PetsDashboardRepository
+) : ViewModel(), AddPetOperations, AddPetDataValidation {
 
     var uiState: AddPetUiState by mutableStateOf(AddPetUiState.Loading)
         private set
@@ -185,7 +196,43 @@ class AddPetViewModel : ViewModel(), AddPetOperations, AddPetDataValidation {
     }
 
     override fun onDoneButtonClicked() {
-        TODO("Not yet implemented")
+        viewModelScope.launch(Dispatchers.IO) {
+            val petUUID: UUID = UUID.randomUUID()
+            dashboardRepository.addNewPet(
+                PetGeneralEntity(
+                    id = petUUID,
+                    name = successUiState.value.nameFieldValue,
+                    species = Species.CAT,
+                    breed = "Tajski",
+                    birthDate = Date(successUiState.value.datePickerState.selectedDateMillis?: Calendar.getInstance().timeInMillis),
+                    description = successUiState.value.descriptionFieldValue
+                ),
+                PetWeightEntity(
+                    id = UUID.randomUUID(),
+                    pet_id = petUUID,
+                    measurementDate = Date(Calendar.getInstance().timeInMillis),
+                    value = successUiState.value.weightFieldValue.toDouble() //handle possible errors
+                ),
+                if (successUiState.value.heightFieldValue.isNotEmpty()) PetHeightEntity(
+                    id = UUID.randomUUID(),
+                    pet_id = petUUID,
+                    measurementDate = Date(Calendar.getInstance().timeInMillis),
+                    value = successUiState.value.heightFieldValue.toDouble()
+                ) else null,
+                if (successUiState.value.lengthFieldValue.isNotEmpty()) PetLengthEntity(
+                    id = UUID.randomUUID(),
+                    pet_id = petUUID,
+                    measurementDate = Date(Calendar.getInstance().timeInMillis),
+                    value = successUiState.value.lengthFieldValue.toDouble()
+                ) else null,
+                if (successUiState.value.circuitFieldValue.isNotEmpty()) PetCircuitEntity(
+                    id = UUID.randomUUID(),
+                    pet_id = petUUID,
+                    measurementDate = Date(Calendar.getInstance().timeInMillis),
+                    value = successUiState.value.circuitFieldValue.toDouble()
+                ) else null
+            )
+        }
     }
 
     override fun onWeightFieldValueChanged(value: String) {
