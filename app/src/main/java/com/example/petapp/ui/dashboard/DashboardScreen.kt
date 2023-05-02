@@ -51,7 +51,7 @@ fun DashboardResultScreen(viewModel: DashboardViewModel, navigateToAddingPetScre
             )
             LazyColumn(modifier = Modifier.fillMaxHeight()) {
                 items(uiState.pets) { pet ->
-                    PetItem(pet = pet)
+                    PetItem(pet = pet, getAgeFormattedString = viewModel::getPetAgeFormattedString, getWeightFormattedString = viewModel::getPetWeightFormattedString)
                 }
             }
         }

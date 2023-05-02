@@ -74,7 +74,7 @@ fun SettingsExposedDropdownMenu(
     readOnly: Boolean = true,
     textFieldOnValueChanged: (String) -> Unit = {}
 ) {
-    val options = UserPreferences.Language.values()
+    val options = UserPreferences.Language.values().dropLast(1)
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -124,8 +124,7 @@ fun SettingsExposedDropdownMenu(
     readOnly: Boolean = true,
     textFieldOnValueChanged: (String) -> Unit = {}
 ) {
-    val options = UserPreferences.Unit.values()
-    /*var expanded by remember { mutableStateOf(false) }*/
+    val options = UserPreferences.Unit.values().dropLast(1)
 
     ExposedDropdownMenuBox(
         expanded = expanded,

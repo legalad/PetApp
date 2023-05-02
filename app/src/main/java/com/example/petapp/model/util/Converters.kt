@@ -2,19 +2,22 @@ package com.example.petapp.model.util
 
 import androidx.room.TypeConverter
 import com.example.petapp.model.Species
+import java.time.Instant
 import java.util.*
 
 class DateConverter {
     companion object {
+
         @TypeConverter
         @JvmStatic
-        fun fromTimestampToDate(timestamp: Long): Date {
-            return Date(timestamp)
+        fun fromInstantToTimestamp(instant: Instant): Long {
+            return instant.toEpochMilli()
         }
+
         @TypeConverter
         @JvmStatic
-        fun fromDateToTimestamp(date: Date): Long {
-            return date.time
+        fun fromTimestampToInstant(timestamp: Long): Instant {
+            return Instant.ofEpochMilli(timestamp)
         }
     }
 }

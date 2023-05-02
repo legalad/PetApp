@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.text.DateFormat
+import java.time.Instant
 import java.util.*
 import javax.inject.Inject
 
@@ -204,31 +205,31 @@ class AddPetViewModel @Inject constructor(
                     name = successUiState.value.nameFieldValue,
                     species = Species.CAT,
                     breed = "Tajski",
-                    birthDate = Date(successUiState.value.datePickerState.selectedDateMillis?: Calendar.getInstance().timeInMillis),
+                    birthDate = Instant.ofEpochMilli(successUiState.value.datePickerState.selectedDateMillis?: Instant.now().toEpochMilli()),
                     description = successUiState.value.descriptionFieldValue
                 ),
                 PetWeightEntity(
                     id = UUID.randomUUID(),
                     pet_id = petUUID,
-                    measurementDate = Date(Calendar.getInstance().timeInMillis),
+                    measurementDate = Instant.now(),
                     value = successUiState.value.weightFieldValue.toDouble() //handle possible errors
                 ),
                 if (successUiState.value.heightFieldValue.isNotEmpty()) PetHeightEntity(
                     id = UUID.randomUUID(),
                     pet_id = petUUID,
-                    measurementDate = Date(Calendar.getInstance().timeInMillis),
+                    measurementDate = Instant.now(),
                     value = successUiState.value.heightFieldValue.toDouble()
                 ) else null,
                 if (successUiState.value.lengthFieldValue.isNotEmpty()) PetLengthEntity(
                     id = UUID.randomUUID(),
                     pet_id = petUUID,
-                    measurementDate = Date(Calendar.getInstance().timeInMillis),
+                    measurementDate = Instant.now(),
                     value = successUiState.value.lengthFieldValue.toDouble()
                 ) else null,
                 if (successUiState.value.circuitFieldValue.isNotEmpty()) PetCircuitEntity(
                     id = UUID.randomUUID(),
                     pet_id = petUUID,
-                    measurementDate = Date(Calendar.getInstance().timeInMillis),
+                    measurementDate = Instant.now(),
                     value = successUiState.value.circuitFieldValue.toDouble()
                 ) else null
             )

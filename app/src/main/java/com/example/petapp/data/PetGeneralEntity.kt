@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.petapp.model.Species
-import java.util.Date
+import java.time.Instant
 import java.util.UUID
 
 @Entity(
@@ -17,6 +17,7 @@ data class PetGeneralEntity(
     val name: String,
     val species: Species,
     val breed: String?,
-    val birthDate: Date,
+    @ColumnInfo(name = "birth_timestamp")
+    val birthDate: Instant,
     val description: String?
 )

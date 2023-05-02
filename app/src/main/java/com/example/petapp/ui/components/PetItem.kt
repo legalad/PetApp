@@ -27,7 +27,10 @@ import androidx.compose.ui.unit.dp
 import com.example.petapp.R
 import com.example.petapp.data.PetGeneralEntity
 import com.example.petapp.model.*
-import java.text.DateFormat
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.*
 
 private enum class PetStatsEnum(@StringRes val stringId: Int?) {
@@ -38,12 +41,19 @@ private enum class PetStatsEnum(@StringRes val stringId: Int?) {
 }
 
 @Composable
-fun PetItems(pets: List<PetGeneralEntity>, modifier: Modifier = Modifier) {
+fun PetItems(
+    pets: List<PetGeneralEntity>,
+    getAgeFormattedString: (instant: Instant) -> Pair<String, Int>,
+    getWeightFormattedString: (weight: Double) -> Pair<String, Int>,
+    modifier: Modifier = Modifier
+) {
     Column {
         pets.forEach {
             PetItem(
-                pet = it
-                )
+                pet = it,
+                getAgeFormattedString = getAgeFormattedString,
+                getWeightFormattedString = getWeightFormattedString
+            )
         }
     }
 }
@@ -51,43 +61,48 @@ fun PetItems(pets: List<PetGeneralEntity>, modifier: Modifier = Modifier) {
 @Composable
 fun PetItem(
     pet: PetGeneralEntity,
+    getAgeFormattedString: (instant: Instant) -> Pair<String, Int>,
+    getWeightFormattedString: (weight: Double) -> Pair<String, Int>,
+    modifier: Modifier = Modifier,
     pettmp: Pet = Pet(
-        null, "Nika", "Kot", "Tajski", Calendar.getInstance().time, 3.1, listOf(
-            PetMeal("as", Calendar.getInstance().time, MealStatusEnum.EATEN),
-            PetMeal("as", Calendar.getInstance().time, MealStatusEnum.MISSED),
-            PetMeal("as", Calendar.getInstance().time, MealStatusEnum.WAIT)
+        null, "Nika", "Kot", "Tajski", Instant.now(), 3.1, listOf(
+            PetMeal("as", Instant.now(), MealStatusEnum.EATEN),
+            PetMeal("as", Instant.now(), MealStatusEnum.MISSED),
+            PetMeal("as", Instant.now(), MealStatusEnum.WAIT)
         ), listOf(PetThirst("pragnienie")), listOf(PetActivity("aktywność"))
     ),
-    modifier: Modifier = Modifier
 ) {
     var petStat by rememberSaveable { mutableStateOf(PetStatsEnum.NONE) }
+    val childModifier: Modifier = Modifier
+    val age = getAgeFormattedString(pet.birthDate)
+    val weight = getWeightFormattedString(pettmp.weight)
     ElevatedCard(
         modifier = modifier
             .padding(8.dp)
             .animateContentSize(
                 animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioLowBouncy,
-                    stiffness = Spring.StiffnessLow
+                    dampingRatio = Spring.DampingRatioLowBouncy, stiffness = Spring.StiffnessLow
                 )
             )
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(4.dp)
-        ) {
+                .padding(top = 8.dp, bottom = 8.dp, start = 4.dp, end = 4.dp)
+        )
+        {
             Row(modifier = Modifier.fillMaxWidth()) {
                 PetIcon(
                     petIcon = pettmp.petIconId ?: R.drawable.nika,
-                    modifier = modifier.weight(2.7f)
+                    modifier = childModifier.weight(3f)
                 )
                 PetInfo(
                     name = pet.name,
-                    age = Calendar.getInstance().time.year - pet.birthDate.year, //TODO change
-                    weight = pettmp.weight,
-                    modifier = modifier.weight(3f)
+                    age = age.first + stringResource(id = age.second),
+                    weight = weight.first + stringResource(id = weight.second),
+                    modifier = childModifier.weight(3f)
                 )
-                PetIconStats(modifier = Modifier.weight(6f),
+                PetIconStats(modifier = childModifier.weight(6f),
                     waterIconOnClicked = {
                         petStat =
                             if (petStat != PetStatsEnum.THIRST) PetStatsEnum.THIRST else PetStatsEnum.NONE
@@ -107,10 +122,7 @@ fun PetItem(
             Column(
                 modifier = modifier
                     .padding(
-                        start = 16.dp,
-                        top = 8.dp,
-                        bottom = 16.dp,
-                        end = 16.dp
+                        start = 16.dp, top = 8.dp, bottom = 16.dp, end = 16.dp
                     )
                     .fillMaxWidth()
             ) {
@@ -143,10 +155,8 @@ fun PetHunger(meals: List<PetMeal>, modifier: Modifier = Modifier) {
                         modifier = Modifier.size(56.dp)
                     )
                 }
-                //Locale should be picked by user in settings
                 Text(
-                    text = DateFormat.getTimeInstance(DateFormat.SHORT, Locale.GERMAN)
-                        .format(it.date)
+                    text = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).withZone(ZoneId.systemDefault()).format(it.dateTimestamp)
                 )
             }
         }
@@ -166,78 +176,74 @@ fun PetActivity(activities: List<PetActivity>, modifier: Modifier = Modifier) {
 
 }
 
-@Composable
-fun PetItemButton(
-    expanded: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    IconButton(onClick = onClick, modifier = modifier) {
-        Icon(
-            painter =
-            if (expanded) painterResource(
-                id = R.drawable.baseline_expand_more_24
-            )
-            else painterResource(
-                id = R.drawable.baseline_expand_more_24
-            ),
-            contentDescription = stringResource(
-                id = R.string.expand_button_content_description
-            )
-        )
-    }
-}
-
 //may be change later, depends on image location
 @Composable
 fun PetIcon(modifier: Modifier = Modifier, @DrawableRes petIcon: Int = R.drawable.nika) {
-    Image(
-        modifier = modifier
-            .size(88.dp)
-            .padding(8.dp)
-            .clip(RoundedCornerShape(50)),
-        contentScale = ContentScale.Crop,
-        painter = painterResource(id = petIcon),
-        contentDescription = null
-    )
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier.fillMaxHeight()
+    ) {
+        Image(
+            modifier = Modifier
+                .size(90.dp)
+                .padding(8.dp)
+                .clip(RoundedCornerShape(50)),
+            contentScale = ContentScale.Crop,
+            painter = painterResource(id = petIcon),
+            contentDescription = null
+        )
+    }
 }
 
 @Composable
 fun PetInfo(
     name: String,
-    age: Int,
-    weight: Double,
+    age: String,
+    weight: String,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.Center) {
         Text(
             text = name,
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(top = 8.dp)
+            style = MaterialTheme.typography.headlineMedium
         )
-        Row() {
-            Text(
-                text = stringResource(id = R.string.pet_age) + ":",
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.weight(1f)
+        Row(
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            Icon(
+                painter = painterResource(id = R.drawable.baseline_calendar_month_24),
+                contentDescription = stringResource(
+                    id = R.string.pet_age
+                ),
+                Modifier
+                    .size(24.dp)
+                    .padding(end = 4.dp)
             )
             Text(
-                text = age.toString(),
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.weight(1f)
+                text = age,
+                style = MaterialTheme.typography.bodySmall
             )
         }
         //add unit in preferences in the end of weight (preferences/data store)
-        Row() {
-            Text(
-                text = stringResource(id = R.string.pet_weight) + ":",
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.weight(1f)
+        Row(
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.weight_24),
+                contentDescription = stringResource(
+                    id = R.string.pet_age
+                ),
+                Modifier
+                    .size(24.dp)
+                    .padding(end = 4.dp)
             )
             Text(
-                text = weight.toString(),
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.weight(1f)
+                text = weight,
+                style = MaterialTheme.typography.bodySmall
             )
         }
     }
@@ -313,7 +319,7 @@ private fun PetLinearProgressIndicator(
 @Preview(showBackground = true)
 @Composable
 fun PetInfoPrev() {
-    PetInfo(name = "Zeus", age = 1, weight = 3.1)
+    PetInfo(name = "Zeus", age = "10 years old", weight = "3.1")
 }
 
 @Preview(showBackground = true)
@@ -327,10 +333,10 @@ fun IconPrev() {
 fun PetItemPrev() {
     PetItem(
         pettmp = Pet(
-            null, "Nika", "Kot", "Tajski", Calendar.getInstance().time, 3.1, listOf(
-                PetMeal("as", Calendar.getInstance().time, MealStatusEnum.EATEN),
-                PetMeal("as", Calendar.getInstance().time, MealStatusEnum.MISSED),
-                PetMeal("as", Calendar.getInstance().time, MealStatusEnum.WAIT)
+            null, "Nika", "Kot", "Tajski", Instant.now(), 3.1, listOf(
+                PetMeal("as", Instant.now(), MealStatusEnum.EATEN),
+                PetMeal("as", Instant.now(), MealStatusEnum.MISSED),
+                PetMeal("as", Instant.now(), MealStatusEnum.WAIT)
             ), listOf(PetThirst("pragnienie")), listOf(PetActivity("aktywność"))
         ),
         pet = PetGeneralEntity(
@@ -338,9 +344,11 @@ fun PetItemPrev() {
             "Zeus",
             Species.CAT,
             "Tajski",
-            Calendar.getInstance().time,
+            Instant.now(),
             "Super cot"
-        )
+        ),
+        getAgeFormattedString = { it -> Pair("", R.string.blank) },
+        getWeightFormattedString = { it -> Pair("", R.string.blank) }
     )
 }
 
@@ -354,10 +362,12 @@ fun PetItemsPrev() {
                 "Zeus",
                 Species.CAT,
                 "Tajski",
-                Calendar.getInstance().time,
+                Instant.now(),
                 "Super cot"
             )
-        )
+        ),
+        getAgeFormattedString = { it -> Pair("", R.string.blank) },
+        getWeightFormattedString = { it -> Pair("", R.string.blank) }
     )
 }
 

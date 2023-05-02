@@ -46,4 +46,13 @@
     <string name="settings_language">Language</string>
     <string name="settings_unit">Unit</string>
     <string name="dashboard_headline">Your pets</string>
+    <string name="age_years_old">years</string>
+    <string name="age_months_old">months</string>
+    <string name="age_days_old">days</string>
+    <string name="age_year_old">year</string>
+    <string name="age_month_old">month</string>
+    <string name="age_day_old">day</string>
+    <string name="unit_kg">kg</string>
+    <string name="unit_lbs">lbs</string>
+
 </resources>

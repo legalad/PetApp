@@ -5,8 +5,11 @@ import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
 import com.example.petapp.R
-import java.text.DateFormat
-import java.util.Calendar
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import java.util.*
 
 sealed interface AddPetScreenStage {
     object General: AddPetScreenStage
@@ -17,11 +20,12 @@ sealed interface AddPetScreenStage {
 sealed interface AddPetUiState {
     data class Success @OptIn(ExperimentalMaterial3Api::class) constructor(
         val nameFieldValue: String = "",
-        val datePickerTextFieldValue: String = DateFormat.getDateInstance(DateFormat.SHORT).format(Calendar.getInstance().time),
+        val datePickerTextFieldValue: String = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).withLocale(
+            Locale.getDefault()).withZone(ZoneId.systemDefault()).format(Instant.now())/*DateFormat.getDateInstance(DateFormat.SHORT).format(Instant.now().epochSecond)*/,
         val datePickerOpenDialog: Boolean = false,
         val datePickerState: DatePickerState = DatePickerState(
-            initialSelectedDateMillis = Calendar.getInstance().timeInMillis,
-            initialDisplayedMonthMillis = Calendar.getInstance().timeInMillis,
+            initialSelectedDateMillis = Instant.now().toEpochMilli(),
+            initialDisplayedMonthMillis = Instant.now().toEpochMilli(),
             yearRange = DatePickerDefaults.YearRange,
             initialDisplayMode = DisplayMode.Picker
         ),

@@ -2,7 +2,7 @@ package com.example.petapp.model
 
 import androidx.annotation.DrawableRes
 import com.example.petapp.R
-import java.util.Date
+import java.time.Instant
 
 enum class MealStatusEnum (@DrawableRes val iconId: Int) {
     EATEN(R.drawable.icons8_dog_bowl_green_80),
@@ -14,6 +14,6 @@ enum class MealStatusEnum (@DrawableRes val iconId: Int) {
 
 data class PetMeal(
     val name: String,
-    val date: Date,
+    val dateTimestamp: Instant,
     val status: MealStatusEnum
 )
