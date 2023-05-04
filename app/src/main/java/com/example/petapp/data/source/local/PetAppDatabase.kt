@@ -17,6 +17,10 @@ import com.example.petapp.model.util.UUIDConverter
         PetLengthEntity::class,
         PetCircuitEntity::class
                ],
+    views = [
+        PetDashboardView::class,
+        PetDetailsView::class
+            ],
     version = 1,
     exportSchema = false
 )

@@ -261,7 +261,7 @@ private fun PetFormsSubHeadline(
 }
 
 @Composable
-private fun PetFormsBottomNavButtons(
+fun PetFormsBottomNavButtons(
     @StringRes leftButtonStringId: Int,
     @StringRes rightButtonStringId: Int,
     onLeftButtonClicked: () -> Unit,

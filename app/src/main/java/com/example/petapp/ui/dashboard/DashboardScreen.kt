@@ -21,28 +21,34 @@ import com.example.petapp.ui.components.PetItem
 fun DashboardScreen(
     viewModel: DashboardViewModel,
     navigateToAddingPetScreen: () -> Unit,
+    navigateToPetDetailsScreen: (petId: String) -> Unit,
     modifier: Modifier
 ) {
     when (viewModel.uiState) {
         is DashboardUiState.Error -> ErrorScreen(message = "Can't load pets")
         is DashboardUiState.Loading -> LoadingScreen()
-        is DashboardUiState.Success -> DashboardResultScreen(viewModel, navigateToAddingPetScreen)
+        is DashboardUiState.Success -> DashboardResultScreen(viewModel, navigateToAddingPetScreen, navigateToPetDetailsScreen)
     }
 }
 
 @Composable
-fun DashboardResultScreen(viewModel: DashboardViewModel, navigateToAddingPetScreen: () -> Unit) {
+fun DashboardResultScreen(viewModel: DashboardViewModel, navigateToAddingPetScreen: () -> Unit, navigateToPetDetailsScreen: (petId: String) -> Unit) {
     val uiState = viewModel.successUiState.collectAsState().value
 
-    Scaffold(floatingActionButton = { SmallFloatingActionButton(onClick = { navigateToAddingPetScreen() }, content = { Icon(
-        imageVector = Icons.Default.Add,
-        contentDescription = "Add new pet"
-    )}) }) { innerPadding ->
+    Scaffold(floatingActionButton = {
+        SmallFloatingActionButton(onClick = { navigateToAddingPetScreen() }, content = {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Add new pet"
+            )
+        })
+    }) { innerPadding ->
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top,
             modifier = Modifier
-                .fillMaxSize().padding(innerPadding)
+                .fillMaxSize()
+                .padding(innerPadding)
         ) {
             Spacer(modifier = Modifier.padding(10.dp))
             Text(
@@ -51,7 +57,15 @@ fun DashboardResultScreen(viewModel: DashboardViewModel, navigateToAddingPetScre
             )
             LazyColumn(modifier = Modifier.fillMaxHeight()) {
                 items(uiState.pets) { pet ->
-                    PetItem(pet = pet, getAgeFormattedString = viewModel::getPetAgeFormattedString, getWeightFormattedString = viewModel::getPetWeightFormattedString)
+                    PetItem(
+                        pet = pet,
+                        getAgeFormattedString = viewModel::getPetAgeFormattedString,
+                        getWeightFormattedString = viewModel::getPetWeightFormattedString,
+                        waterIconOnClicked = viewModel::waterIconOnClicked,
+                        foodIconOnClicked = viewModel::foodIconOnClicked,
+                        activityIconOnClicked = viewModel::activityIconOnClicked,
+                        navigateToPetDetailsScreen = navigateToPetDetailsScreen
+                    )
                 }
             }
         }

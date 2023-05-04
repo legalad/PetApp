@@ -1,29 +1,33 @@
 package com.example.petapp.ui.dashboard
 
+import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.android.datastore.UserPreferences
-import com.example.petapp.R
 import com.example.petapp.data.PetsDashboardRepository
 import com.example.petapp.data.UserSettingsDataRepository
+import com.example.petapp.model.PetDashboardUiState
+import com.example.petapp.model.PetStatsFormatter
 import com.example.petapp.model.util.Contstans
+import com.example.petapp.model.util.Formatters
+import com.example.petapp.model.util.toPetDashboardUiStateList
+import com.example.petapp.ui.components.PetStatsEnum
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.Instant
-import java.time.LocalDate
-import java.time.Period
-import java.time.ZoneId
 import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     private val petsDashboardRepository: PetsDashboardRepository,
-    private val settingsDataRepository: UserSettingsDataRepository
-) : ViewModel() {
+    private val settingsDataRepository: UserSettingsDataRepository,
+    private val application: Application
+) : ViewModel(), PetStatsFormatter {
+
+
     var uiState: DashboardUiState by mutableStateOf(DashboardUiState.Loading)
         private set
 
@@ -49,8 +53,8 @@ class DashboardViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            petsDashboardRepository.getPets().collect { pets ->
-                _successUiState.update { it.copy(pets = pets) }
+            petsDashboardRepository.getDashboard().collect { pets ->
+                _successUiState.update { it.copy(pets = pets.toPetDashboardUiStateList()) }
             }
         }
         viewModelScope.launch {
@@ -64,22 +68,58 @@ class DashboardViewModel @Inject constructor(
 
     }
 
-    fun getPetAgeFormattedString(instant: Instant): Pair<String,  Int> {
-        val age = Period.between(
-            instant.atZone(ZoneId.systemDefault()).toLocalDate(),
-            LocalDate.now(ZoneId.systemDefault()))
+    override fun getPetAgeFormattedString(instant: Instant): String {
+        return Formatters.getFormattedAgeString(instant = instant,context = application.applicationContext)
+    }
 
-        return if (age.years > 1) Pair("${age.years} ", R.string.age_years_old)
-        else if (age.years == 1) Pair("${age.years} ", R.string.age_year_old)
-        else if (age.months > 1) Pair("${age.months} ", R.string.age_months_old)
-        else if (age.months == 1) Pair("${age.months} ", R.string.age_month_old)
-        else if (age.days == 1) Pair("${age.days} ", R.string.age_day_old)
-        else Pair("${age.days} ", R.string.age_days_old)
+    override fun getPetWeightFormattedString(weight: Double): String {
+        return  Formatters.getFormattedWeightString(weight = weight, unit = _successUiState.value.unit, context = application.applicationContext)
+    }
+
+    override fun getPetDimensionsFormattedString(value: Double): String {
+        return getPetDimensionsFormattedString(value = value)
+    }
+
+    fun waterIconOnClicked(pet: PetDashboardUiState) {
+        val pets = _successUiState.value.pets.toMutableList()
+        val index = pets.indexOf(pet)
+        if (pets[index].petStat != PetStatsEnum.THIRST) pets[index] = pets[index].copy(petStat = PetStatsEnum.THIRST)
+        else pets[index] = pets[index].copy(petStat = PetStatsEnum.NONE)
+        if (index != -1){
+            _successUiState.update {
+                it.copy(
+                    pets = pets
+                )
+            }
+        }
 
     }
 
-    fun getPetWeightFormattedString(weight: Double): Pair<String, Int> {
-        return if (_successUiState.value.unit == UserPreferences.Unit.METRIC) Pair("$weight ", R.string.unit_kg)
-        else Pair("${"%.2f".format(weight * 0.45359237)} ", R.string.unit_lbs)
+    fun foodIconOnClicked(pet: PetDashboardUiState) {
+        val pets = _successUiState.value.pets.toMutableList()
+        val index = pets.indexOf(pet)
+        if (pets[index].petStat != PetStatsEnum.HUNGER) pets[index] = pets[index].copy(petStat = PetStatsEnum.HUNGER)
+        else pets[index] = pets[index].copy(petStat = PetStatsEnum.NONE)
+        if (index != -1){
+            _successUiState.update {
+                it.copy(
+                    pets = pets
+                )
+            }
+        }
+    }
+
+    fun activityIconOnClicked(pet: PetDashboardUiState) {
+        val pets = _successUiState.value.pets.toMutableList()
+        val index = pets.indexOf(pet)
+        if (pets[index].petStat != PetStatsEnum.ACTIVITY) pets[index] = pets[index].copy(petStat = PetStatsEnum.ACTIVITY)
+        else pets[index] = pets[index].copy(petStat = PetStatsEnum.NONE)
+        if (index != -1){
+            _successUiState.update {
+                it.copy(
+                    pets = pets
+                )
+            }
+        }
     }
 }

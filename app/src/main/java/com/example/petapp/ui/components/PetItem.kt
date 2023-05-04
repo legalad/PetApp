@@ -10,10 +10,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,7 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.petapp.R
-import com.example.petapp.data.PetGeneralEntity
+import com.example.petapp.data.PetDashboardView
 import com.example.petapp.model.*
 import java.time.Instant
 import java.time.ZoneId
@@ -33,7 +29,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.*
 
-private enum class PetStatsEnum(@StringRes val stringId: Int?) {
+enum class PetStatsEnum(@StringRes val stringId: Int?) {
     NONE(null),
     THIRST(R.string.water_change),
     HUNGER(R.string.pet_hunger),
@@ -42,9 +38,13 @@ private enum class PetStatsEnum(@StringRes val stringId: Int?) {
 
 @Composable
 fun PetItems(
-    pets: List<PetGeneralEntity>,
-    getAgeFormattedString: (instant: Instant) -> Pair<String, Int>,
-    getWeightFormattedString: (weight: Double) -> Pair<String, Int>,
+    pets: List<PetDashboardUiState>,
+    getAgeFormattedString: (instant: Instant) -> String,
+    getWeightFormattedString: (weight: Double) -> String,
+    waterIconOnClicked: (pet: PetDashboardUiState) -> Unit,
+    foodIconOnClicked: (pet: PetDashboardUiState) -> Unit,
+    activityIconOnClicked: (pet: PetDashboardUiState) -> Unit,
+    navigateToPetDetailsScreen: (petId: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column {
@@ -52,17 +52,26 @@ fun PetItems(
             PetItem(
                 pet = it,
                 getAgeFormattedString = getAgeFormattedString,
-                getWeightFormattedString = getWeightFormattedString
+                getWeightFormattedString = getWeightFormattedString,
+                waterIconOnClicked = waterIconOnClicked,
+                foodIconOnClicked = foodIconOnClicked,
+                activityIconOnClicked = activityIconOnClicked,
+                navigateToPetDetailsScreen = navigateToPetDetailsScreen
             )
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PetItem(
-    pet: PetGeneralEntity,
-    getAgeFormattedString: (instant: Instant) -> Pair<String, Int>,
-    getWeightFormattedString: (weight: Double) -> Pair<String, Int>,
+    pet: PetDashboardUiState,
+    getAgeFormattedString: (instant: Instant) -> String,
+    getWeightFormattedString: (weight: Double) -> String,
+    waterIconOnClicked: (pet: PetDashboardUiState) -> Unit,
+    foodIconOnClicked: (pet: PetDashboardUiState) -> Unit,
+    activityIconOnClicked: (pet: PetDashboardUiState) -> Unit,
+    navigateToPetDetailsScreen: (petId: String) -> Unit,
     modifier: Modifier = Modifier,
     pettmp: Pet = Pet(
         null, "Nika", "Kot", "Tajski", Instant.now(), 3.1, listOf(
@@ -72,11 +81,8 @@ fun PetItem(
         ), listOf(PetThirst("pragnienie")), listOf(PetActivity("aktywność"))
     ),
 ) {
-    var petStat by rememberSaveable { mutableStateOf(PetStatsEnum.NONE) }
     val childModifier: Modifier = Modifier
-    val age = getAgeFormattedString(pet.birthDate)
-    val weight = getWeightFormattedString(pettmp.weight)
-    ElevatedCard(
+    Card(onClick = {navigateToPetDetailsScreen(pet.petDashboard.petId.toString())},
         modifier = modifier
             .padding(8.dp)
             .animateContentSize(
@@ -97,27 +103,18 @@ fun PetItem(
                     modifier = childModifier.weight(3f)
                 )
                 PetInfo(
-                    name = pet.name,
-                    age = age.first + stringResource(id = age.second),
-                    weight = weight.first + stringResource(id = weight.second),
+                    name = pet.petDashboard.name,
+                    age = getAgeFormattedString(pet.petDashboard.birthDate),
+                    weight = getWeightFormattedString(pet.petDashboard.weight),
                     modifier = childModifier.weight(3f)
                 )
                 PetIconStats(modifier = childModifier.weight(6f),
-                    waterIconOnClicked = {
-                        petStat =
-                            if (petStat != PetStatsEnum.THIRST) PetStatsEnum.THIRST else PetStatsEnum.NONE
-                    },
-                    foodIconOnClicked = {
-                        petStat =
-                            if (petStat != PetStatsEnum.HUNGER) PetStatsEnum.HUNGER else PetStatsEnum.NONE
-                    },
-                    activityIconOnClicked = {
-                        petStat =
-                            if (petStat != PetStatsEnum.ACTIVITY) PetStatsEnum.ACTIVITY else PetStatsEnum.NONE
-                    })
+                    waterIconOnClicked = { waterIconOnClicked(pet) },
+                    foodIconOnClicked = { foodIconOnClicked(pet) },
+                    activityIconOnClicked = { activityIconOnClicked(pet) })
             }
         }
-        if (petStat != PetStatsEnum.NONE) {
+        if (pet.petStat != PetStatsEnum.NONE) {
             Divider(modifier = Modifier.padding(start = 8.dp, top = 4.dp, end = 8.dp))
             Column(
                 modifier = modifier
@@ -127,10 +124,10 @@ fun PetItem(
                     .fillMaxWidth()
             ) {
                 Text(
-                    text = petStat.stringId?.let { stringResource(it) } ?: "",
+                    text = pet.petStat.stringId?.let { stringResource(it) } ?: "",
                     style = MaterialTheme.typography.headlineSmall
                 )
-                when (petStat) {
+                when (pet.petStat) {
                     PetStatsEnum.NONE -> {}
                     PetStatsEnum.THIRST -> PetThirst(pettmp.petThirst)
                     PetStatsEnum.HUNGER -> PetHunger(pettmp.petMeals)
@@ -141,7 +138,6 @@ fun PetItem(
     }
 }
 
-//TODO change deprecated Data to Calendar + DataFormat
 @Composable
 fun PetHunger(meals: List<PetMeal>, modifier: Modifier = Modifier) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -156,7 +152,7 @@ fun PetHunger(meals: List<PetMeal>, modifier: Modifier = Modifier) {
                     )
                 }
                 Text(
-                    text = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).withZone(ZoneId.systemDefault()).format(it.dateTimestamp)
+                    text = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withZone(ZoneId.systemDefault()).format(it.dateTimestamp)
                 )
             }
         }
@@ -182,7 +178,7 @@ fun PetIcon(modifier: Modifier = Modifier, @DrawableRes petIcon: Int = R.drawabl
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.fillMaxHeight()
+        modifier = modifier.wrapContentHeight(Alignment.CenterVertically)
     ) {
         Image(
             modifier = Modifier
@@ -339,16 +335,20 @@ fun PetItemPrev() {
                 PetMeal("as", Instant.now(), MealStatusEnum.WAIT)
             ), listOf(PetThirst("pragnienie")), listOf(PetActivity("aktywność"))
         ),
-        pet = PetGeneralEntity(
-            UUID.randomUUID(),
-            "Zeus",
-            Species.CAT,
-            "Tajski",
-            Instant.now(),
-            "Super cot"
-        ),
-        getAgeFormattedString = { it -> Pair("", R.string.blank) },
-        getWeightFormattedString = { it -> Pair("", R.string.blank) }
+        pet = PetDashboardUiState(
+            petDashboard = PetDashboardView(
+                petId = UUID.randomUUID(),
+                name = "Zeus",
+                birthDate = Instant.now(),
+                weight = 7.1
+            )
+        ) ,
+        getAgeFormattedString = { it.toString() },
+        getWeightFormattedString = { it.toString() },
+        waterIconOnClicked = {},
+        foodIconOnClicked = {},
+        activityIconOnClicked = {},
+        navigateToPetDetailsScreen = {}
     )
 }
 
@@ -357,17 +357,20 @@ fun PetItemPrev() {
 fun PetItemsPrev() {
     PetItems(
         pets = listOf(
-            PetGeneralEntity(
-                UUID.randomUUID(),
-                "Zeus",
-                Species.CAT,
-                "Tajski",
-                Instant.now(),
-                "Super cot"
-            )
-        ),
-        getAgeFormattedString = { it -> Pair("", R.string.blank) },
-        getWeightFormattedString = { it -> Pair("", R.string.blank) }
+            PetDashboardUiState(
+                petDashboard = PetDashboardView(
+                    petId = UUID.randomUUID(),
+                    name = "Zeus",
+                    birthDate = Instant.now(),
+                    weight = 7.1
+                )
+            )),
+        getAgeFormattedString = { it.toString() },
+        getWeightFormattedString = { it.toString() },
+        waterIconOnClicked = {},
+        foodIconOnClicked = {},
+        activityIconOnClicked = {},
+        navigateToPetDetailsScreen = {}
     )
 }
 

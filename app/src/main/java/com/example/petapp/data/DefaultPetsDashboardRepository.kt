@@ -12,6 +12,18 @@ class DefaultPetsDashboardRepository (
         return petsDashboardLocalDatasource.getPets()
     }
 
+    override fun getDashboard(): Flow<List<PetDashboardView>> {
+        return petsDashboardLocalDatasource.getDashboard()
+    }
+
+    override fun getPetDetails(petId: String): Flow<PetDetailsView> {
+        return petsDashboardLocalDatasource.getPetDetails(petId = petId)
+    }
+
+    override suspend fun addPetWeight(weightEntity: PetWeightEntity) {
+        petsDashboardLocalDatasource.addPetWeight(weightEntity)
+    }
+
     override suspend fun addPetGeneralInfo(pet: PetGeneralEntity) {
         petsDashboardLocalDatasource.addPetGeneralInfo(pet)
     }
