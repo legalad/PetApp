@@ -59,6 +59,8 @@
     <string name="unit_foot">ft</string>
     <string name="inch">in</string>
     <string name="input_data">Input data</string>
+    <string name="measurement_date">Measurement date</string>
+    <string name="weight_dashboard_headline">Weight dashboard</string>
 
 
 </resources>

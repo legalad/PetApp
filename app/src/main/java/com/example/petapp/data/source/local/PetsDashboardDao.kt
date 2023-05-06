@@ -17,6 +17,9 @@ interface PetsDashboardDao {
     @Query("SELECT * FROM pet_details_view where petId = :petId")
     fun getPetDetails(petId: String): Flow<PetDetailsView>
 
+    @Query("SELECT * FROM pet_weight_history where pet_id = :petId ORDER BY measurement_timestamp ASC")
+    fun getPetWeightHistory(petId: String): Flow<List<PetWeightEntity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addPetGeneralInfo(pet: PetGeneralEntity)
 
@@ -33,19 +36,43 @@ interface PetsDashboardDao {
     suspend fun addPetCircuit(weightEntity: PetCircuitEntity)
 
     @Transaction
-    suspend fun addNewPet(petGeneralEntity: PetGeneralEntity, petWeightEntity: PetWeightEntity, petHeightEntity: PetHeightEntity?, petLengthEntity: PetLengthEntity?, petCircuitEntity: PetCircuitEntity?) {
+    suspend fun addNewPet(
+        petGeneralEntity: PetGeneralEntity,
+        petWeightEntity: PetWeightEntity,
+        petHeightEntity: PetHeightEntity?,
+        petLengthEntity: PetLengthEntity?,
+        petCircuitEntity: PetCircuitEntity?
+    ) {
         addPetGeneralInfo(petGeneralEntity)
         addPetWeight(petWeightEntity)
-        if(petHeightEntity != null) addPetHeight(petHeightEntity) else addPetHeight(PetHeightEntity(
-            UUID.randomUUID(), petGeneralEntity.id, measurementDate = Instant.now(), 0.0))
-        if(petLengthEntity != null) addPetLength(petLengthEntity) else addPetLength(
-            PetLengthEntity(
-            UUID.randomUUID(), petGeneralEntity.id, measurementDate = Instant.now(), 0.0)
+        petHeightEntity?.let { addPetHeight(it) } ?: addPetHeight(
+            PetHeightEntity(
+                UUID.randomUUID(), petGeneralEntity.id, measurementDate = Instant.now(), 0.0
+            )
         )
-        if(petCircuitEntity != null) addPetCircuit(petCircuitEntity) else addPetCircuit(PetCircuitEntity(
-            UUID.randomUUID(), petGeneralEntity.id, measurementDate = Instant.now(), 0.0))
+        petLengthEntity?.let { addPetLength(it) } ?: addPetLength(
+            PetLengthEntity(
+                UUID.randomUUID(), petGeneralEntity.id, measurementDate = Instant.now(), 0.0
+            )
+        )
+        petCircuitEntity?.let { addPetCircuit(it) } ?: addPetCircuit(
+            PetCircuitEntity(
+                UUID.randomUUID(), petGeneralEntity.id, measurementDate = Instant.now(), 0.0
+            )
+        )
     }
 
+    @Transaction
+    suspend fun addPetDimensions(
+        petHeightEntity: PetHeightEntity?,
+        petLengthEntity: PetLengthEntity?,
+        petCircuitEntity: PetCircuitEntity?
+    ) {
+        petHeightEntity?.let { addPetHeight(it) }
+        petLengthEntity?.let { addPetLength(it) }
+        petCircuitEntity?.let { addPetCircuit(it) }
+
+    }
 
 
 }

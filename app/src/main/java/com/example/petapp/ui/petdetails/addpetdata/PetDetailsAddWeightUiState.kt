@@ -12,10 +12,11 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.*
 
-sealed interface PetDetailsAddDimensionsUiState {
+
+sealed interface PetDetailsAddWeightUiState {
     data class Success @OptIn(ExperimentalMaterial3Api::class) constructor(
         val datePickerTextFieldValue: String = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).withLocale(
-            Locale.getDefault()).withZone(ZoneId.systemDefault()).format(Instant.now()),
+            Locale.getDefault()).withZone(ZoneId.systemDefault()).format(Instant.now())/*DateFormat.getDateInstance(DateFormat.SHORT).format(Instant.now().epochSecond)*/,
         val datePickerOpenDialog: Boolean = false,
         val datePickerState: DatePickerState = DatePickerState(
             initialSelectedDateMillis = Instant.now().toEpochMilli(),
@@ -24,19 +25,13 @@ sealed interface PetDetailsAddDimensionsUiState {
             initialDisplayMode = DisplayMode.Picker
         ),
         val datePickerConfirmEnabled: Boolean = true,
-        val heightFieldValue: String = "",
-        val lengthFieldValue: String = "",
-        val circuitFieldValue: String = "",
-        val isHeightValid: Boolean = true,
-        val heightErrorMessage: Int = R.string.blank,
-        val isLengthValid: Boolean = true,
-        val lengthErrorMessage: Int = R.string.blank,
-        val isCircuitValid: Boolean = true,
-        val circuitErrorMessage: Int = R.string.blank,
-        val isFormValid: Boolean = true,
+        val weightFieldValue: String = "",
+        val isWeightChanged: Boolean = false,
+        val isWeightValid: Boolean = true,
+        val weightErrorMessage: Int = R.string.blank,
         val hideKeyboard: Boolean = false,
         val unit: UserPreferences.Unit = UserPreferences.Unit.METRIC
-    ) : PetDetailsAddDimensionsUiState
-    object Loading: PetDetailsAddDimensionsUiState
-    data class Error (val errorMessage: String) : PetDetailsAddDimensionsUiState
+    ) : PetDetailsAddWeightUiState
+    object Loading: PetDetailsAddWeightUiState
+    data class Error (val errorMessage: String) : PetDetailsAddWeightUiState
 }

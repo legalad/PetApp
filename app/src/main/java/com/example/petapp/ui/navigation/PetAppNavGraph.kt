@@ -15,8 +15,12 @@ import com.example.petapp.ui.dashboard.DashboardScreen
 import com.example.petapp.ui.dashboard.DashboardViewModel
 import com.example.petapp.ui.petdetails.PetDetailsScreen
 import com.example.petapp.ui.petdetails.PetDetailsViewModel
+import com.example.petapp.ui.petdetails.addpetdata.AddDimensionsResultScreen
 import com.example.petapp.ui.petdetails.addpetdata.AddWeightResultScreen
 import com.example.petapp.ui.petdetails.addpetdata.PetDetailsAddDimensionsViewModel
+import com.example.petapp.ui.petdetails.addpetdata.PetDetailsAddWeightViewModel
+import com.example.petapp.ui.petdetails.weightdashboard.PetDetailsWeightDashboardViewModel
+import com.example.petapp.ui.petdetails.weightdashboard.PetWeightDashboardResultScreen
 import com.example.petapp.ui.settings.SettingsScreen
 import com.example.petapp.ui.settings.SettingsViewModel
 
@@ -77,22 +81,40 @@ fun PetAppNavGraph(
             val petDetailsViewModel = hiltViewModel<PetDetailsViewModel>()
             PetDetailsScreen(
                 viewModel = petDetailsViewModel,
-                navigateToAddWeightScreen = { navController.navigate(PetAppDestination.PET_DETAILS_ADD_WEIGHT.name + "/$it") })
+                navigateToAddWeightScreen = { navController.navigate(PetAppDestination.PET_DETAILS_ADD_WEIGHT.name + "/$it") },
+                navigateToAddDimensionsScreen = { navController.navigate(PetAppDestination.PET_DETAILS_ADD_DIMENSIONS.name + "/$it") },
+                navigateToWeightDashboardScreen = { navController.navigate(PetAppDestination.PET_DETAILS_WEIGHT_DASHBOARD.name + "/$it") })
         }
         composable(
             route = PetAppDestination.PET_DETAILS_ADD_WEIGHT.name + "/{petId}",
             arguments = listOf(navArgument("petId") { type = NavType.StringType })
         ) {
-            val petDetailsAddDimensionsViewModel = hiltViewModel<PetDetailsAddDimensionsViewModel>()
-            AddWeightResultScreen(viewModel = petDetailsAddDimensionsViewModel,
+            val petDetailsAddWeightViewModel = hiltViewModel<PetDetailsAddWeightViewModel>()
+            AddWeightResultScreen(viewModel = petDetailsAddWeightViewModel,
                 navigateToPetDetails = {
-                    navController.navigate(PetAppDestination.PET_DETAILS_ROUTE.name + "/$it") {
-                        popUpTo(navController.currentBackStackEntry?.destination?.route ?: return@navigate) {
-                            inclusive = true
-                        }
-                    }
+                    navController.navigateUp()
                 }
             )
+        }
+        composable(
+            route = PetAppDestination.PET_DETAILS_ADD_DIMENSIONS.name + "/{petId}",
+            arguments = listOf(navArgument("petId") { type = NavType.StringType })
+        ) {
+            val petDetailsAddDimensionsViewModel = hiltViewModel<PetDetailsAddDimensionsViewModel>()
+            AddDimensionsResultScreen(
+                viewModel = petDetailsAddDimensionsViewModel,
+                navigateToPetDetails = {
+                    navController.navigateUp()
+                }
+            )
+        }
+
+        composable(
+            route = PetAppDestination.PET_DETAILS_WEIGHT_DASHBOARD.name + "/{petId}",
+            arguments = listOf(navArgument("petId") {type = NavType.StringType})
+        ) {
+            val petDetailsWeightDashboardViewModel = hiltViewModel<PetDetailsWeightDashboardViewModel>()
+            PetWeightDashboardResultScreen(viewModel = petDetailsWeightDashboardViewModel)
         }
     }
 }

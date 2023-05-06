@@ -20,16 +20,31 @@ import com.example.petapp.ui.components.LoadingScreen
 import com.example.petapp.ui.components.PetItem
 
 @Composable
-fun PetDetailsScreen(viewModel: PetDetailsViewModel, navigateToAddWeightScreen: (petId: String) -> Unit) {
+fun PetDetailsScreen(
+    viewModel: PetDetailsViewModel,
+    navigateToAddWeightScreen: (petId: String) -> Unit,
+    navigateToAddDimensionsScreen: (petId: String) -> Unit,
+    navigateToWeightDashboardScreen: (petId: String) -> Unit
+) {
     when (viewModel.uiState) {
         is PetDetailsUiState.Error -> ErrorScreen(message = "Can't load pets")
         is PetDetailsUiState.Loading -> LoadingScreen()
-        is PetDetailsUiState.Success -> PetDetailsResultScreen(viewModel, navigateToAddWeightScreen = navigateToAddWeightScreen)
+        is PetDetailsUiState.Success -> PetDetailsResultScreen(
+            viewModel,
+            navigateToAddWeightScreen = navigateToAddWeightScreen,
+            navigateToAddDimensionsScreen = navigateToAddDimensionsScreen,
+            navigateToWeightDashboardScreen = navigateToWeightDashboardScreen
+        )
     }
 }
 
 @Composable
-fun PetDetailsResultScreen(viewModel: PetDetailsViewModel, navigateToAddWeightScreen: (petId: String) -> Unit) {
+fun PetDetailsResultScreen(
+    viewModel: PetDetailsViewModel,
+    navigateToAddWeightScreen: (petId: String) -> Unit,
+    navigateToAddDimensionsScreen: (petId: String) -> Unit,
+    navigateToWeightDashboardScreen: (petId: String) -> Unit
+) {
     val uiState = viewModel.successUiState.collectAsState().value
     Column(modifier = Modifier.fillMaxSize()) {
         PetItem(
@@ -48,41 +63,66 @@ fun PetDetailsResultScreen(viewModel: PetDetailsViewModel, navigateToAddWeightSc
             activityIconOnClicked = {},
             navigateToPetDetailsScreen = {}
         )
-        PetBasicCardWithTrailingIcon (title = R.string.pet_weight, onTrailingIconClicked = {
+        PetBasicCardWithTrailingIcon(title = R.string.pet_weight, onCardItemClicked = {
+            navigateToWeightDashboardScreen(
+                uiState.pet.petId.toString()
+            )
+        }, onTrailingIconClicked = {
             navigateToAddWeightScreen(
                 uiState.pet.petId.toString()
             )
-        }){
+        }) {
             Icon(
                 painter = painterResource(id = R.drawable.weight_24),
                 contentDescription = null
             )
             Spacer(modifier = Modifier.padding(4.dp))
-            Text(text = viewModel.getPetWeightFormattedString(uiState.pet.weight), style = MaterialTheme.typography.titleSmall)
+            Text(
+                text = viewModel.getPetWeightFormattedString(uiState.pet.weight),
+                style = MaterialTheme.typography.titleSmall
+            )
         }
-        PetBasicCardWithTrailingIcon(title = R.string.pet_form_subheadline_dimensions, onTrailingIconClicked = {}) {
+        PetBasicCardWithTrailingIcon(
+            title = R.string.pet_form_subheadline_dimensions,
+            onTrailingIconClicked = {
+                navigateToAddDimensionsScreen(uiState.pet.petId.toString())
+            },
+            onCardItemClicked = {}) {
             Icon(
                 painter = painterResource(id = R.drawable.baseline_height_24),
                 contentDescription = null
             )
             Spacer(modifier = Modifier.padding(4.dp))
-            Text(text = viewModel.getPetDimensionsFormattedString(uiState.pet.height), style = MaterialTheme.typography.titleSmall)
+            Text(
+                text = viewModel.getPetDimensionsFormattedString(uiState.pet.height),
+                style = MaterialTheme.typography.titleSmall
+            )
             Spacer(modifier = Modifier.padding(4.dp))
             Icon(
                 painter = painterResource(id = R.drawable.width_24),
                 contentDescription = null
             )
             Spacer(modifier = Modifier.padding(4.dp))
-            Text(text = viewModel.getPetDimensionsFormattedString(uiState.pet.length), style = MaterialTheme.typography.titleSmall)
+            Text(
+                text = viewModel.getPetDimensionsFormattedString(uiState.pet.length),
+                style = MaterialTheme.typography.titleSmall
+            )
             Spacer(modifier = Modifier.padding(4.dp))
             Icon(
                 painter = painterResource(id = R.drawable.restart_alt_24),
                 contentDescription = null
             )
             Spacer(modifier = Modifier.padding(4.dp))
-            Text(text = viewModel.getPetDimensionsFormattedString(uiState.pet.circuit), style = MaterialTheme.typography.titleSmall)
+            Text(
+                text = viewModel.getPetDimensionsFormattedString(uiState.pet.circuit),
+                style = MaterialTheme.typography.titleSmall
+            )
         }
-        PetBasicCardWithTrailingIcon(title = R.string.water_change, leadingIcon = R.drawable.round_refresh_24, onTrailingIconClicked = {}) {
+        PetBasicCardWithTrailingIcon(
+            title = R.string.water_change,
+            leadingIcon = R.drawable.round_refresh_24,
+            onTrailingIconClicked = {},
+            onCardItemClicked = {}) {
             Text(text = "Last changed: 12 hours ago", style = MaterialTheme.typography.titleSmall)
         }
     }
@@ -90,17 +130,23 @@ fun PetDetailsResultScreen(viewModel: PetDetailsViewModel, navigateToAddWeightSc
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CardItem(onTrailingIconClicked: () -> Unit, content: @Composable() (ColumnScope.() -> Unit)) {
+fun CardItem(onCardItemClicked: () -> Unit, content: @Composable() (ColumnScope.() -> Unit)) {
     Card(
-        onClick = { /*TODO*/ }, content = content, modifier = Modifier
+        onClick = onCardItemClicked, content = content, modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth()
     )
 }
 
 @Composable
-fun PetBasicCardWithTrailingIcon(@StringRes title: Int, @DrawableRes leadingIcon: Int = R.drawable.round_add_24, onTrailingIconClicked: () -> Unit, content: @Composable() (RowScope.() -> Unit)) {
-    CardItem (onTrailingIconClicked = onTrailingIconClicked) {
+fun PetBasicCardWithTrailingIcon(
+    @StringRes title: Int,
+    @DrawableRes leadingIcon: Int = R.drawable.round_add_24,
+    onCardItemClicked: () -> Unit,
+    onTrailingIconClicked: () -> Unit,
+    content: @Composable() (RowScope.() -> Unit)
+) {
+    CardItem(onCardItemClicked = onCardItemClicked) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()

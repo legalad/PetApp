@@ -8,10 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.petapp.R
-import com.example.petapp.data.PetWeightEntity
-import com.example.petapp.data.PetsDashboardRepository
-import com.example.petapp.data.UserSettingsDataRepository
+import com.example.petapp.data.*
 import com.example.petapp.model.util.Contstans
 import com.example.petapp.model.util.Validators
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,12 +23,11 @@ import javax.inject.Inject
 @OptIn(ExperimentalMaterial3Api::class)
 @HiltViewModel
 class PetDetailsAddDimensionsViewModel @Inject constructor(
-    private val settingsDataRepository: UserSettingsDataRepository,
     private val petsDashboardRepository: PetsDashboardRepository,
+    private val settingsDataRepository: UserSettingsDataRepository,
     private val application: Application,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-
     private val petId: String = checkNotNull(savedStateHandle["petId"])
 
     var uiState: PetDetailsAddDimensionsUiState by mutableStateOf(PetDetailsAddDimensionsUiState.Loading)
@@ -43,32 +39,46 @@ class PetDetailsAddDimensionsViewModel @Inject constructor(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(Contstans.TIMEOUT_MILLIS),
-            initialValue = _successUiState.value)
-
-    init {
-        viewModelScope.launch {
-            settingsDataRepository.getUnit().collect { unit ->
-                _successUiState.update {it.copy(unit = unit)
-                }
-            }
-        }
-        uiState = PetDetailsAddDimensionsUiState.Success()
-    }
+            initialValue = _successUiState.value
+        )
 
     fun getPetId(): String {
         return petId
     }
 
-    fun onWeightFieldValueChanged(value: String) {
+    fun onHeightFieldValueChanged(value: String) {
         _successUiState.update {
-            it.copy(weightFieldValue = Validators.validateNumberToTwoDecimalPlaces(value),
-                isWeightChanged = true)
+            it.copy(heightFieldValue = Validators.validateNumberToTwoDecimalPlaces(value))
         }
     }
 
-    fun onWeightFieldCancelClicked() {
+    fun onHeightFieldCancelClicked() {
         _successUiState.update {
-            it.copy(weightFieldValue = "")
+            it.copy(heightFieldValue = "")
+        }
+    }
+
+    fun onLengthFieldValueChanged(value: String) {
+        _successUiState.update {
+            it.copy(lengthFieldValue = Validators.validateNumberToTwoDecimalPlaces(value))
+        }
+    }
+
+    fun onLengthFieldCancelClicked() {
+        _successUiState.update {
+            it.copy(lengthFieldValue = "")
+        }
+    }
+
+    fun onCircuitFieldValueChanged(value: String) {
+        _successUiState.update {
+            it.copy(circuitFieldValue = Validators.validateNumberToTwoDecimalPlaces(value))
+        }
+    }
+
+    fun onCircuitFieldCancelClicked() {
+        _successUiState.update {
+            it.copy(circuitFieldValue = "")
         }
     }
 
@@ -76,6 +86,10 @@ class PetDetailsAddDimensionsViewModel @Inject constructor(
         _successUiState.update {
             it.copy(datePickerOpenDialog = !it.datePickerOpenDialog)
         }
+    }
+
+    fun onDatePickerTextFieldValueChanged(value: String) {
+
     }
 
     fun datePickerOnDismissRequest() {
@@ -87,8 +101,10 @@ class PetDetailsAddDimensionsViewModel @Inject constructor(
     fun datePickerOnConfirmedButtonClicked() {
         _successUiState.update {
             it.copy(
-                datePickerTextFieldValue = DateFormat.getDateInstance(DateFormat.SHORT).format(it.datePickerState.selectedDateMillis),
-                datePickerOpenDialog = false)
+                datePickerTextFieldValue = DateFormat.getDateInstance(DateFormat.SHORT)
+                    .format(it.datePickerState.selectedDateMillis),
+                datePickerOpenDialog = false
+            )
         }
     }
 
@@ -106,22 +122,48 @@ class PetDetailsAddDimensionsViewModel @Inject constructor(
         }
     }
 
-    fun onDoneButtonClicked() : Boolean  {
-        var output: Boolean = true
-        if (_successUiState.value.weightFieldValue.isNotEmpty())
-        viewModelScope.launch (Dispatchers.IO){
-                petsDashboardRepository.addPetWeight(
-                    PetWeightEntity(
-                        id = UUID.randomUUID(),
-                        pet_id = UUID.fromString(petId),
-                        measurementDate = Instant.ofEpochMilli(_successUiState.value.datePickerState.selectedDateMillis ?: Instant.now().toEpochMilli()),
-                        value = _successUiState.value.weightFieldValue.toDouble()
-                    )
+    fun onDoneButtonClicked(): Boolean {
+        var output = true
+        if (_successUiState.value.heightFieldValue.isNotEmpty() || _successUiState.value.lengthFieldValue.isNotEmpty() || _successUiState.value.circuitFieldValue.isNotEmpty())
+            viewModelScope.launch(Dispatchers.IO) {
+                petsDashboardRepository.addPetDimensions(
+                    petHeightEntity = if (_successUiState.value.heightFieldValue.isNotEmpty())
+                        PetHeightEntity(
+                            id = UUID.randomUUID(),
+                            pet_id = UUID.fromString(petId),
+                            measurementDate = Instant.ofEpochMilli(
+                                _successUiState.value.datePickerState.selectedDateMillis
+                                    ?: Instant.now().toEpochMilli()
+                            ),
+                            value = _successUiState.value.heightFieldValue.toDouble()
+                        ) else null,
+                    petLengthEntity = if (_successUiState.value.lengthFieldValue.isNotEmpty())
+                        PetLengthEntity(
+                            id = UUID.randomUUID(),
+                            pet_id = UUID.fromString(petId),
+                            measurementDate = Instant.ofEpochMilli(
+                                _successUiState.value.datePickerState.selectedDateMillis
+                                    ?: Instant.now().toEpochMilli()
+                            ),
+                            value = _successUiState.value.lengthFieldValue.toDouble()
+                        ) else null,
+                    petCircuitEntity = if (_successUiState.value.circuitFieldValue.isNotEmpty())
+                        PetCircuitEntity(
+                            id = UUID.randomUUID(),
+                            pet_id = UUID.fromString(petId),
+                            measurementDate = Instant.ofEpochMilli(
+                                _successUiState.value.datePickerState.selectedDateMillis
+                                    ?: Instant.now().toEpochMilli()
+                            ),
+                            value = _successUiState.value.circuitFieldValue.toDouble()
+                        ) else null
                 )
             }
-         else {
+        else {
             _successUiState.update {
-                it.copy(weightErrorMessage = R.string.pet_form_weight_error_message, isWeightValid = false)
+                it.copy(
+                    isFormValid = false
+                )
             }
             output = false
         }
@@ -133,8 +175,4 @@ class PetDetailsAddDimensionsViewModel @Inject constructor(
             it.copy(hideKeyboard = true)
         }
     }
-
-
-
-
 }

@@ -17,12 +17,28 @@ class PetDashboardLocalDatasource internal constructor(
         return petsDashboardDao.getDashboardView()
     }
 
+    override fun getPetWeightHistory(petId: String): Flow<List<PetWeightEntity>> {
+        return petsDashboardDao.getPetWeightHistory(petId = petId)
+    }
+
     override fun getPetDetails(petId: String): Flow<PetDetailsView> {
         return petsDashboardDao.getPetDetails(petId = petId)
     }
 
     override suspend fun addPetWeight(weightEntity: PetWeightEntity) {
         petsDashboardDao.addPetWeight(weightEntity)
+    }
+
+    override suspend fun addPetDimensions(
+        petHeightEntity: PetHeightEntity?,
+        petLengthEntity: PetLengthEntity?,
+        petCircuitEntity: PetCircuitEntity?
+    ) {
+        petsDashboardDao.addPetDimensions(
+            petHeightEntity = petHeightEntity,
+            petLengthEntity = petLengthEntity,
+            petCircuitEntity = petCircuitEntity
+        )
     }
 
     override suspend fun addPetGeneralInfo(pet: PetGeneralEntity) {

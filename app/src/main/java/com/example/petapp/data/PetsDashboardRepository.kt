@@ -7,6 +7,8 @@ interface PetsDashboardRepository {
     fun getDashboard(): Flow<List<PetDashboardView>>
 
     fun getPetDetails(petId: String): Flow<PetDetailsView>
+
+    fun getPetWeightHistory(petId: String): Flow<List<PetWeightEntity>>
     suspend fun addPetWeight(weightEntity: PetWeightEntity)
     suspend fun addPetGeneralInfo(pet: PetGeneralEntity)
     suspend fun addNewPet(
@@ -16,4 +18,6 @@ interface PetsDashboardRepository {
         petLengthEntity: PetLengthEntity?,
         petCircuitEntity: PetCircuitEntity?
     )
+
+    suspend fun addPetDimensions(petHeightEntity: PetHeightEntity?, petLengthEntity: PetLengthEntity?, petCircuitEntity: PetCircuitEntity?)
 }

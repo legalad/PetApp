@@ -20,6 +20,10 @@ class DefaultPetsDashboardRepository (
         return petsDashboardLocalDatasource.getPetDetails(petId = petId)
     }
 
+    override fun getPetWeightHistory(petId: String): Flow<List<PetWeightEntity>> {
+        return petsDashboardLocalDatasource.getPetWeightHistory(petId = petId)
+    }
+
     override suspend fun addPetWeight(weightEntity: PetWeightEntity) {
         petsDashboardLocalDatasource.addPetWeight(weightEntity)
     }
@@ -38,6 +42,18 @@ class DefaultPetsDashboardRepository (
         petsDashboardLocalDatasource.addNewPet(
             petGeneralEntity = petGeneralEntity,
             petWeightEntity = petWeightEntity,
+            petHeightEntity = petHeightEntity,
+            petLengthEntity = petLengthEntity,
+            petCircuitEntity = petCircuitEntity
+        )
+    }
+
+    override suspend fun addPetDimensions(
+        petHeightEntity: PetHeightEntity?,
+        petLengthEntity: PetLengthEntity?,
+        petCircuitEntity: PetCircuitEntity?
+    ) {
+        petsDashboardLocalDatasource.addPetDimensions(
             petHeightEntity = petHeightEntity,
             petLengthEntity = petLengthEntity,
             petCircuitEntity = petCircuitEntity
