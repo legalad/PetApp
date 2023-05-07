@@ -10,6 +10,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.petapp.data.PetsDashboardRepository
 import com.example.petapp.data.UserSettingsDataRepository
 import com.example.petapp.model.util.Contstans
+import com.example.petapp.model.util.Formatters
+import com.patrykandpatrick.vico.core.entry.ChartEntryModelProducer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -33,24 +35,68 @@ class PetDetailsWeightDashboardViewModel @Inject constructor(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(Contstans.TIMEOUT_MILLIS),
-            initialValue = _successUiState.value)
+            initialValue = _successUiState.value
+        )
 
     init {
         viewModelScope.launch {
-            petsDashboardRepository.getPetWeightHistory(petId = petId).collect { petHistory ->
-                _successUiState.update { it.copy(weightHistoryList = petHistory) }
-            }
+            combine(
+                petsDashboardRepository.getPetWeightHistory(petId = petId),
+                settingsDataRepository.getUnit()
+            ) { pets, unit ->
+                _successUiState.update {
+                    it.copy(
+                        unit = unit,
+                        weightHistoryList = pets,
+                        chartEntryModelProducer = ChartEntryModelProducer(
+                            entryCollections = listOf(
+                                pets.mapIndexed { index, petWeightEntity ->
+                                    DateEntry(
+                                        localDate = petWeightEntity.measurementDate,
+                                        y = Formatters.getWeightValue(petWeightEntity.value, unit)
+                                            .toFloat(),
+                                        x = index.toFloat()
+                                    )
+                                })
+                        )
+                    )
+                }
+            }.collect()
         }
-        viewModelScope.launch {
-            settingsDataRepository.getUnit().collect { unit ->
-                _successUiState.update {it.copy(unit = unit)
+           /* petsDashboardRepository.getPetWeightHistory(petId = petId).collect { petHistory ->
+                _successUiState.update {
+                    it.copy(
+                        weightHistoryList = petHistory,
+                        chartEntryModelProducer = ChartEntryModelProducer(
+                            entryCollections = listOf(
+                                petHistory.mapIndexed { index, petWeightEntity ->
+                                    DateEntry(
+                                        localDate = petWeightEntity.measurementDate,
+                                        y = Formatters.getWeightValue(petWeightEntity.value, successUiState.value.unit).toFloat(),
+                                        x = index.toFloat()
+                                    )
+                                })
+                        )
+                    )
                 }
             }
-        }
+        }*/
+        /*viewModelScope.launch {
+            settingsDataRepository.getUnit().collect { unit ->
+                _successUiState.update {
+                    it.copy(unit = unit)
+                }
+            }
+        }*/
         uiState = PetDetailsWeightDashboardUiState.Success()
     }
+
 
     fun getPetId(): String {
         return petId
     }
+
+    /*private val axisValueFormatter = AxisValueFormatter<AxisPosition.Horizontal.Bottom> { i, _ ->
+        "${i.toInt()} Lorem ipsum"
+    }*/
 }
