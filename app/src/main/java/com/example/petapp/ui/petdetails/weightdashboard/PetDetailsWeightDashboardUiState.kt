@@ -1,28 +1,47 @@
 package com.example.petapp.ui.petdetails.weightdashboard
 
+import androidx.annotation.DrawableRes
+import androidx.compose.ui.graphics.Color
 import com.example.android.datastore.UserPreferences
-import com.example.petapp.data.PetWeightEntity
+import com.example.petapp.R
 import com.patrykandpatrick.vico.core.entry.ChartEntry
 import com.patrykandpatrick.vico.core.entry.ChartEntryModelProducer
 import java.time.Instant
 
 sealed interface PetDetailsWeightDashboardUiState {
     data class Success(
-        val weightHistoryList: List<PetWeightEntity> = emptyList(),
+        val petName: String = "",
+        val petIdString: String = "",
+        val weightHistoryList: List<ListDateEntry> = emptyList(),
         val chartEntryModelProducer: ChartEntryModelProducer = ChartEntryModelProducer(),
-        val unit: UserPreferences.Unit = UserPreferences.Unit.METRIC
+        val selectedDateEntry: ChartDateEntry = ChartDateEntry(Instant.now(), 0f, 0f),
+        val persistentMarkerX: Float = 10f,
+        val unit: UserPreferences.Unit = UserPreferences.Unit.METRIC,
+        val dataDisplayedType: DataDisplayedType = DataDisplayedType.LINE_CHART
     ) : PetDetailsWeightDashboardUiState
     object Loading : PetDetailsWeightDashboardUiState
     data class Error (val errorMessage: String) : PetDetailsWeightDashboardUiState
 }
 
-class DateEntry(
+class ChartDateEntry(
     val localDate: Instant,
     override val x: Float,
     override val y: Float,
 ) : ChartEntry {
     override fun withY(y: Float): ChartEntry {
-        return DateEntry(localDate, x, y)
+        return ChartDateEntry(localDate, x, y)
     }
+}
 
+class ListDateEntry(
+    val localDate: Instant,
+    val changeValue: Double,
+    @DrawableRes val changeIconId: Int,
+    val changeIconColor: Color,
+    val value: Double
+)
+
+enum class DataDisplayedType (@DrawableRes val chartIconId: Int) {
+    LINE_CHART (R.drawable.round_list_alt_24),
+    LIST (R.drawable.round_insert_chart_outlined_24)
 }

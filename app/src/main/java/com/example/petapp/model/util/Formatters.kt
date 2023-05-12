@@ -3,7 +3,7 @@ package com.example.petapp.model.util
 import android.content.Context
 import com.example.android.datastore.UserPreferences
 import com.example.petapp.R
-import com.example.petapp.ui.petdetails.weightdashboard.DateEntry
+import com.example.petapp.ui.petdetails.weightdashboard.ChartDateEntry
 import com.patrykandpatrick.vico.core.axis.AxisPosition
 import com.patrykandpatrick.vico.core.axis.formatter.AxisValueFormatter
 import java.time.Instant
@@ -47,7 +47,7 @@ class Formatters {
         ): String {
             return if (unit == UserPreferences.Unit.METRIC) {
                 if (value >= 1) ("${"%.2f".format(value)} " + context.getString(R.string.unit_meter))
-                else ("${"%.2f".format(value * 100)} " + context.getString(R.string.unit_centimeter))
+                else ("${"%.0f".format(value * 100)} " + context.getString(R.string.unit_centimeter))
             } else {
                 if (value * 3.2808 >= 1) ("${"%.2f".format(value * 3.2808)} " + context.getString(
                     R.string.unit_foot
@@ -66,10 +66,15 @@ class Formatters {
             else value * 0.45359237
         }
 
+        fun getDimensionValue(value: Double, unit: UserPreferences.Unit): Double {
+            return if (unit == UserPreferences.Unit.METRIC) value
+            else value * 3.2808
+        }
+
         fun getAxisValueFormatterWithDate() :  AxisValueFormatter<AxisPosition.Horizontal.Bottom>{
             return AxisValueFormatter<AxisPosition.Horizontal.Bottom> { value, chartValues ->
                 try {
-                    (chartValues.chartEntryModel.entries.first().getOrNull(value.toInt()) as? DateEntry)
+                    (chartValues.chartEntryModel.entries.first().getOrNull(value.toInt()) as? ChartDateEntry)
                         ?.localDate
                         ?.run {
 

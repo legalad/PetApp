@@ -21,6 +21,18 @@ class PetDashboardLocalDatasource internal constructor(
         return petsDashboardDao.getPetWeightHistory(petId = petId)
     }
 
+    override fun getPetHeightHistory(petId: String): Flow<List<PetHeightEntity>> {
+        return petsDashboardDao.getPetHeightHistory(petId = petId)
+    }
+
+    override fun getPetLengthHistory(petId: String): Flow<List<PetLengthEntity>> {
+        return petsDashboardDao.getPetLengthHistory(petId = petId)
+    }
+
+    override fun getPetCircuitHistory(petId: String): Flow<List<PetCircuitEntity>> {
+        return petsDashboardDao.getPetCircuitHistory(petId = petId)
+    }
+
     override fun getPetDetails(petId: String): Flow<PetDetailsView> {
         return petsDashboardDao.getPetDetails(petId = petId)
     }

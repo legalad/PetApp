@@ -24,6 +24,18 @@ class DefaultPetsDashboardRepository (
         return petsDashboardLocalDatasource.getPetWeightHistory(petId = petId)
     }
 
+    override fun getPetHeightHistory(petId: String): Flow<List<PetHeightEntity>> {
+        return petsDashboardLocalDatasource.getPetHeightHistory(petId = petId)
+    }
+
+    override fun getPetLengthHistory(petId: String): Flow<List<PetLengthEntity>> {
+        return petsDashboardLocalDatasource.getPetLengthHistory(petId = petId)
+    }
+
+    override fun getPetCircuitHistory(petId: String): Flow<List<PetCircuitEntity>> {
+        return petsDashboardLocalDatasource.getPetCircuitHistory(petId = petId)
+    }
+
     override suspend fun addPetWeight(weightEntity: PetWeightEntity) {
         petsDashboardLocalDatasource.addPetWeight(weightEntity)
     }

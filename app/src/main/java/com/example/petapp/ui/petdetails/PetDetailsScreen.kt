@@ -24,7 +24,8 @@ fun PetDetailsScreen(
     viewModel: PetDetailsViewModel,
     navigateToAddWeightScreen: (petId: String) -> Unit,
     navigateToAddDimensionsScreen: (petId: String) -> Unit,
-    navigateToWeightDashboardScreen: (petId: String) -> Unit
+    navigateToWeightDashboardScreen: (petId: String) -> Unit,
+    navigateToDimensionsDashboardScreen: (petId: String) -> Unit
 ) {
     when (viewModel.uiState) {
         is PetDetailsUiState.Error -> ErrorScreen(message = "Can't load pets")
@@ -33,7 +34,8 @@ fun PetDetailsScreen(
             viewModel,
             navigateToAddWeightScreen = navigateToAddWeightScreen,
             navigateToAddDimensionsScreen = navigateToAddDimensionsScreen,
-            navigateToWeightDashboardScreen = navigateToWeightDashboardScreen
+            navigateToWeightDashboardScreen = navigateToWeightDashboardScreen,
+            navigateToDimensionsDashboardScreen = navigateToDimensionsDashboardScreen
         )
     }
 }
@@ -43,7 +45,8 @@ fun PetDetailsResultScreen(
     viewModel: PetDetailsViewModel,
     navigateToAddWeightScreen: (petId: String) -> Unit,
     navigateToAddDimensionsScreen: (petId: String) -> Unit,
-    navigateToWeightDashboardScreen: (petId: String) -> Unit
+    navigateToWeightDashboardScreen: (petId: String) -> Unit,
+    navigateToDimensionsDashboardScreen: (petId: String) -> Unit
 ) {
     val uiState = viewModel.successUiState.collectAsState().value
     Column(modifier = Modifier.fillMaxSize()) {
@@ -87,7 +90,7 @@ fun PetDetailsResultScreen(
             onTrailingIconClicked = {
                 navigateToAddDimensionsScreen(uiState.pet.petId.toString())
             },
-            onCardItemClicked = {}) {
+            onCardItemClicked = { navigateToDimensionsDashboardScreen(uiState.pet.petId.toString()) }) {
             Icon(
                 painter = painterResource(id = R.drawable.baseline_height_24),
                 contentDescription = null

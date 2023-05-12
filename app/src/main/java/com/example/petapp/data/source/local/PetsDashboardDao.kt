@@ -20,6 +20,15 @@ interface PetsDashboardDao {
     @Query("SELECT * FROM pet_weight_history where pet_id = :petId ORDER BY measurement_timestamp ASC")
     fun getPetWeightHistory(petId: String): Flow<List<PetWeightEntity>>
 
+    @Query("SELECT * FROM pet_height_history where pet_id = :petId ORDER BY measurement_timestamp ASC")
+    fun getPetHeightHistory(petId: String): Flow<List<PetHeightEntity>>
+
+    @Query("SELECT * FROM pet_length_history where pet_id = :petId ORDER BY measurement_timestamp ASC")
+    fun getPetLengthHistory(petId: String): Flow<List<PetLengthEntity>>
+
+    @Query("SELECT * FROM pet_circuit_history where pet_id = :petId ORDER BY measurement_timestamp ASC")
+    fun getPetCircuitHistory(petId: String): Flow<List<PetCircuitEntity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addPetGeneralInfo(pet: PetGeneralEntity)
 

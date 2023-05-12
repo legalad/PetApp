@@ -8,7 +8,9 @@ interface PetsDashboardDatasource {
     fun getDashboard(): Flow<List<PetDashboardView>>
 
     fun getPetWeightHistory(petId: String): Flow<List<PetWeightEntity>>
-
+    fun getPetHeightHistory(petId: String): Flow<List<PetHeightEntity>>
+    fun getPetLengthHistory(petId: String): Flow<List<PetLengthEntity>>
+    fun getPetCircuitHistory(petId: String): Flow<List<PetCircuitEntity>>
     fun getPetDetails(petId: String): Flow<PetDetailsView>
 
     suspend fun addPetWeight(weightEntity: PetWeightEntity)
