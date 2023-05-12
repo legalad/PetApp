@@ -1,6 +1,7 @@
 package com.example.petapp.ui.components.forms
 
 import android.annotation.SuppressLint
+import android.app.TimePickerDialog
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -39,13 +40,6 @@ fun DatePicker(
     @StringRes supportingText: Int = R.string.blank
 
 ) {
-    /*DatePickerOutlinedTextField(
-        label = label,
-        value = value,
-        onValueChange = onValueChange,
-        onTextFieldClicked = onTextFieldClicked,
-        modifier = modifier
-    )*/
     OutlinedTextFieldWithLeadingIcon(
         fieldLabel = label,
         fieldPlaceholder = R.string.blank,

@@ -41,7 +41,7 @@ fun ExposedDropdownMenu(
                 readOnly = readOnly,
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                 colors = ExposedDropdownMenuDefaults.textFieldColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface
                 ),
             )
         }
@@ -90,7 +90,7 @@ fun SettingsExposedDropdownMenu(
                 readOnly = readOnly,
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                 colors = ExposedDropdownMenuDefaults.textFieldColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface
                 ),
             )
         }
@@ -140,7 +140,7 @@ fun SettingsExposedDropdownMenu(
                 readOnly = readOnly,
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                 colors = ExposedDropdownMenuDefaults.textFieldColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface
                 ),
             )
         }
