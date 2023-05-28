@@ -139,7 +139,7 @@ class PetDetailsAddWeightViewModel @Inject constructor(
         else {
             _successUiState.update {
                 it.copy(
-                    weightErrorMessage = R.string.pet_form_weight_error_message,
+                    weightErrorMessage = R.string.components_forms_text_field_supporting_text_error_message_weight,
                     isWeightValid = false
                 )
             }

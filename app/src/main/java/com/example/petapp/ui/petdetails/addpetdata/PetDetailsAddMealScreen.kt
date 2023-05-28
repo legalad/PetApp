@@ -46,8 +46,8 @@ fun PetDetailsAddMealResultScreen(
                     .padding(4.dp), horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 PetFormsBottomNavButtons(
-                    leftButtonStringId = R.string.cancel,
-                    rightButtonStringId = R.string.done,
+                    leftButtonStringId = R.string.components_forms_dialog_buttons_cancel,
+                    rightButtonStringId = R.string.components_forms_dialog_buttons_done,
                     onLeftButtonClicked = navigateBack,
                     onRightButtonClicked = {
                         if (viewModel.onDoneButtonCLicked()) navigateBack()
@@ -55,9 +55,9 @@ fun PetDetailsAddMealResultScreen(
             }
         }
     ) { innerPadding ->
-        FormDefaultColumn(headline = R.string.meal_type_label,columnOnClicked = { /*TODO*/ }, modifier = Modifier.padding(innerPadding)) {
+        FormDefaultColumn(headline = R.string.components_forms_text_field_label_meal,columnOnClicked = { /*TODO*/ }, modifier = Modifier.padding(innerPadding)) {
             ExposedDropdownMenuV2(
-                label = R.string.meal_type_label,
+                label = R.string.components_forms_text_field_label_meal,
                 options = uiState.mealTypeMenuOptions.map { it.nameId }.dropLast(1),
                 expanded = uiState.mealTypeMenuExpanded,
                 selectedOption = uiState.mealTypeMenuSelectedOption.nameId,
@@ -87,7 +87,7 @@ fun PetDetailsAddMealResultScreen(
 
             if (uiState.foodTypeRadioSelectedOption == FoodTypeEnum.OTHER) {
                 ExposedDropdownMenu(
-                    label = R.string.food_type_label,
+                    label = R.string.components_forms_text_field_label_food,
                     options = emptyList(),
                     expanded = uiState.foodMenuExpanded,
                     selectedOption = uiState.foodMenuSelectedOptionText,

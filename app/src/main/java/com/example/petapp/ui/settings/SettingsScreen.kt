@@ -37,12 +37,12 @@ fun SettingsResultScreen(viewModel: SettingsViewModel) {
     ){
         Spacer(modifier = Modifier.padding(30.dp))
         Text(
-            text = stringResource(R.string.settings),
+            text = stringResource(R.string.components_top_app_bar_menu_title_settings),
             style = MaterialTheme.typography.headlineMedium
         )
         Spacer(modifier = Modifier.padding(20.dp))
         SettingsExposedDropdownMenu(
-            label = R.string.settings_language,
+            label = R.string.components_forms_text_field_label_language,
             expanded = uiState.languageMenuExpanded,
             selectedOption = uiState.language,
             onExpandedChange = viewModel::languageMenuOnExpandedChanged,
@@ -50,7 +50,7 @@ fun SettingsResultScreen(viewModel: SettingsViewModel) {
             onDismissRequest = viewModel::languageMenuOnDismissRequest)
         Spacer(modifier = Modifier.padding(5.dp))
         SettingsExposedDropdownMenu(
-            label = R.string.settings_unit,
+            label = R.string.components_forms_text_field_label_unit,
             expanded = uiState.unitMenuExpanded,
             selectedOption = uiState.unit,
             onExpandedChange = viewModel::unitMenuOnExpandedChanged,

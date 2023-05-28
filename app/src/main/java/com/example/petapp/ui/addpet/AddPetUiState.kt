@@ -47,23 +47,23 @@ sealed interface AddPetUiState {
         val isNameValid: Boolean = true,
         val isNameChanged: Boolean = false,
         val isNameInputChanged: Boolean = false,
-        val nameErrorMessage: Int = R.string.blank,
+        val nameErrorMessage: Int = R.string.util_blank,
         val isBirthDateValid: Boolean = true,
         val isBirthDateChanged: Boolean = false,
-        val birtDateErrorMessage: Int = R.string.blank,
+        val birtDateErrorMessage: Int = R.string.util_blank,
         val isSpeciesValid: Boolean = false,
-        val speciesErrorMessage: Int = R.string.blank,
+        val speciesErrorMessage: Int = R.string.util_blank,
         val isBreedValid: Boolean = false,
-        val breedErrorMessage: Int = R.string.blank,
+        val breedErrorMessage: Int = R.string.util_blank,
         val isWeightValid: Boolean = true,
         val isWeightChanged: Boolean = false,
-        val weightErrorMessage: Int = R.string.blank,
+        val weightErrorMessage: Int = R.string.util_blank,
         val isHeightValid: Boolean = true,
-        val heightErrorMessage: Int = R.string.blank,
+        val heightErrorMessage: Int = R.string.util_blank,
         val isLengthValid: Boolean = true,
-        val lengthErrorMessage: Int = R.string.blank,
+        val lengthErrorMessage: Int = R.string.util_blank,
         val isCircuitValid: Boolean = true,
-        val circuitErrorMessage: Int = R.string.blank
+        val circuitErrorMessage: Int = R.string.util_blank
 
     ) : AddPetUiState
     object Loading : AddPetUiState

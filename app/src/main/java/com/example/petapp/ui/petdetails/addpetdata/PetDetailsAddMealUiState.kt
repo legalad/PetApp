@@ -16,7 +16,7 @@ sealed interface PetDetailsAddMealUiState {
         val foodTypeRadioOptions: List<FoodTypeEnum> = FoodTypeEnum.values().toList(),
         val foodTypeRadioSelectedOption: FoodTypeEnum = FoodTypeEnum.WET,
         val isMealTypeValid: Boolean = true,
-        val mealTypeErrorMessage: Int = R.string.blank,
+        val mealTypeErrorMessage: Int = R.string.util_blank,
         val foodMenuEnabled: Boolean = true,
         val foodMenuOptions: List<String> = emptyList(),
         val foodMenuExpanded: Boolean = false,
@@ -34,7 +34,7 @@ sealed interface PetDetailsAddMealUiState {
 }
 
 enum class FoodTypeEnum (@StringRes val nameId: Int) {
-    WET (R.string.food_type_wet),
-    DRY (R.string.food_type_dry),
-    OTHER (R.string.food_type_other)
+    WET (R.string.util_enums_food_type_wet),
+    DRY (R.string.util_enums_food_type_dry),
+    OTHER (R.string.util_enums_food_type_other)
 }

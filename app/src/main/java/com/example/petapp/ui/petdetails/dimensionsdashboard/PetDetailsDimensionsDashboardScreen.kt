@@ -29,7 +29,7 @@ fun PetDimensionsDashboardResultScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(id = R.string.dimensions_dashboard_headline, uiState.petName)+ " " + stringResource(
+                title = { Text(text = stringResource(id = R.string.components_top_app_bar_title_pet_dimensions, uiState.petName)+ " " + stringResource(
                     id = uiState.displayedDimension.dimensionName
                 )) },
                 navigationIcon = { IconButton(onClick = navigateBack) {

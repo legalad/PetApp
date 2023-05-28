@@ -45,8 +45,8 @@ fun AddWeightResultScreen(
                     .padding(4.dp), horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 PetFormsBottomNavButtons(
-                    leftButtonStringId = R.string.cancel,
-                    rightButtonStringId = R.string.done,
+                    leftButtonStringId = R.string.components_forms_dialog_buttons_cancel,
+                    rightButtonStringId = R.string.components_forms_dialog_buttons_done,
                     onLeftButtonClicked = { navigateToPetDetails(viewModel.getPetId()) },
                     onRightButtonClicked = {
                         if (viewModel.onDoneButtonClicked()) navigateToPetDetails(
@@ -57,7 +57,7 @@ fun AddWeightResultScreen(
         }
     ) { innerPadding ->
         FormDefaultColumn(
-            headline = R.string.dimension_form_headline,
+            headline = R.string.components_forms_title_measurement,
             columnOnClicked = { viewModel.hideKeyboard() },
             modifier = Modifier.padding(innerPadding)
         ) {
@@ -81,7 +81,7 @@ fun AddWeightResultScreen(
             )
             OutlinedTextFieldWithLeadingIcon(
                 fieldLabel = R.string.components_forms_text_field_label_pet_weight,
-                fieldPlaceholder = R.string.pet_weight_unit,
+                fieldPlaceholder = R.string.util_unit_weight,
                 leadingIcon = R.drawable.weight_24,
                 fieldValue = uiState.weightFieldValue,
                 onValueChanged = viewModel::onWeightFieldValueChanged,
@@ -103,8 +103,8 @@ fun AddWeightResultScreen(
 fun FormDefaultColumn(
     columnOnClicked: () -> Unit,
     modifier: Modifier = Modifier,
-    @StringRes headline: Int = R.string.input_data,
-    @StringRes supportingText: Int = R.string.fill_out_info,
+    @StringRes headline: Int = R.string.components_forms_description_fill_out_v2,
+    @StringRes supportingText: Int = R.string.components_forms_description_fill_out,
     content: @Composable() (ColumnScope.() -> Unit)
 ) {
     val interactionSource = remember { MutableInteractionSource() }

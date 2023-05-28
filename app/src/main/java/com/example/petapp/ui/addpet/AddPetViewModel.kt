@@ -309,15 +309,15 @@ class AddPetViewModel @Inject constructor(
         return if (value.isNotEmpty()) {
             _successUiState.update {
                 it.copy(isNameValid = true,
-                        nameErrorMessage = R.string.blank)
+                        nameErrorMessage = R.string.util_blank)
             }
-            R.string.blank
+            R.string.util_blank
         } else {
             _successUiState.update {
                 it.copy(isNameValid = false,
-                        nameErrorMessage = R.string.pet_form_general_name_error_message)
+                        nameErrorMessage = R.string.components_forms_text_field_supporting_text_error_message_name_empty)
             }
-            R.string.pet_form_general_name_error_message
+            R.string.components_forms_text_field_supporting_text_error_message_name_empty
         }
 
     }
@@ -329,13 +329,13 @@ class AddPetViewModel @Inject constructor(
         if (!_successUiState.value.isBirthDateChanged) {
             _successUiState.update {
                 it.copy(
-                    birtDateErrorMessage = R.string.pet_form_general_birthdate_error_message,
+                    birtDateErrorMessage = R.string.components_forms_date_picker_supporting_text_error_message_birth,
                     isBirthDateValid = false)
             }
         } else {
             _successUiState.update {
                 it.copy(isBirthDateValid = true,
-                        birtDateErrorMessage = R.string.blank)
+                        birtDateErrorMessage = R.string.util_blank)
             }
         }
 
@@ -349,7 +349,7 @@ class AddPetViewModel @Inject constructor(
         } else {
             _successUiState.update {
                 it.copy(isSpeciesValid = false,
-                    speciesErrorMessage = R.string.pet_form_species_error_message)
+                    speciesErrorMessage = R.string.components_forms_menus_supporting_text_error_message_species)
             }
         }
     }
@@ -363,13 +363,13 @@ class AddPetViewModel @Inject constructor(
     if (value.isNotEmpty()) {
             _successUiState.update {
                 it.copy(isWeightValid = true,
-                    weightErrorMessage = R.string.blank)
+                    weightErrorMessage = R.string.util_blank)
             }
         } else {
         _successUiState.update {
             it.copy(
                 isWeightValid = false,
-                weightErrorMessage = R.string.pet_form_weight_error_message
+                weightErrorMessage = R.string.components_forms_text_field_supporting_text_error_message_weight
             )
         }
     }

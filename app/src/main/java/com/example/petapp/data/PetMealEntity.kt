@@ -39,9 +39,9 @@ data class PetFoodEntity(
 )
 
 enum class MealType (@StringRes val nameId: Int) {
-    BREAKFAST(R.string.meal_type_breakfast),
-    LUNCH(R.string.meal_type_lunch),
-    DINNER(R.string.meal_type_dinner),
-    SNACK(R.string.meal_type_snack),
-    NONE(R.string.blank)
+    BREAKFAST(R.string.util_enums_meal_type_breakfast),
+    LUNCH(R.string.util_enums_meal_type_lunch),
+    DINNER(R.string.util_enums_meal_type_dinner),
+    SNACK(R.string.util_enums_meal_type_snack),
+    NONE(R.string.util_blank)
 }

@@ -33,7 +33,7 @@ sealed interface PetDetailsAddWeightUiState {
         val weightFieldValue: String = "",
         val isWeightChanged: Boolean = false,
         val isWeightValid: Boolean = true,
-        val weightErrorMessage: Int = R.string.blank,
+        val weightErrorMessage: Int = R.string.util_blank,
         val hideKeyboard: Boolean = false,
         val unit: UserPreferences.Unit = UserPreferences.Unit.METRIC
     ) : PetDetailsAddWeightUiState

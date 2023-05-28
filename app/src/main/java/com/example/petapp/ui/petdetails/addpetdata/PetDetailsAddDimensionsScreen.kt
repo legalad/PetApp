@@ -46,8 +46,8 @@ fun AddDimensionsResultScreen(
                     .padding(4.dp), horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 PetFormsBottomNavButtons(
-                    leftButtonStringId = R.string.cancel,
-                    rightButtonStringId = R.string.done,
+                    leftButtonStringId = R.string.components_forms_dialog_buttons_cancel,
+                    rightButtonStringId = R.string.components_forms_dialog_buttons_done,
                     onLeftButtonClicked = { navigateToPetDetails(viewModel.getPetId()) },
                     onRightButtonClicked = {
                         if (viewModel.onDoneButtonClicked()) navigateToPetDetails(
@@ -57,7 +57,7 @@ fun AddDimensionsResultScreen(
             }
         }
     ) { innerPadding ->
-        FormDefaultColumn(headline = R.string.dimension_form_headline,columnOnClicked = { viewModel.hideKeyboard() }, modifier = Modifier.padding(innerPadding)) {
+        FormDefaultColumn(headline = R.string.components_forms_title_measurement,columnOnClicked = { viewModel.hideKeyboard() }, modifier = Modifier.padding(innerPadding)) {
             SingleRowDateTimePicker(
                 datePickerValue = uiState.datePickerTextFieldValue,
                 datePickerOpenDialog = uiState.datePickerOpenDialog,
@@ -78,7 +78,7 @@ fun AddDimensionsResultScreen(
             )
             OutlinedTextFieldWithLeadingIcon(
                 fieldLabel = R.string.components_forms_text_field_label_pet_height,
-                fieldPlaceholder = R.string.pet_dimensions_unit,
+                fieldPlaceholder = R.string.util_unit_dimension,
                 leadingIcon = R.drawable.baseline_height_24,
                 fieldValue = uiState.heightFieldValue,
                 onValueChanged = viewModel::onHeightFieldValueChanged,
@@ -93,7 +93,7 @@ fun AddDimensionsResultScreen(
             )
             OutlinedTextFieldWithLeadingIcon(
                 fieldLabel = R.string.components_forms_text_field_label_pet_width,
-                fieldPlaceholder = R.string.pet_dimensions_unit,
+                fieldPlaceholder = R.string.util_unit_dimension,
                 leadingIcon = R.drawable.width_24,
                 fieldValue = uiState.lengthFieldValue,
                 onValueChanged = viewModel::onLengthFieldValueChanged,
@@ -109,7 +109,7 @@ fun AddDimensionsResultScreen(
 
             OutlinedTextFieldWithLeadingIcon(
                 fieldLabel = R.string.components_forms_text_field_label_pet_circuit,
-                fieldPlaceholder = R.string.pet_dimensions_unit,
+                fieldPlaceholder = R.string.util_unit_dimension,
                 leadingIcon = R.drawable.restart_alt_24,
                 fieldValue = uiState.circuitFieldValue,
                 onValueChanged = viewModel::onCircuitFieldValueChanged,

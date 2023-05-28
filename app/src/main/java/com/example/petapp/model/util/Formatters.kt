@@ -20,12 +20,12 @@ class Formatters {
                 instant.atZone(ZoneId.systemDefault()).toLocalDate(),
                 LocalDate.now(ZoneId.systemDefault())
             )
-            return if (age.years > 1) ("${age.years} " + context.getString(R.string.age_years_old))
-            else if (age.years == 1) ("${age.years} " + context.getString(R.string.age_year_old))
-            else if (age.months > 1) ("${age.months} " + context.getString(R.string.age_months_old))
-            else if (age.months == 1) ("${age.months} " + context.getString(R.string.age_month_old))
-            else if (age.days == 1) ("${age.days} " + context.getString(R.string.age_day_old))
-            else ("${age.days} " + context.getString(R.string.age_days_old))
+            return if (age.years > 1) ("${age.years} " + context.getString(R.string.util_time_years))
+            else if (age.years == 1) ("${age.years} " + context.getString(R.string.util_time_year))
+            else if (age.months > 1) ("${age.months} " + context.getString(R.string.util_time_months))
+            else if (age.months == 1) ("${age.months} " + context.getString(R.string.util_time_month))
+            else if (age.days == 1) ("${age.days} " + context.getString(R.string.util_time_day))
+            else ("${age.days} " + context.getString(R.string.util_time_days))
 
         }
 
@@ -35,9 +35,9 @@ class Formatters {
             context: Context
         ): String {
             return if (unit == UserPreferences.Unit.METRIC) ("${"%.2f".format(weight)} " + context.getString(
-                R.string.unit_kg
+                R.string.util_unit_weight_kg
             ))
-            else ("${"%.2f".format(weight * 0.45359237)} " + context.getString(R.string.unit_lbs))
+            else ("${"%.2f".format(weight * 0.45359237)} " + context.getString(R.string.util_unit_weight_lbs))
         }
 
         fun getFormattedDimensionString(
@@ -46,13 +46,13 @@ class Formatters {
             context: Context
         ): String {
             return if (unit == UserPreferences.Unit.METRIC) {
-                if (value >= 1) ("${"%.2f".format(value)} " + context.getString(R.string.unit_meter))
-                else ("${"%.0f".format(value * 100)} " + context.getString(R.string.unit_centimeter))
+                if (value >= 1) ("${"%.2f".format(value)} " + context.getString(R.string.util_unit_dimension_meters))
+                else ("${"%.0f".format(value * 100)} " + context.getString(R.string.util_unit_dimension_centimeter))
             } else {
                 if (value * 3.2808 >= 1) ("${"%.2f".format(value * 3.2808)} " + context.getString(
-                    R.string.unit_foot
+                    R.string.util_unit_dimension_foot
                 ))
-                else ("${"%.2f".format(value * 39.3700787)} " + context.getString(R.string.inch))
+                else ("${"%.2f".format(value * 39.3700787)} " + context.getString(R.string.util_unit_dimension_inch))
             }
         }
 

@@ -95,7 +95,7 @@ fun PetDetailsResultScreen(
             )
         }
         PetBasicCardWithTrailingIcon(
-            title = R.string.pet_form_subheadline_dimensions,
+            title = R.string.components_forms_title_new_pet_dimensions,
             onTrailingIconClicked = {
                 navigateToAddDimensionsScreen(uiState.pet.petId.toString())
             },
@@ -131,13 +131,13 @@ fun PetDetailsResultScreen(
             )
         }
         PetBasicCardWithTrailingIcon(
-            title = R.string.pet_hunger,
+            title = R.string.components_dashboard_card_title_meals,
             onCardItemClicked = { navigateToMealsDashboardScreen(uiState.pet.petId.toString()) },
             onTrailingIconClicked = { navigateToAddMealScreen(uiState.pet.petId.toString()) }) {
 
         }
         PetBasicCardWithTrailingIcon(
-            title = R.string.components_card_title_water,
+            title = R.string.components_dashboard_card_title_water,
             leadingIcon = R.drawable.round_refresh_24,
             onTrailingIconClicked = viewModel::onWaterRefillIconClicked,
             onCardItemClicked = {}) {

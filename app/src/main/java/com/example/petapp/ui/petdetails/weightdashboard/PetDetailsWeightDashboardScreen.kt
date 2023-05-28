@@ -55,7 +55,7 @@ fun PetWeightDashboardResultScreen(
                 title = {
                     Text(
                         text = stringResource(
-                            id = R.string.weight_dashboard_headline,
+                            id = R.string.components_top_app_bar_title_pet_weight,
                             uiState.petName
                         )
                     )

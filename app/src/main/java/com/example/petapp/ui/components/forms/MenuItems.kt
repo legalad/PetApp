@@ -25,7 +25,7 @@ fun ExposedDropdownMenu(
     enabled: Boolean = true,
     readOnly: Boolean = true,
     isError: Boolean = false,
-    @StringRes supportingText: Int = R.string.blank,
+    @StringRes supportingText: Int = R.string.util_blank,
     textFieldOnValueChanged: (String) -> Unit = {}
 ) {
 
@@ -36,7 +36,7 @@ fun ExposedDropdownMenu(
         Column (modifier = modifier) {
             MenuOutlinedTextField(
                 fieldLabel = label,
-                fieldPlaceholder = R.string.blank,
+                fieldPlaceholder = R.string.util_blank,
                 fieldValue = selectedOption,
                 expanded = expanded,
                 onValueChanged = { textFieldOnValueChanged(it) },
@@ -74,7 +74,7 @@ fun ExposedDropdownMenuV2(
     enabled: Boolean = true,
     readOnly: Boolean = true,
     isError: Boolean = false,
-    @StringRes supportingText: Int = R.string.blank,
+    @StringRes supportingText: Int = R.string.util_blank,
     textFieldOnValueChanged: (String) -> Unit = {}
 ) {
 
@@ -85,7 +85,7 @@ fun ExposedDropdownMenuV2(
         Column (modifier = modifier) {
             MenuOutlinedTextField(
                 fieldLabel = label,
-                fieldPlaceholder = R.string.blank,
+                fieldPlaceholder = R.string.util_blank,
                 fieldValue = stringResource(id = selectedOption),
                 expanded = expanded,
                 onValueChanged = { textFieldOnValueChanged(it) },

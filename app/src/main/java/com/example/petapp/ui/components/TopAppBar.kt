@@ -33,38 +33,38 @@ fun TopAppBarDropdownMenu(
 ) {
 
     IconButton(onClick = onDropdownMenuIconClicked) {
-        Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.open_tab_menu))
+        Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.components_top_app_bar_menu_content_description_open_menu))
     }
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = onDismissRequest
     ) {
         DropdownMenuItem(
-            text = { Text(stringResource(R.string.account)) },
+            text = { Text(stringResource(R.string.components_top_app_bar_menu_title_account)) },
             onClick = onAccountIconClicked,
             leadingIcon = {
                 Icon(
                     Icons.Outlined.AccountCircle,
-                    contentDescription = stringResource(R.string.to_account)
+                    contentDescription = stringResource(R.string.components_top_app_bar_menu_content_description_nav_to_account)
                 )
             })
         DropdownMenuItem(
-            text = { Text(stringResource(R.string.settings)) },
+            text = { Text(stringResource(R.string.components_top_app_bar_menu_title_settings)) },
             onClick = onSettingsIconClicked,
             leadingIcon = {
                 Icon(
                     Icons.Outlined.Settings,
-                    contentDescription = stringResource(R.string.to_settings)
+                    contentDescription = stringResource(R.string.components_top_app_bar_menu_content_description_nav_to_settings)
                 )
             })
         Divider()
         DropdownMenuItem(
-            text = { Text(stringResource(R.string.help)) },
+            text = { Text(stringResource(R.string.components_top_app_bar_menu_title_help)) },
             onClick = onHelpIconClicked,
             leadingIcon = {
                 Icon(
                     Icons.Default.Info,
-                    contentDescription = stringResource(R.string.to_help)
+                    contentDescription = stringResource(R.string.components_top_app_bar_menu_content_description_nav_to_help)
                 )
             })
     }

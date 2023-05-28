@@ -36,7 +36,7 @@ fun OutlinedTextFieldWithLeadingIcon(
     isError: Boolean = false,
     colors: TextFieldColors = OutlinedTextFieldDefaults.colors(
     ),
-    @StringRes supportingText: Int = R.string.blank,
+    @StringRes supportingText: Int = R.string.util_blank,
     onFocusClear: () -> Unit = { },
     onTextFieldClicked: () -> Unit = { },
     hideKeyboard: Boolean = false,
@@ -71,7 +71,7 @@ fun OutlinedTextFieldWithLeadingIcon(
                     Icon(
                         painter = painterResource(id = R.drawable.round_cancel_24),
                         contentDescription = stringResource(
-                            R.string.cancel
+                            R.string.components_forms_dialog_buttons_cancel
                         )
                     )
                 }
@@ -115,7 +115,7 @@ fun PickerOutlinedTextFieldWithLeadingIcon(
     onValueChanged: (String) -> Unit,
     modifier: Modifier = Modifier,
     isError: Boolean = false,
-    @StringRes supportingText: Int = R.string.blank,
+    @StringRes supportingText: Int = R.string.util_blank,
     onFocusClear: () -> Unit = { },
     onTextFieldClicked: () -> Unit = { },
     hideKeyboard: Boolean = false,
@@ -197,7 +197,7 @@ fun MenuOutlinedTextField(
     onValueChanged: (String) -> Unit,
     modifier: Modifier = Modifier,
     isError: Boolean = false,
-    @StringRes supportingText: Int = R.string.blank,
+    @StringRes supportingText: Int = R.string.util_blank,
     onFocusClear: () -> Unit = { },
     onTextFieldClicked: () -> Unit = { },
     hideKeyboard: Boolean = false,
@@ -285,7 +285,7 @@ fun OutlinedTextFieldWithLeadingIcon() {
             leadingIcon = R.drawable.baseline_pets_24,
             onValueChanged = {},
             onCancelClicked = {},
-            supportingText = R.string.blank
+            supportingText = R.string.util_blank
         )
     }
 }

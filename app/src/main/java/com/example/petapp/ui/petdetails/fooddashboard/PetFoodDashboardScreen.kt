@@ -28,7 +28,7 @@ fun PetFoodDashboardResultScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(id = R.string.dimensions_dashboard_headline, uiState.petName) + " meals") },
+                title = { Text(text = stringResource(id = R.string.components_top_app_bar_title_pet_dimensions, uiState.petName) + " meals") },
                 navigationIcon = { IconButton(onClick = navigateBack) {
                     Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "back")
                 } },

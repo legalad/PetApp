@@ -59,11 +59,11 @@ fun AddPetResultScreen(viewModel: AddPetViewModel, navigateToDashboard: () -> Un
     ) {
         Spacer(modifier = Modifier.padding(30.dp))
         Text(
-            text = stringResource(R.string.pet_form_headline),
+            text = stringResource(R.string.components_forms_title_new_pet),
             style = MaterialTheme.typography.headlineMedium
         )
         Text(
-            text = stringResource(R.string.pet_form_description),
+            text = stringResource(R.string.components_forms_description_new_pet),
             style = MaterialTheme.typography.bodySmall
         )
         Spacer(modifier = Modifier.padding(20.dp))
@@ -186,7 +186,7 @@ fun GeneralPetForm(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.width(IntrinsicSize.Max)
     ) {
-        PetFormsSubHeadline(headlineStringId = R.string.pet_form_subheadline_general)
+        PetFormsSubHeadline(headlineStringId = R.string.components_forms_title_new_pet_general)
         Column(
             modifier = modifier
         ) {
@@ -241,8 +241,8 @@ fun GeneralPetForm(
             )
         }
         PetFormsBottomNavButtons(
-            leftButtonStringId = R.string.cancel,
-            rightButtonStringId = R.string.next,
+            leftButtonStringId = R.string.components_forms_dialog_buttons_cancel,
+            rightButtonStringId = R.string.components_forms_dialog_buttons_next,
             onLeftButtonClicked = onCancelButtonClicked,
             onRightButtonClicked = { onNextButtonClicked() }
         )
@@ -313,13 +313,13 @@ fun DimensionsPetForm(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.width(IntrinsicSize.Max)
     ) {
-        PetFormsSubHeadline(headlineStringId = R.string.pet_form_subheadline_dimensions)
+        PetFormsSubHeadline(headlineStringId = R.string.components_forms_title_new_pet_dimensions)
         Column(
             modifier = modifier
         ) {
             OutlinedTextFieldWithLeadingIcon(
                 fieldLabel = R.string.components_forms_text_field_label_pet_weight,
-                fieldPlaceholder = R.string.pet_weight_unit,
+                fieldPlaceholder = R.string.util_unit_weight,
                 leadingIcon = R.drawable.weight_24,
                 fieldValue = weightFieldValue,
                 onValueChanged = onWeightFieldValueChanged,
@@ -336,7 +336,7 @@ fun DimensionsPetForm(
             )
             OutlinedTextFieldWithLeadingIcon(
                 fieldLabel = R.string.components_forms_text_field_label_pet_height,
-                fieldPlaceholder = R.string.pet_dimensions_unit,
+                fieldPlaceholder = R.string.util_unit_dimension,
                 leadingIcon = R.drawable.baseline_height_24,
                 fieldValue = heightFieldValue,
                 onValueChanged = onHeightFieldValueChanged,
@@ -353,7 +353,7 @@ fun DimensionsPetForm(
             )
             OutlinedTextFieldWithLeadingIcon(
                 fieldLabel = R.string.components_forms_text_field_label_pet_width,
-                fieldPlaceholder = R.string.pet_dimensions_unit,
+                fieldPlaceholder = R.string.util_unit_dimension,
                 leadingIcon = R.drawable.width_24,
                 fieldValue = lengthFieldValue,
                 onValueChanged = onLengthFieldValueChanged,
@@ -370,7 +370,7 @@ fun DimensionsPetForm(
             )
             OutlinedTextFieldWithLeadingIcon(
                 fieldLabel = R.string.components_forms_text_field_label_pet_circuit,
-                fieldPlaceholder = R.string.pet_dimensions_unit,
+                fieldPlaceholder = R.string.util_unit_dimension,
                 leadingIcon = R.drawable.restart_alt_24,
                 fieldValue = circuitFieldValue,
                 onValueChanged = onCircuitFieldValueChanged,
@@ -387,8 +387,8 @@ fun DimensionsPetForm(
             )
         }
         PetFormsBottomNavButtons(
-            leftButtonStringId = R.string.previous,
-            rightButtonStringId = R.string.next,
+            leftButtonStringId = R.string.components_forms_dialog_buttons_previous,
+            rightButtonStringId = R.string.components_forms_dialog_buttons_next,
             onLeftButtonClicked = { onPrevButtonClicked(AddPetScreenStage.General) },
             onRightButtonClicked = { onNextButtonClicked() }
         )
@@ -408,21 +408,21 @@ fun AdditionalInfoPetForm(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.width(IntrinsicSize.Max)
     ) {
-        PetFormsSubHeadline(headlineStringId = R.string.pet_form_subheadline_extras)
+        PetFormsSubHeadline(headlineStringId = R.string.components_forms_title_new_pet_extras)
         Column(
             modifier = modifier
         ) {
             OutlinedTextField(
                 value = descriptionTextFieldValue,
-                label = {Text(text = stringResource(R.string.pet_description_label))},
-                placeholder = {Text(text = stringResource(R.string.pet_description_placeholder))},
+                label = {Text(text = stringResource(R.string.components_forms_text_field_label_description))},
+                placeholder = {Text(text = stringResource(R.string.components_forms_text_field_placeholder_description))},
                 onValueChange = onDescriptionTextFieldValueChanged,
                 maxLines = 8
             )
         }
         PetFormsBottomNavButtons(
-            leftButtonStringId = R.string.previous,
-            rightButtonStringId = R.string.done,
+            leftButtonStringId = R.string.components_forms_dialog_buttons_previous,
+            rightButtonStringId = R.string.components_forms_dialog_buttons_done,
             onLeftButtonClicked = { onPrevButtonClicked(AddPetScreenStage.Dimensions) },
             onRightButtonClicked = { onDoneButtonClicked()
                 navigateToDashboard()
@@ -454,11 +454,11 @@ fun GeneralPetFormPrev() {
             .padding(60.dp)
     ) {
         Text(
-            text = stringResource(R.string.pet_form_headline),
+            text = stringResource(R.string.components_forms_title_new_pet),
             style = MaterialTheme.typography.headlineMedium
         )
         Text(
-            text = stringResource(R.string.pet_form_description),
+            text = stringResource(R.string.components_forms_description_new_pet),
             style = MaterialTheme.typography.bodySmall
         )
         Spacer(modifier = Modifier.padding(20.dp))
@@ -499,10 +499,10 @@ fun GeneralPetFormPrev() {
             isKeyboardHide = false,
             onFocusCleared = {},
             isNameValid = false,
-            nameErrorMessage = R.string.blank,
+            nameErrorMessage = R.string.util_blank,
             textFieldHeight = 90.dp,
             isBirthdateValid = true,
-            birthDateErrorMessage = R.string.blank)
+            birthDateErrorMessage = R.string.util_blank)
     }
 }
 
@@ -520,11 +520,11 @@ fun DimensionsPetFormPrev() {
             .padding(60.dp)
     ) {
         Text(
-            text = stringResource(R.string.pet_form_headline),
+            text = stringResource(R.string.components_forms_title_new_pet),
             style = MaterialTheme.typography.headlineMedium
         )
         Text(
-            text = stringResource(R.string.pet_form_description),
+            text = stringResource(R.string.components_forms_description_new_pet),
             style = MaterialTheme.typography.bodySmall
         )
         Spacer(modifier = Modifier.padding(20.dp))
@@ -549,10 +549,10 @@ fun DimensionsPetFormPrev() {
             isHeightValid = false,
             isLengthValid = false,
             isCircuitValid = false,
-            weightErrorMessage = R.string.blank,
-            heightErrorMessage = R.string.blank,
-            lengthErrorMessage = R.string.blank,
-            circuitErrorMessage = R.string.blank,
+            weightErrorMessage = R.string.util_blank,
+            heightErrorMessage = R.string.util_blank,
+            lengthErrorMessage = R.string.util_blank,
+            circuitErrorMessage = R.string.util_blank,
             textFieldHeight = 90.dp)
     }
 }
@@ -568,11 +568,11 @@ fun AdditionalInfoPetFormPrev() {
             .padding(60.dp)
     ) {
         Text(
-            text = stringResource(R.string.pet_form_headline),
+            text = stringResource(R.string.components_forms_title_new_pet),
             style = MaterialTheme.typography.headlineMedium
         )
         Text(
-            text = stringResource(R.string.pet_form_description),
+            text = stringResource(R.string.components_forms_description_new_pet),
             style = MaterialTheme.typography.bodySmall
         )
         Spacer(modifier = Modifier.padding(20.dp))

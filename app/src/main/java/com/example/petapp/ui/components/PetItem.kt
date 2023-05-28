@@ -31,9 +31,9 @@ import java.util.*
 
 enum class PetStatsEnum(@StringRes val stringId: Int?) {
     NONE(null),
-    THIRST(R.string.components_card_title_water),
-    HUNGER(R.string.pet_hunger),
-    ACTIVITY(R.string.pet_activities)
+    THIRST(R.string.components_dashboard_card_title_water),
+    HUNGER(R.string.components_dashboard_card_title_meals),
+    ACTIVITY(R.string.components_dashboard_card_title_activities)
 }
 
 @Composable
@@ -162,7 +162,7 @@ fun PetHunger(meals: List<PetMeal>, modifier: Modifier = Modifier) {
 @Composable
 fun PetThirst(thirsts: List<PetThirst>, modifier: Modifier = Modifier) {
     Text(
-        text = stringResource(R.string.components_card_content_water_last_changed) + " 12 " + stringResource(R.string.water_time_hours),
+        text = stringResource(R.string.components_dashboard_card_content_water_last_changed) + " 12 " + stringResource(R.string.components_dashboard_card_content_water_time_hours),
         style = MaterialTheme.typography.bodyLarge
     )
 }

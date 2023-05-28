@@ -255,10 +255,10 @@ fun TimePickerDialog(
                     Spacer(modifier = Modifier.weight(1f))
                     TextButton(
                         onClick = onCancel
-                    ) { Text(text = stringResource(id = R.string.cancel)) }
+                    ) { Text(text = stringResource(id = R.string.components_forms_dialog_buttons_cancel)) }
                     TextButton(
                         onClick = onConfirm
-                    ) { Text(text = stringResource(id = R.string.ok)) }
+                    ) { Text(text = stringResource(id = R.string.components_forms_dialog_buttons_ok)) }
                 }
             }
         }

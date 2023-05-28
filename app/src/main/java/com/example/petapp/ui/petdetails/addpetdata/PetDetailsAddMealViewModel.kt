@@ -154,7 +154,7 @@ class PetDetailsAddMealViewModel @Inject constructor(
         else {
             _successUiState.update {
                 it.copy(
-                    mealTypeErrorMessage = R.string.pet_form_weight_error_message,
+                    mealTypeErrorMessage = R.string.components_forms_text_field_supporting_text_error_message_weight,
                     isMealTypeValid = false
                 )
             }

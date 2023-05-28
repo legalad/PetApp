@@ -45,7 +45,7 @@ fun SingleRowDateTimePicker(
 ) {
     Row (modifier = Modifier.fillMaxWidth()){
         DatePicker(
-            label = R.string.measurement_date,
+            label = R.string.components_forms_text_field_label_measurement,
             value = datePickerValue,
             onValueChange = datePickerOnValueChanged,
             onTextFieldClicked = datePickerOnTextFieldClicked,
@@ -88,12 +88,12 @@ fun DatePicker(
     onDismissButtonClicked: () -> Unit,
     modifier: Modifier = Modifier,
     isError: Boolean = false,
-    @StringRes supportingText: Int = R.string.blank
+    @StringRes supportingText: Int = R.string.util_blank
 
 ) {
     PickerOutlinedTextFieldWithLeadingIcon(
         fieldLabel = label,
-        fieldPlaceholder = R.string.blank,
+        fieldPlaceholder = R.string.util_blank,
         leadingIcon = R.drawable.baseline_calendar_month_24,
         fieldValue = value,
         onValueChanged = onValueChange,
@@ -175,14 +175,14 @@ fun DatePickerDialogItem(
                     onClick = onConfirmedButtonClicked,
                     enabled = confirmEnabled
                 ) {
-                    Text(stringResource(R.string.ok))
+                    Text(stringResource(R.string.components_forms_dialog_buttons_ok))
                 }
             },
             dismissButton = {
                 TextButton(
                     onClick = onDismissButtonClicked
                 ) {
-                    Text(text = stringResource(R.string.cancel))
+                    Text(text = stringResource(R.string.components_forms_dialog_buttons_cancel))
                 }
             }) {
             DatePicker(state = datePickerState)
