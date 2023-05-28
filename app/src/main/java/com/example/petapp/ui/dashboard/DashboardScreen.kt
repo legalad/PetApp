@@ -5,14 +5,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.example.petapp.R
 import com.example.petapp.ui.components.ErrorScreen
 import com.example.petapp.ui.components.LoadingScreen
 import com.example.petapp.ui.components.PetItem
@@ -24,10 +24,16 @@ fun DashboardScreen(
     navigateToPetDetailsScreen: (petId: String) -> Unit,
     modifier: Modifier
 ) {
-    when (viewModel.uiState) {
-        is DashboardUiState.Error -> ErrorScreen(message = "Can't load pets")
-        is DashboardUiState.Loading -> LoadingScreen()
-        is DashboardUiState.Success -> DashboardResultScreen(viewModel, navigateToAddingPetScreen, navigateToPetDetailsScreen)
+    Column (modifier = modifier) {
+        when (viewModel.uiState) {
+            is DashboardUiState.Error -> ErrorScreen(message = "Can't load pets")
+            is DashboardUiState.Loading -> LoadingScreen()
+            is DashboardUiState.Success -> DashboardResultScreen(
+                viewModel,
+                navigateToAddingPetScreen,
+                navigateToPetDetailsScreen
+            )
+        }
     }
 }
 
@@ -51,10 +57,6 @@ fun DashboardResultScreen(viewModel: DashboardViewModel, navigateToAddingPetScre
                 .padding(innerPadding)
         ) {
             Spacer(modifier = Modifier.padding(10.dp))
-            Text(
-                text = stringResource(R.string.dashboard_headline),
-                style = MaterialTheme.typography.headlineMedium
-            )
             LazyColumn(modifier = Modifier.fillMaxHeight()) {
                 items(uiState.pets) { pet ->
                     PetItem(

@@ -191,8 +191,8 @@ fun GeneralPetForm(
             modifier = modifier
         ) {
             OutlinedTextFieldWithLeadingIcon(
-                fieldLabel = R.string.pet_name,
-                fieldPlaceholder = R.string.pet_name_placeholder,
+                fieldLabel = R.string.components_forms_text_field_label_pet_name,
+                fieldPlaceholder = R.string.components_forms_text_field_placeholder_pet_name,
                 leadingIcon = R.drawable.baseline_pets_24,
                 fieldValue = nameFieldValue,
                 onValueChanged = onNameFieldValueChanged,
@@ -204,7 +204,7 @@ fun GeneralPetForm(
                 modifier = Modifier.height(textFieldHeight)
             )
             DatePicker(
-                label = R.string.birth_date,
+                label = R.string.components_forms_text_field_label_pet_birth_date,
                 value = datePickerTextFieldValue,
                 onValueChange = onDatePickerTextFieldValueChanged,
                 onTextFieldClicked = onDatePickerTextFieldClicked,
@@ -219,7 +219,7 @@ fun GeneralPetForm(
                 modifier = Modifier.height(textFieldHeight)
             )
             ExposedDropdownMenu(
-                label = R.string.pet_species,
+                label = R.string.components_forms_text_field_label_pet_species,
                 options = speciesOptions,
                 expanded = speciesMenuExpanded,
                 selectedOption = speciesMenuSelectedOption,
@@ -229,7 +229,7 @@ fun GeneralPetForm(
                 modifier = Modifier.height(textFieldHeight)
             )
             ExposedDropdownMenu(
-                label = R.string.pet_breed,
+                label = R.string.components_forms_text_field_label_pet_breed,
                 options = breedOptions,
                 expanded = breedMenuExpanded,
                 enabled = breedMenuEnabled,
@@ -318,7 +318,7 @@ fun DimensionsPetForm(
             modifier = modifier
         ) {
             OutlinedTextFieldWithLeadingIcon(
-                fieldLabel = R.string.pet_weight,
+                fieldLabel = R.string.components_forms_text_field_label_pet_weight,
                 fieldPlaceholder = R.string.pet_weight_unit,
                 leadingIcon = R.drawable.weight_24,
                 fieldValue = weightFieldValue,
@@ -335,7 +335,7 @@ fun DimensionsPetForm(
                 modifier = Modifier.height(textFieldHeight)
             )
             OutlinedTextFieldWithLeadingIcon(
-                fieldLabel = R.string.pet_height,
+                fieldLabel = R.string.components_forms_text_field_label_pet_height,
                 fieldPlaceholder = R.string.pet_dimensions_unit,
                 leadingIcon = R.drawable.baseline_height_24,
                 fieldValue = heightFieldValue,
@@ -352,7 +352,7 @@ fun DimensionsPetForm(
                 modifier = Modifier.height(textFieldHeight)
             )
             OutlinedTextFieldWithLeadingIcon(
-                fieldLabel = R.string.pet_width,
+                fieldLabel = R.string.components_forms_text_field_label_pet_width,
                 fieldPlaceholder = R.string.pet_dimensions_unit,
                 leadingIcon = R.drawable.width_24,
                 fieldValue = lengthFieldValue,
@@ -369,7 +369,7 @@ fun DimensionsPetForm(
                 modifier = Modifier.height(textFieldHeight)
             )
             OutlinedTextFieldWithLeadingIcon(
-                fieldLabel = R.string.pet_circuit,
+                fieldLabel = R.string.components_forms_text_field_label_pet_circuit,
                 fieldPlaceholder = R.string.pet_dimensions_unit,
                 leadingIcon = R.drawable.restart_alt_24,
                 fieldValue = circuitFieldValue,

@@ -1,18 +1,18 @@
 <resources>
     <string name="app_name">PetApp</string>
     <string name="expand_button_content_description">See more or less about pet</string>
-    <string name="pet_name">Name</string>
-    <string name="pet_name_placeholder">enter pet name</string>
-    <string name="pet_age">Age</string>
-    <string name="birth_date">Birth date</string>
-    <string name="pet_weight">Weight</string>
-    <string name="pet_height">Height</string>
-    <string name="pet_width">Width</string>
-    <string name="pet_circuit">Circuit</string>
-    <string name="pet_species">Species</string>
-    <string name="pet_breed">Breed</string>
-    <string name="water_change">Water</string>
-    <string name="water_last_change">Last changed:</string>
+    <string name="components_forms_text_field_label_pet_name">Name</string>
+    <string name="components_forms_text_field_placeholder_pet_name">enter pet name</string>
+    <string name="components_forms_text_field_label_pet_age">Age</string>
+    <string name="components_forms_text_field_label_pet_birth_date">Birth date</string>
+    <string name="components_forms_text_field_label_pet_weight">Weight</string>
+    <string name="components_forms_text_field_label_pet_height">Height</string>
+    <string name="components_forms_text_field_label_pet_width">Width</string>
+    <string name="components_forms_text_field_label_pet_circuit">Circuit</string>
+    <string name="components_forms_text_field_label_pet_species">Species</string>
+    <string name="components_forms_text_field_label_pet_breed">Breed</string>
+    <string name="components_card_title_water">Water</string>
+    <string name="components_card_content_water_last_changed">Last changed:</string>
     <string name="water_time_hours">hours ago</string>
     <string name="pet_hunger">Meals</string>
     <string name="pet_activities">Activities</string>
@@ -28,6 +28,7 @@
     <string name="pet_form_headline">New pet friend?</string>
     <string name="pet_form_description">Fill out information about your pet</string>
     <string name="next">next</string>
+    <string name="fill_out_info">Fill out information</string>
     <string name="pet_form_subheadline_general">General</string>
     <string name="pet_form_subheadline_dimensions">Dimensions</string>
     <string name="pet_weight_unit">KG</string>
@@ -58,10 +59,29 @@
     <string name="unit_centimeter">cm</string>
     <string name="unit_foot">ft</string>
     <string name="inch">in</string>
-    <string name="input_data">Input data</string>
+    <string name="input_data">Fill out form</string>
+    <string name="dimension_form_headline">Measurement</string>
     <string name="measurement_date">Measurement date</string>
     <string name="weight_dashboard_headline">%1$s\'s weight</string>
     <string name="dimensions_dashboard_headline">%1$s\'s </string>
+    <string name="components_forms_text_field_label_date">Date</string>
+    <string name="components_forms_text_field_label_time">Time</string>
+    <string name="components_forms_time_picker_dialog_title_select_time">Select Time"</string>
+    <string name="components_forms_time_picker_dialog_title_enter_time">Enter Time</string>
+    <string name="components_forms_time_picker_dialog_switch_icon_content_description_to_text_input">Switch to Text Input</string>
+    <string name="components_forms_time_picker_dialog_switch_icon_content_description_to_touch_input">Switch to Touch Input</string>
+    <string name="meal_type_breakfast">breakfast</string>
+    <string name="meal_type_lunch">lunch</string>
+    <string name="meal_type_dinner">dinner</string>
+    <string name="meal_type_snack">snack</string>
+    <string name="meal_type_label">Meal</string>
+    <string name="food_type_label">Food</string>
+    <string name="food_type_wet">wet</string>
+    <string name="food_type_dry">dry</string>
+    <string name="food_type_other">other</string>
+
+
+
 
 
 </resources>

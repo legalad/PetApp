@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.text.DateFormat
 import java.time.Instant
+import java.time.ZoneId
 import java.util.*
 import javax.inject.Inject
 
@@ -131,30 +132,21 @@ class PetDetailsAddDimensionsViewModel @Inject constructor(
                         PetHeightEntity(
                             id = UUID.randomUUID(),
                             pet_id = UUID.fromString(petId),
-                            measurementDate = Instant.ofEpochMilli(
-                                _successUiState.value.datePickerState.selectedDateMillis
-                                    ?: Instant.now().toEpochMilli()
-                            ),
+                            measurementDate = buildInstant(),
                             value = _successUiState.value.heightFieldValue.toDouble()
                         ) else null,
                     petLengthEntity = if (_successUiState.value.lengthFieldValue.isNotEmpty())
                         PetLengthEntity(
                             id = UUID.randomUUID(),
                             pet_id = UUID.fromString(petId),
-                            measurementDate = Instant.ofEpochMilli(
-                                _successUiState.value.datePickerState.selectedDateMillis
-                                    ?: Instant.now().toEpochMilli()
-                            ),
+                            measurementDate = buildInstant(),
                             value = _successUiState.value.lengthFieldValue.toDouble()
                         ) else null,
                     petCircuitEntity = if (_successUiState.value.circuitFieldValue.isNotEmpty())
                         PetCircuitEntity(
                             id = UUID.randomUUID(),
                             pet_id = UUID.fromString(petId),
-                            measurementDate = Instant.ofEpochMilli(
-                                _successUiState.value.datePickerState.selectedDateMillis
-                                    ?: Instant.now().toEpochMilli()
-                            ),
+                            measurementDate = buildInstant(),
                             value = _successUiState.value.circuitFieldValue.toDouble()
                         ) else null
                 )
@@ -168,6 +160,47 @@ class PetDetailsAddDimensionsViewModel @Inject constructor(
             output = false
         }
         return output
+    }
+
+    private fun buildInstant() = Instant.ofEpochMilli(
+        _successUiState.value.datePickerState.selectedDateMillis
+            ?: Instant.now().toEpochMilli()
+    ).atZone(
+        ZoneId.systemDefault()
+    ).withHour(_successUiState.value.timePickerState.hour)
+        .withMinute(_successUiState.value.timePickerState.minute).toInstant()
+
+
+    fun onTimePickerTextFieldClicked() {
+        _successUiState.update {
+            it.copy(
+                showTimePicker = !it.showTimePicker
+            )
+        }
+    }
+
+    fun onTimePickerDialogCancelClicked() {
+        _successUiState.update {
+            it.copy(
+                showTimePicker = false
+            )
+        }
+    }
+
+    fun onTimePickerDialogConfirmClicked() {
+        _successUiState.update {
+            it.copy(
+                showTimePicker = false
+            )
+        }
+    }
+
+    fun onTimePickerDialogSwitchIconClicked() {
+        _successUiState.update {
+            it.copy(
+                showingPicker = !it.showingPicker
+            )
+        }
     }
 
     fun hideKeyboard() {

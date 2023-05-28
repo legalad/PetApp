@@ -36,6 +36,14 @@ class DefaultPetsDashboardRepository (
         return petsDashboardLocalDatasource.getPetCircuitHistory(petId = petId)
     }
 
+    override fun getPetLastWaterChanged(petId: String): Flow<PetWaterEntity> {
+        return petsDashboardLocalDatasource.getPetLastWaterChanged(petId = petId)
+    }
+
+    override fun getPetMeals(petId: String): Flow<List<PetMealEntity>> {
+        return petsDashboardLocalDatasource.getPetMeals(petId = petId)
+    }
+
     override suspend fun addPetWeight(weightEntity: PetWeightEntity) {
         petsDashboardLocalDatasource.addPetWeight(weightEntity)
     }
@@ -70,5 +78,21 @@ class DefaultPetsDashboardRepository (
             petLengthEntity = petLengthEntity,
             petCircuitEntity = petCircuitEntity
         )
+    }
+
+    override suspend fun addPetWaterChangeData(waterEntity: PetWaterEntity) {
+        petsDashboardLocalDatasource.addPetWaterChangeData(waterEntity)
+    }
+
+    override suspend fun addPetMeal(petMealEntity: PetMealEntity) {
+        petsDashboardLocalDatasource.addPetMeal(petMealEntity = petMealEntity)
+    }
+
+    override suspend fun updatePetMeal(petMealEntity: PetMealEntity) {
+        petsDashboardLocalDatasource.updatePetMeal(petMealEntity = petMealEntity)
+    }
+
+    override suspend fun deletePetMeal(petMealEntity: PetMealEntity) {
+        petsDashboardLocalDatasource.deletePetMeal(petMealEntity = petMealEntity)
     }
 }

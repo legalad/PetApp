@@ -15,7 +15,11 @@ import com.example.petapp.model.util.UUIDConverter
         PetWeightEntity::class,
         PetHeightEntity::class,
         PetLengthEntity::class,
-        PetCircuitEntity::class
+        PetCircuitEntity::class,
+        PetWaterEntity::class,
+        PetMealEntity::class,
+        PetMealHistoryEntity::class,
+        PetFoodEntity::class
                ],
     views = [
         PetDashboardView::class,

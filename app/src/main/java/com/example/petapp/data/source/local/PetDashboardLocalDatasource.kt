@@ -33,8 +33,16 @@ class PetDashboardLocalDatasource internal constructor(
         return petsDashboardDao.getPetCircuitHistory(petId = petId)
     }
 
+    override fun getPetLastWaterChanged(petId: String): Flow<PetWaterEntity> {
+        return petsDashboardDao.getPetLastWaterChanged(petId = petId)
+    }
+
     override fun getPetDetails(petId: String): Flow<PetDetailsView> {
         return petsDashboardDao.getPetDetails(petId = petId)
+    }
+
+    override fun getPetMeals(petId: String): Flow<List<PetMealEntity>> {
+        return petsDashboardDao.getPetMeals(petId = petId)
     }
 
     override suspend fun addPetWeight(weightEntity: PetWeightEntity) {
@@ -71,5 +79,21 @@ class PetDashboardLocalDatasource internal constructor(
             petLengthEntity = petLengthEntity,
             petCircuitEntity = petCircuitEntity
         )
+    }
+
+    override suspend fun addPetWaterChangeData(waterEntity: PetWaterEntity) {
+        petsDashboardDao.addPetWaterChangeData(waterEntity)
+    }
+
+    override suspend fun addPetMeal(petMealEntity: PetMealEntity) {
+        petsDashboardDao.addPetMeal(petMealEntity = petMealEntity)
+    }
+
+    override suspend fun updatePetMeal(petMealEntity: PetMealEntity) {
+        petsDashboardDao.updatePetMeal(petMealEntity = petMealEntity)
+    }
+
+    override suspend fun deletePetMeal(petMealEntity: PetMealEntity) {
+        petsDashboardDao.deletePetMeal(petMealEntity = petMealEntity)
     }
 }

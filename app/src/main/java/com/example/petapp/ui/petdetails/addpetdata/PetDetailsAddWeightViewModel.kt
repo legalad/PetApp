@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.text.DateFormat
 import java.time.Instant
+import java.time.ZoneId
 import java.util.*
 import javax.inject.Inject
 
@@ -43,12 +44,14 @@ class PetDetailsAddWeightViewModel @Inject constructor(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(Contstans.TIMEOUT_MILLIS),
-            initialValue = _successUiState.value)
+            initialValue = _successUiState.value
+        )
 
     init {
         viewModelScope.launch {
             settingsDataRepository.getUnit().collect { unit ->
-                _successUiState.update {it.copy(unit = unit)
+                _successUiState.update {
+                    it.copy(unit = unit)
                 }
             }
         }
@@ -61,8 +64,10 @@ class PetDetailsAddWeightViewModel @Inject constructor(
 
     fun onWeightFieldValueChanged(value: String) {
         _successUiState.update {
-            it.copy(weightFieldValue = Validators.validateNumberToTwoDecimalPlaces(value),
-                isWeightChanged = true)
+            it.copy(
+                weightFieldValue = Validators.validateNumberToTwoDecimalPlaces(value),
+                isWeightChanged = true
+            )
         }
     }
 
@@ -91,8 +96,10 @@ class PetDetailsAddWeightViewModel @Inject constructor(
     fun datePickerOnConfirmedButtonClicked() {
         _successUiState.update {
             it.copy(
-                datePickerTextFieldValue = DateFormat.getDateInstance(DateFormat.SHORT).format(it.datePickerState.selectedDateMillis),
-                datePickerOpenDialog = false)
+                datePickerTextFieldValue = DateFormat.getDateInstance(DateFormat.SHORT)
+                    .format(it.datePickerState.selectedDateMillis),
+                datePickerOpenDialog = false
+            )
         }
     }
 
@@ -110,35 +117,75 @@ class PetDetailsAddWeightViewModel @Inject constructor(
         }
     }
 
-    fun onDoneButtonClicked() : Boolean  {
+    fun onDoneButtonClicked(): Boolean {
         var output = true
         if (_successUiState.value.weightFieldValue.isNotEmpty())
-        viewModelScope.launch (Dispatchers.IO){
+            viewModelScope.launch(Dispatchers.IO) {
                 petsDashboardRepository.addPetWeight(
                     PetWeightEntity(
                         id = UUID.randomUUID(),
                         pet_id = UUID.fromString(petId),
-                        measurementDate = Instant.ofEpochMilli(_successUiState.value.datePickerState.selectedDateMillis ?: Instant.now().toEpochMilli()),
+                        measurementDate = Instant.ofEpochMilli(
+                            _successUiState.value.datePickerState.selectedDateMillis
+                                ?: Instant.now().toEpochMilli()
+                        ).atZone(
+                            ZoneId.systemDefault()
+                        ).withHour(_successUiState.value.timePickerState.hour)
+                            .withMinute(_successUiState.value.timePickerState.minute).toInstant(),
                         value = _successUiState.value.weightFieldValue.toDouble()
                     )
                 )
             }
-         else {
+        else {
             _successUiState.update {
-                it.copy(weightErrorMessage = R.string.pet_form_weight_error_message, isWeightValid = false)
+                it.copy(
+                    weightErrorMessage = R.string.pet_form_weight_error_message,
+                    isWeightValid = false
+                )
             }
             output = false
         }
         return output
     }
 
+    fun onTimePickerTextFieldClicked() {
+        _successUiState.update {
+            it.copy(
+                showTimePicker = !it.showTimePicker
+            )
+        }
+    }
+
+    fun onTimePickerDialogCancelClicked() {
+        _successUiState.update {
+            it.copy(
+                showTimePicker = false
+            )
+        }
+    }
+
+    fun onTimePickerDialogConfirmClicked() {
+        _successUiState.update {
+            it.copy(
+                showTimePicker = false
+            )
+        }
+    }
+
+    fun onTimePickerDialogSwitchIconClicked() {
+        _successUiState.update {
+            it.copy(
+                showingPicker = !it.showingPicker
+            )
+        }
+    }
+
+
     fun hideKeyboard() {
         _successUiState.update {
             it.copy(hideKeyboard = true)
         }
     }
-
-
 
 
 }

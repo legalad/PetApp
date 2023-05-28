@@ -14,6 +14,7 @@ import com.example.petapp.model.util.toChartEntryModelProducer
 import com.example.petapp.model.util.toListDateEntryList
 import com.example.petapp.ui.petdetails.weightdashboard.ChartDateEntry
 import com.example.petapp.ui.petdetails.weightdashboard.DataDisplayedType
+import com.patrykandpatrick.vico.core.marker.Marker
 import com.patrykandpatrick.vico.core.marker.MarkerVisibilityChangeListener
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -80,15 +81,30 @@ class PetDetailsDimensionsDashboardViewModel @Inject constructor(
         uiState = PetDetailsDimensionsDashboardUiState.Success()
     }
 
-    /*override fun onMarkerShown(marker: Marker, markerEntryModels: List<Marker.EntryModel>) {
+    override fun onMarkerShown(marker: Marker, markerEntryModels: List<Marker.EntryModel>) {
         super.onMarkerShown(marker, markerEntryModels)
-        _successUiState.update {
-            it.copy(
-                persistentMarkerX = markerEntryModels[0].entry.x,
-                selectedDateEntry = markerEntryModels[0].entry as ChartDateEntry
-            )
+        when(_successUiState.value.displayedDimension) {
+            DisplayedDimension.HEIGHT -> _successUiState.update {
+                it.copy(
+                    heightPersistentMarkerX = markerEntryModels[0].entry.x,
+                    heightSelectedDateEntry = markerEntryModels[0].entry as ChartDateEntry
+                )
+            }
+            DisplayedDimension.LENGTH -> _successUiState.update {
+                it.copy(
+                    lengthPersistentMarkerX = markerEntryModels[0].entry.x,
+                    lengthSelectedDateEntry = markerEntryModels[0].entry as ChartDateEntry
+                )
+            }
+            DisplayedDimension.CIRCUIT -> _successUiState.update {
+                it.copy(
+                    circuitPersistentMarkerX = markerEntryModels[0].entry.x,
+                    circuitSelectedDateEntry = markerEntryModels[0].entry as ChartDateEntry
+                )
+            }
         }
-    }*/
+
+    }
     fun onChartIconClicked() {
         var dataDisplayedType = DataDisplayedType.LINE_CHART
         if (_successUiState.value.dataDisplayedType == dataDisplayedType) dataDisplayedType = DataDisplayedType.LIST

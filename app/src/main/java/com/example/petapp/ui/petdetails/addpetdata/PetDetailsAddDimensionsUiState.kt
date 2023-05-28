@@ -1,12 +1,10 @@
 package com.example.petapp.ui.petdetails.addpetdata
 
-import androidx.compose.material3.DatePickerDefaults
-import androidx.compose.material3.DatePickerState
-import androidx.compose.material3.DisplayMode
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.*
 import com.example.android.datastore.UserPreferences
 import com.example.petapp.R
 import java.time.Instant
+import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -24,6 +22,13 @@ sealed interface PetDetailsAddDimensionsUiState {
             initialDisplayMode = DisplayMode.Picker
         ),
         val datePickerConfirmEnabled: Boolean = true,
+        val timePickerState: TimePickerState = TimePickerState(
+            initialHour = LocalTime.now().hour,
+            initialMinute = LocalTime.now().minute,
+            is24Hour = true
+        ),
+        val showTimePicker: Boolean = false,
+        val showingPicker: Boolean = true,
         val heightFieldValue: String = "",
         val lengthFieldValue: String = "",
         val circuitFieldValue: String = "",

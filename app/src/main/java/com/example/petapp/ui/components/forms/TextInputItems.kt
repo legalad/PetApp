@@ -34,8 +34,9 @@ fun OutlinedTextFieldWithLeadingIcon(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     isError: Boolean = false,
-    colors: TextFieldColors = TextFieldDefaults.outlinedTextFieldColors(),
-    @StringRes supportingText:  Int = R.string.blank,
+    colors: TextFieldColors = OutlinedTextFieldDefaults.colors(
+    ),
+    @StringRes supportingText: Int = R.string.blank,
     onFocusClear: () -> Unit = { },
     onTextFieldClicked: () -> Unit = { },
     hideKeyboard: Boolean = false,
@@ -50,7 +51,7 @@ fun OutlinedTextFieldWithLeadingIcon(
     val isFocused = interactionSource.collectIsFocusedAsState()
     var inputChanged = remember { mutableStateOf(false) }
 
-    Column (modifier = modifier){
+    Column(modifier = modifier) {
         OutlinedTextField(
             value = fieldValue,
             label = { Text(text = stringResource(id = fieldLabel)) },
@@ -104,6 +105,155 @@ fun OutlinedTextFieldWithLeadingIcon(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PickerOutlinedTextFieldWithLeadingIcon(
+    @StringRes fieldLabel: Int,
+    @StringRes fieldPlaceholder: Int,
+    @DrawableRes leadingIcon: Int,
+    fieldValue: String,
+    onValueChanged: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    isError: Boolean = false,
+    @StringRes supportingText: Int = R.string.blank,
+    onFocusClear: () -> Unit = { },
+    onTextFieldClicked: () -> Unit = { },
+    hideKeyboard: Boolean = false,
+    focusManager: FocusManager = LocalFocusManager.current,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+    keyboardActions: KeyboardActions = KeyboardActions(onSearch = {
+        focusManager.clearFocus()
+    })
+) {
+
+    val interactionSource = remember { MutableInteractionSource() }
+    val isFocused = interactionSource.collectIsFocusedAsState()
+    var inputChanged = remember { mutableStateOf(false) }
+
+    Column(modifier = modifier) {
+        OutlinedTextField(
+            value = fieldValue,
+            label = { Text(text = stringResource(id = fieldLabel)) },
+            onValueChange = {
+                onValueChanged(it)
+                inputChanged.value = true
+            },
+            placeholder = { Text(text = stringResource(id = fieldPlaceholder)) },
+            leadingIcon = {
+                Icon(
+                    painter = painterResource(id = leadingIcon),
+                    contentDescription = null
+                )
+            },
+            singleLine = true,
+            enabled = false,
+            colors = if (!isError) OutlinedTextFieldDefaults.colors(
+                disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                disabledBorderColor = MaterialTheme.colorScheme.outline,
+                disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                disabledSupportingTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            ) else OutlinedTextFieldDefaults.colors(
+                disabledTextColor = MaterialTheme.colorScheme.error,
+                disabledBorderColor = MaterialTheme.colorScheme.error,
+                disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                disabledLabelColor = MaterialTheme.colorScheme.error,
+                disabledSupportingTextColor = MaterialTheme.colorScheme.error,
+            ),
+            isError = (isError && !isFocused.value),
+            supportingText = {
+                if (isError && !isFocused.value) {
+                    Text(
+                        text = stringResource(
+                            id = supportingText
+                        )
+                    )
+                }
+            },
+            keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions,
+            interactionSource = interactionSource,
+            modifier = Modifier.clickable(
+                interactionSource = interactionSource,
+                onClick = onTextFieldClicked,
+                indication = null
+            )
+        )
+        if (hideKeyboard) {
+            focusManager.clearFocus()
+            onFocusClear()
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MenuOutlinedTextField(
+    @StringRes fieldLabel: Int,
+    @StringRes fieldPlaceholder: Int,
+    fieldValue: String,
+    expanded: Boolean,
+    readOnly: Boolean = true,
+    onValueChanged: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    isError: Boolean = false,
+    @StringRes supportingText: Int = R.string.blank,
+    onFocusClear: () -> Unit = { },
+    onTextFieldClicked: () -> Unit = { },
+    hideKeyboard: Boolean = false,
+    focusManager: FocusManager = LocalFocusManager.current,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+    keyboardActions: KeyboardActions = KeyboardActions(onSearch = {
+        focusManager.clearFocus()
+    })
+) {
+
+    val interactionSource = remember { MutableInteractionSource() }
+    val isFocused = interactionSource.collectIsFocusedAsState()
+    var inputChanged = remember { mutableStateOf(false) }
+
+    Column(modifier = modifier) {
+        OutlinedTextField(
+            value = fieldValue,
+            label = { Text(text = stringResource(id = fieldLabel)) },
+            onValueChange = {
+                onValueChanged(it)
+                inputChanged.value = true
+            },
+            placeholder = { Text(text = stringResource(id = fieldPlaceholder)) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            singleLine = true,
+            enabled = true,
+            readOnly = readOnly,
+            colors = ExposedDropdownMenuDefaults.textFieldColors(
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface
+            ),
+            isError = (isError && !isFocused.value),
+            supportingText = {
+                if (isError && !isFocused.value) {
+                    Text(
+                        text = stringResource(
+                            id = supportingText
+                        )
+                    )
+                }
+            },
+            keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions,
+            interactionSource = interactionSource,
+            modifier = Modifier.clickable(
+                interactionSource = interactionSource,
+                onClick = onTextFieldClicked,
+                indication = null
+            )
+        )
+        if (hideKeyboard) {
+            focusManager.clearFocus()
+            onFocusClear()
+        }
+    }
+}
+
 @Composable
 fun TextFieldWithPlaceholderWithLabel(
     @StringRes fieldLabel: Int,
@@ -129,18 +279,23 @@ fun TextFieldWithPlaceholderWithLabel(
 fun OutlinedTextFieldWithLeadingIcon() {
     Column {
         OutlinedTextFieldWithLeadingIcon(
-            fieldLabel = R.string.pet_name,
-            fieldPlaceholder = R.string.pet_name_placeholder,
+            fieldLabel = R.string.components_forms_text_field_label_pet_name,
+            fieldPlaceholder = R.string.components_forms_text_field_placeholder_pet_name,
             fieldValue = "",
             leadingIcon = R.drawable.baseline_pets_24,
             onValueChanged = {},
             onCancelClicked = {},
-            supportingText = R.string.blank)
+            supportingText = R.string.blank
+        )
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun TextFieldWithPlaceholderWithLabel() {
-    TextFieldWithPlaceholderWithLabel(fieldLabel = R.string.pet_name, fieldPlaceholder = R.string.pet_name_placeholder, fieldValue = "", onValueChanged = {})
+    TextFieldWithPlaceholderWithLabel(
+        fieldLabel = R.string.components_forms_text_field_label_pet_name,
+        fieldPlaceholder = R.string.components_forms_text_field_placeholder_pet_name,
+        fieldValue = "",
+        onValueChanged = {})
 }

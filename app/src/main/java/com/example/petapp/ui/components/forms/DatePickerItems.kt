@@ -1,27 +1,78 @@
 package com.example.petapp.ui.components.forms
 
 import android.annotation.SuppressLint
-import android.app.TimePickerDialog
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.example.petapp.R
 import java.util.*
 
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SingleRowDateTimePicker(
+    datePickerValue: String,
+    datePickerOpenDialog: Boolean,
+    datePickerState: DatePickerState,
+    datePickerConfirmEnabled: Boolean,
+    datePickerOnValueChanged: (String) -> Unit,
+    datePickerOnTextFieldClicked: () -> Unit,
+    datePickerOnDismissRequest: () -> Unit,
+    datePickerOnConfirmedButtonClicked: () -> Unit,
+    datePickerOnDismissedButtonClicked: () -> Unit,
+    timePickerState: TimePickerState,
+    timePickerOpenDialog: Boolean,
+    timePickerShowingPicker: Boolean,
+    onTimePickerTextFieldClicked: () -> Unit,
+    onTimePickerDialogCancelClicked: () -> Unit,
+    onTimePickerDialogConfirmClicked: () -> Unit,
+    onTimePickerDialogSwitchIconClicked: () -> Unit
+) {
+    Row (modifier = Modifier.fillMaxWidth()){
+        DatePicker(
+            label = R.string.measurement_date,
+            value = datePickerValue,
+            onValueChange = datePickerOnValueChanged,
+            onTextFieldClicked = datePickerOnTextFieldClicked,
+            openDialog = datePickerOpenDialog,
+            datePickerState = datePickerState,
+            confirmEnabled = datePickerConfirmEnabled,
+            onDismissRequest = datePickerOnDismissRequest,
+            onConfirmedButtonClicked = datePickerOnConfirmedButtonClicked,
+            onDismissButtonClicked = datePickerOnDismissedButtonClicked,
+            modifier = Modifier.weight(1f)
+        )
+
+        Spacer(modifier = Modifier.padding(5.dp))
+        SwitchableTimePicker(
+            showTimePicker = timePickerOpenDialog,
+            showingPicker = timePickerShowingPicker,
+            state = timePickerState,
+            configuration = LocalConfiguration.current,
+            onTextFiledClicked = onTimePickerTextFieldClicked,
+            onDialogCanceledClicked = onTimePickerDialogCancelClicked,
+            onDialogConfirmedClicked = onTimePickerDialogConfirmClicked,
+            onShowingPickerIconClicked = onTimePickerDialogSwitchIconClicked,
+            modifier = Modifier.weight(1f)
+        )
+    }
+
+}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatePicker(
@@ -40,32 +91,17 @@ fun DatePicker(
     @StringRes supportingText: Int = R.string.blank
 
 ) {
-    OutlinedTextFieldWithLeadingIcon(
+    PickerOutlinedTextFieldWithLeadingIcon(
         fieldLabel = label,
         fieldPlaceholder = R.string.blank,
         leadingIcon = R.drawable.baseline_calendar_month_24,
         fieldValue = value,
         onValueChanged = onValueChange,
-        onCancelClicked = onTextFieldClicked,
         supportingText = supportingText,
         onTextFieldClicked = onTextFieldClicked,
-        enabled = false,
         isError = isError,
-        colors = if (!isError) TextFieldDefaults.outlinedTextFieldColors(
-            disabledBorderColor = MaterialTheme.colorScheme.outline,
-            disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            disabledSupportingTextColor = MaterialTheme.colorScheme.onSurfaceVariant
-        ) else TextFieldDefaults.outlinedTextFieldColors(
-            disabledBorderColor = MaterialTheme.colorScheme.error,
-            disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            disabledTextColor = MaterialTheme.colorScheme.error,
-            disabledLabelColor = MaterialTheme.colorScheme.error,
-            disabledSupportingTextColor = MaterialTheme.colorScheme.error
-        ),
         modifier = modifier
-    )
+       )
     if (openDialog) DatePickerDialogItem(
         openDialog = openDialog,
         datePickerState = datePickerState,
@@ -111,17 +147,16 @@ fun DatePickerOutlinedTextField(
             ),
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,
-            colors = TextFieldDefaults.outlinedTextFieldColors(
+            colors = OutlinedTextFieldDefaults.colors(
+                disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 disabledBorderColor = MaterialTheme.colorScheme.outline,
                 disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         )
     }
 }
 
-//sprawdzic czy tu state powinien byc w sumie
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DatePickerDialogItem(
@@ -182,7 +217,7 @@ fun DatePickerPrev() {
     val datePickerState = rememberDatePickerState()
     val confirmEnabled = derivedStateOf { datePickerState.selectedDateMillis != null }
     DatePicker(
-        label = R.string.pet_age,
+        label = R.string.components_forms_text_field_label_pet_age,
         value = value.value,
         onValueChange = { /*TODO*/ },
         onTextFieldClicked = { openDialog.value = true },

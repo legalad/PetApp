@@ -24,6 +24,8 @@ fun ExposedDropdownMenu(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     readOnly: Boolean = true,
+    isError: Boolean = false,
+    @StringRes supportingText: Int = R.string.blank,
     textFieldOnValueChanged: (String) -> Unit = {}
 ) {
 
@@ -32,17 +34,15 @@ fun ExposedDropdownMenu(
         onExpandedChange = { onExpandedChange() }
     ) {
         Column (modifier = modifier) {
-            OutlinedTextField(
-                label = { Text(text = stringResource(id = label)) },
-                value = selectedOption,
-                onValueChange = { textFieldOnValueChanged(it) },
-                enabled = enabled,
+            MenuOutlinedTextField(
+                fieldLabel = label,
+                fieldPlaceholder = R.string.blank,
+                fieldValue = selectedOption,
+                expanded = expanded,
+                onValueChanged = { textFieldOnValueChanged(it) },
                 modifier = Modifier.menuAnchor(),
-                readOnly = readOnly,
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                colors = ExposedDropdownMenuDefaults.textFieldColors(
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface
-                ),
+                isError = isError,
+                supportingText = supportingText
             )
         }
         ExposedDropdownMenu(
@@ -52,6 +52,55 @@ fun ExposedDropdownMenu(
             options.forEach { item ->
                 DropdownMenuItem(
                     text = { Text(item) },
+                    onClick = {onDropdownMenuItemClicked(item)},
+                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ExposedDropdownMenuV2(
+    @StringRes label: Int,
+    options: List<Int>,
+    expanded: Boolean,
+    selectedOption: Int,
+    onExpandedChange: () -> Unit,
+    onDropdownMenuItemClicked: (Int) -> Unit,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    readOnly: Boolean = true,
+    isError: Boolean = false,
+    @StringRes supportingText: Int = R.string.blank,
+    textFieldOnValueChanged: (String) -> Unit = {}
+) {
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { onExpandedChange() }
+    ) {
+        Column (modifier = modifier) {
+            MenuOutlinedTextField(
+                fieldLabel = label,
+                fieldPlaceholder = R.string.blank,
+                fieldValue = stringResource(id = selectedOption),
+                expanded = expanded,
+                onValueChanged = { textFieldOnValueChanged(it) },
+                modifier = Modifier.menuAnchor(),
+                isError = isError,
+                supportingText = supportingText
+            )
+        }
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = onDismissRequest
+        ) {
+            options.forEach { item ->
+                DropdownMenuItem(
+                    text = { Text(stringResource(id = item)) },
                     onClick = {onDropdownMenuItemClicked(item)},
                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                 )
@@ -168,7 +217,7 @@ fun ExposedDropdownMenuPrev() {
     var selectedOptionText by remember { mutableStateOf(options[0]) }
 
     ExposedDropdownMenu(
-        label = R.string.pet_species,
+        label = R.string.components_forms_text_field_label_pet_species,
         options = options,
         expanded = expanded,
         enabled = true,
@@ -190,7 +239,7 @@ fun EditableExposedDropdownMenuPrev() {
     var selectedOptionText by remember { mutableStateOf(options[0]) }
 
     ExposedDropdownMenu(
-        label = R.string.pet_species,
+        label = R.string.components_forms_text_field_label_pet_species,
         options = options,
         expanded = expanded,
         enabled = true,

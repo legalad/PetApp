@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.petapp.data.PetWaterEntity
 import com.example.petapp.data.PetsDashboardRepository
 import com.example.petapp.data.UserSettingsDataRepository
 import com.example.petapp.model.PetStatsFormatter
@@ -15,7 +16,9 @@ import com.example.petapp.model.util.Formatters
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.time.Duration
 import java.time.Instant
+import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -51,6 +54,16 @@ open class PetDetailsViewModel @Inject constructor(
                 }
             }
         }
+        viewModelScope.launch {
+            petsDashboardRepository.getPetLastWaterChanged(petId = petId).collect { lastChanged ->
+                _successUiState.update {
+                    it.copy(
+                        lastWaterChanged = lastChanged?.let { Duration.between(it.measurementDate, Instant.now())
+                        } ?: null
+                    )
+                }
+            }
+        }
         uiState = PetDetailsUiState.Success()
     }
 
@@ -64,5 +77,17 @@ open class PetDetailsViewModel @Inject constructor(
 
     override fun getPetDimensionsFormattedString(value: Double): String {
         return Formatters.getFormattedDimensionString(value = value, unit = _successUiState.value.unit, context = application.applicationContext)
+    }
+
+    fun onWaterRefillIconClicked() {
+        viewModelScope.launch {
+            petsDashboardRepository.addPetWaterChangeData(
+                PetWaterEntity(
+                    id = UUID.randomUUID(),
+                    pet_id = UUID.fromString(petId),
+                    measurementDate = Instant.now()
+                )
+            )
+        }
     }
 }

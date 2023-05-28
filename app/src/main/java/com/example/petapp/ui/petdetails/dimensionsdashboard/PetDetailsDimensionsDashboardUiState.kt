@@ -35,7 +35,7 @@ sealed interface PetDetailsDimensionsDashboardUiState {
 }
 
 enum class DisplayedDimension (@StringRes val dimensionName: Int, @DrawableRes val dimensionIconId: Int) {
-    HEIGHT (dimensionName = R.string.pet_height, dimensionIconId = R.drawable.baseline_height_24),
-    LENGTH (dimensionName = R.string.pet_width, dimensionIconId = R.drawable.width_24),
-    CIRCUIT(dimensionName = R.string.pet_circuit, dimensionIconId = R.drawable.restart_alt_24)
+    HEIGHT (dimensionName = R.string.components_forms_text_field_label_pet_height, dimensionIconId = R.drawable.baseline_height_24),
+    LENGTH (dimensionName = R.string.components_forms_text_field_label_pet_width, dimensionIconId = R.drawable.width_24),
+    CIRCUIT(dimensionName = R.string.components_forms_text_field_label_pet_circuit, dimensionIconId = R.drawable.restart_alt_24)
 }

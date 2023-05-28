@@ -24,19 +24,26 @@ fun PetDetailsScreen(
     viewModel: PetDetailsViewModel,
     navigateToAddWeightScreen: (petId: String) -> Unit,
     navigateToAddDimensionsScreen: (petId: String) -> Unit,
+    navigateToAddMealScreen: (petId: String) -> Unit,
     navigateToWeightDashboardScreen: (petId: String) -> Unit,
-    navigateToDimensionsDashboardScreen: (petId: String) -> Unit
+    navigateToDimensionsDashboardScreen: (petId: String) -> Unit,
+    navigateToMealsDashboardScreen: (petId: String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    when (viewModel.uiState) {
-        is PetDetailsUiState.Error -> ErrorScreen(message = "Can't load pets")
-        is PetDetailsUiState.Loading -> LoadingScreen()
-        is PetDetailsUiState.Success -> PetDetailsResultScreen(
-            viewModel,
-            navigateToAddWeightScreen = navigateToAddWeightScreen,
-            navigateToAddDimensionsScreen = navigateToAddDimensionsScreen,
-            navigateToWeightDashboardScreen = navigateToWeightDashboardScreen,
-            navigateToDimensionsDashboardScreen = navigateToDimensionsDashboardScreen
-        )
+    Column(modifier = modifier) {
+        when (viewModel.uiState) {
+            is PetDetailsUiState.Error -> ErrorScreen(message = "Can't load pets")
+            is PetDetailsUiState.Loading -> LoadingScreen()
+            is PetDetailsUiState.Success -> PetDetailsResultScreen(
+                viewModel,
+                navigateToAddWeightScreen = navigateToAddWeightScreen,
+                navigateToAddDimensionsScreen = navigateToAddDimensionsScreen,
+                navigateToAddMealScreen = navigateToAddMealScreen,
+                navigateToWeightDashboardScreen = navigateToWeightDashboardScreen,
+                navigateToDimensionsDashboardScreen = navigateToDimensionsDashboardScreen,
+                navigateToMealsDashboardScreen = navigateToMealsDashboardScreen
+            )
+        }
     }
 }
 
@@ -45,8 +52,10 @@ fun PetDetailsResultScreen(
     viewModel: PetDetailsViewModel,
     navigateToAddWeightScreen: (petId: String) -> Unit,
     navigateToAddDimensionsScreen: (petId: String) -> Unit,
+    navigateToAddMealScreen: (petId: String) -> Unit,
     navigateToWeightDashboardScreen: (petId: String) -> Unit,
-    navigateToDimensionsDashboardScreen: (petId: String) -> Unit
+    navigateToDimensionsDashboardScreen: (petId: String) -> Unit,
+    navigateToMealsDashboardScreen: (petId: String) -> Unit
 ) {
     val uiState = viewModel.successUiState.collectAsState().value
     Column(modifier = Modifier.fillMaxSize()) {
@@ -66,7 +75,7 @@ fun PetDetailsResultScreen(
             activityIconOnClicked = {},
             navigateToPetDetailsScreen = {}
         )
-        PetBasicCardWithTrailingIcon(title = R.string.pet_weight, onCardItemClicked = {
+        PetBasicCardWithTrailingIcon(title = R.string.components_forms_text_field_label_pet_weight, onCardItemClicked = {
             navigateToWeightDashboardScreen(
                 uiState.pet.petId.toString()
             )
@@ -122,11 +131,18 @@ fun PetDetailsResultScreen(
             )
         }
         PetBasicCardWithTrailingIcon(
-            title = R.string.water_change,
+            title = R.string.pet_hunger,
+            onCardItemClicked = { navigateToMealsDashboardScreen(uiState.pet.petId.toString()) },
+            onTrailingIconClicked = { navigateToAddMealScreen(uiState.pet.petId.toString()) }) {
+
+        }
+        PetBasicCardWithTrailingIcon(
+            title = R.string.components_card_title_water,
             leadingIcon = R.drawable.round_refresh_24,
-            onTrailingIconClicked = {},
+            onTrailingIconClicked = viewModel::onWaterRefillIconClicked,
             onCardItemClicked = {}) {
-            Text(text = "Last changed: 12 hours ago", style = MaterialTheme.typography.titleSmall)
+            Text(text = ("Last changed: " + uiState.lastWaterChanged?.toHours().toString()
+                .plus(" hours ago")) ?: "Last changed: never", style = MaterialTheme.typography.titleSmall)
         }
     }
 }

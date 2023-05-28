@@ -29,6 +29,12 @@ interface PetsDashboardDao {
     @Query("SELECT * FROM pet_circuit_history where pet_id = :petId ORDER BY measurement_timestamp ASC")
     fun getPetCircuitHistory(petId: String): Flow<List<PetCircuitEntity>>
 
+    @Query("SELECT * FROM pet_water_change_history where pet_id = :petId ORDER BY measurement_timestamp DESC LIMIT 1")
+    fun getPetLastWaterChanged(petId: String): Flow<PetWaterEntity>
+
+    @Query("SELECT * FROM pet_meal where pet_id = :petId ORDER BY time ASC")
+    fun getPetMeals(petId: String): Flow<List<PetMealEntity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addPetGeneralInfo(pet: PetGeneralEntity)
 
@@ -43,6 +49,18 @@ interface PetsDashboardDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addPetCircuit(weightEntity: PetCircuitEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun addPetWaterChangeData(waterEntity: PetWaterEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun addPetMeal(petMealEntity: PetMealEntity)
+
+    @Update
+    suspend fun updatePetMeal(petMealEntity: PetMealEntity)
+
+    @Delete
+    suspend fun deletePetMeal(petMealEntity: PetMealEntity)
 
     @Transaction
     suspend fun addNewPet(
