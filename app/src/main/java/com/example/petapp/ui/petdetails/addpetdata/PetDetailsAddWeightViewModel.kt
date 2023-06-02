@@ -34,6 +34,7 @@ class PetDetailsAddWeightViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val petId: String = checkNotNull(savedStateHandle["petId"])
+    /*private val mealId: String? = savedStateHandle["mealId"]*/
 
     var uiState: PetDetailsAddWeightUiState by mutableStateOf(PetDetailsAddWeightUiState.Loading)
         private set

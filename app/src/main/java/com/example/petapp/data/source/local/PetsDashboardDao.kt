@@ -11,8 +11,8 @@ interface PetsDashboardDao {
     @Query("SELECT * FROM PET_GENERAL")
     fun getPets(): Flow<List<PetGeneralEntity>>
 
-    @Query("SELECT * FROM pet_dashboard_view")
-    fun getDashboardView(): Flow<List<PetDashboardView>>
+    @Query("SELECT * FROM pet_dashboard_view pd LEFT JOIN pet_meal pm ON pd.petId = pm.pet_id")
+    fun getDashboardView(): Flow<Map<PetDashboardView, List<PetMealEntity>>>
 
     @Query("SELECT * FROM pet_details_view where petId = :petId")
     fun getPetDetails(petId: String): Flow<PetDetailsView>
@@ -30,7 +30,7 @@ interface PetsDashboardDao {
     fun getPetCircuitHistory(petId: String): Flow<List<PetCircuitEntity>>
 
     @Query("SELECT * FROM pet_water_change_history where pet_id = :petId ORDER BY measurement_timestamp DESC LIMIT 1")
-    fun getPetLastWaterChanged(petId: String): Flow<PetWaterEntity>
+    fun getPetLastWaterChanged(petId: String): Flow<PetWaterEntity?>
 
     @Query("SELECT * FROM pet_meal where pet_id = :petId ORDER BY time ASC")
     fun getPetMeals(petId: String): Flow<List<PetMealEntity>>

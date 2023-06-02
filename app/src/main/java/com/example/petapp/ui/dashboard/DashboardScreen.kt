@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.petapp.ui.components.ErrorScreen
 import com.example.petapp.ui.components.LoadingScreen
+import com.example.petapp.ui.components.NoContentPrev
 import com.example.petapp.ui.components.PetItem
 
 @Composable
@@ -57,17 +58,23 @@ fun DashboardResultScreen(viewModel: DashboardViewModel, navigateToAddingPetScre
                 .padding(innerPadding)
         ) {
             Spacer(modifier = Modifier.padding(10.dp))
-            LazyColumn(modifier = Modifier.fillMaxHeight()) {
-                items(uiState.pets) { pet ->
-                    PetItem(
-                        pet = pet,
-                        getAgeFormattedString = viewModel::getPetAgeFormattedString,
-                        getWeightFormattedString = viewModel::getPetWeightFormattedString,
-                        waterIconOnClicked = viewModel::waterIconOnClicked,
-                        foodIconOnClicked = viewModel::foodIconOnClicked,
-                        activityIconOnClicked = viewModel::activityIconOnClicked,
-                        navigateToPetDetailsScreen = navigateToPetDetailsScreen
-                    )
+            if (uiState.pets.isEmpty()) {
+                NoContentPrev()
+            }
+            else {
+                LazyColumn(modifier = Modifier.fillMaxHeight()) {
+                    items(uiState.pets) { pet ->
+                        PetItem(
+                            pet = pet,
+                            getAgeFormattedString = viewModel::getPetAgeFormattedString,
+                            getWeightFormattedString = viewModel::getPetWeightFormattedString,
+                            waterIconOnClicked = viewModel::waterIconOnClicked,
+                            foodIconOnClicked = viewModel::foodIconOnClicked,
+                            activityIconOnClicked = viewModel::activityIconOnClicked,
+                            navigateToPetDetailsScreen = navigateToPetDetailsScreen,
+                            onWaterChangedIconClicked = viewModel::onWaterChangedIconClicked
+                        )
+                    }
                 }
             }
         }

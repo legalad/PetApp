@@ -43,7 +43,7 @@ open class PetDetailsViewModel @Inject constructor(
             initialValue = _successUiState.value)
 
     init {
-        viewModelScope.launch {
+        /*viewModelScope.launch {
             petsDashboardRepository.getPetDetails(petId = petId).collect { pet ->
                 _successUiState.update { it.copy(pet = pet) }
             }
@@ -56,13 +56,36 @@ open class PetDetailsViewModel @Inject constructor(
         }
         viewModelScope.launch {
             petsDashboardRepository.getPetLastWaterChanged(petId = petId).collect { lastChanged ->
-                _successUiState.update {
-                    it.copy(
+                _successUiState.update { success ->
+                    success.copy(
                         lastWaterChanged = lastChanged?.let { Duration.between(it.measurementDate, Instant.now())
-                        } ?: null
+                        }
                     )
                 }
             }
+        }*/
+
+        viewModelScope.launch {
+            combine(
+                petsDashboardRepository.getPetDetails(petId = petId),
+                petsDashboardRepository.getPetMeals(petId = petId),
+                petsDashboardRepository.getPetLastWaterChanged(petId = petId),
+                settingsDataRepository.getUnit()
+            ) { details, meals, water, unit ->
+                _successUiState.update { success ->
+                    success.copy(
+                        pet = details,
+                        petMeals = meals,
+                        lastWaterChanged = water?.let {
+                            Duration.between(
+                                it.measurementDate,
+                                Instant.now()
+                            )
+                        },
+                        unit = unit
+                    )
+                }
+            }.collect()
         }
         uiState = PetDetailsUiState.Success()
     }

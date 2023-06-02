@@ -6,18 +6,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.petapp.data.PetWaterEntity
 import com.example.petapp.data.PetsDashboardRepository
 import com.example.petapp.data.UserSettingsDataRepository
 import com.example.petapp.model.PetDashboardUiState
 import com.example.petapp.model.PetStatsFormatter
 import com.example.petapp.model.util.Contstans
 import com.example.petapp.model.util.Formatters
-import com.example.petapp.model.util.toPetDashboardUiStateList
+import com.example.petapp.model.util.toPetDashboardUiState
 import com.example.petapp.ui.components.PetStatsEnum
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.Instant
+import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -38,23 +40,10 @@ class DashboardViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(Contstans.TIMEOUT_MILLIS),
             initialValue = _successUiState.value)
 
-    /*petsDashboardRepository.getPets().combine(_successUiState){
-        repository, state ->
-        DashboardUiState.Success(
-            pets = repository
-        )
-    }
-        .catch { uiState = DashboardUiState.Error(it.message?: "Error") }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(Contstans.TIMEOUT_MILLIS),
-            initialValue = DashboardUiState.Success()
-        )*/
-
     init {
         viewModelScope.launch {
             petsDashboardRepository.getDashboard().collect { pets ->
-                _successUiState.update { it.copy(pets = pets.toPetDashboardUiStateList()) }
+                _successUiState.update { it.copy(pets = pets.toPetDashboardUiState()) }
             }
         }
         viewModelScope.launch {
@@ -93,6 +82,18 @@ class DashboardViewModel @Inject constructor(
             }
         }
 
+    }
+
+    fun onWaterChangedIconClicked(pet: PetDashboardUiState) {
+        viewModelScope.launch {
+            petsDashboardRepository.addPetWaterChangeData(
+                PetWaterEntity(
+                    id = UUID.randomUUID(),
+                    pet_id = pet.petDashboard.petId,
+                    measurementDate = Instant.now()
+                )
+            )
+        }
     }
 
     fun foodIconOnClicked(pet: PetDashboardUiState) {

@@ -12,7 +12,7 @@ class DefaultPetsDashboardRepository (
         return petsDashboardLocalDatasource.getPets()
     }
 
-    override fun getDashboard(): Flow<List<PetDashboardView>> {
+    override fun getDashboard(): Flow<Map<PetDashboardView, List<PetMealEntity>>> {
         return petsDashboardLocalDatasource.getDashboard()
     }
 
@@ -36,7 +36,7 @@ class DefaultPetsDashboardRepository (
         return petsDashboardLocalDatasource.getPetCircuitHistory(petId = petId)
     }
 
-    override fun getPetLastWaterChanged(petId: String): Flow<PetWaterEntity> {
+    override fun getPetLastWaterChanged(petId: String): Flow<PetWaterEntity?> {
         return petsDashboardLocalDatasource.getPetLastWaterChanged(petId = petId)
     }
 

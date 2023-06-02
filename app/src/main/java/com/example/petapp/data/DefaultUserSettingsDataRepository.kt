@@ -15,7 +15,7 @@ class DefaultUserSettingsDataRepository @Inject constructor(
         return userSettingsDataStore.data
     }
 
-    override suspend fun getLanguage(): Flow<UserPreferences.Language> {
+    override fun getLanguage(): Flow<UserPreferences.Language> {
         return userSettingsDataStore.data.map { it.language }
     }
 
@@ -27,7 +27,7 @@ class DefaultUserSettingsDataRepository @Inject constructor(
         }
     }
 
-    override suspend fun getUnit(): Flow<UserPreferences.Unit> {
+    override fun getUnit(): Flow<UserPreferences.Unit> {
         return userSettingsDataStore.data.map { it.unit }
     }
 

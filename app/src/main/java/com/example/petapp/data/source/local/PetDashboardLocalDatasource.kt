@@ -13,7 +13,7 @@ class PetDashboardLocalDatasource internal constructor(
         return petsDashboardDao.getPets()
     }
 
-    override fun getDashboard(): Flow<List<PetDashboardView>> {
+    override fun getDashboard(): Flow<Map<PetDashboardView, List<PetMealEntity>>>{
         return petsDashboardDao.getDashboardView()
     }
 
@@ -33,7 +33,7 @@ class PetDashboardLocalDatasource internal constructor(
         return petsDashboardDao.getPetCircuitHistory(petId = petId)
     }
 
-    override fun getPetLastWaterChanged(petId: String): Flow<PetWaterEntity> {
+    override fun getPetLastWaterChanged(petId: String): Flow<PetWaterEntity?> {
         return petsDashboardDao.getPetLastWaterChanged(petId = petId)
     }
 

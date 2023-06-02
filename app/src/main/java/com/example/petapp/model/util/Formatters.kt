@@ -6,10 +6,7 @@ import com.example.petapp.R
 import com.example.petapp.ui.petdetails.weightdashboard.ChartDateEntry
 import com.patrykandpatrick.vico.core.axis.AxisPosition
 import com.patrykandpatrick.vico.core.axis.formatter.AxisValueFormatter
-import java.time.Instant
-import java.time.LocalDate
-import java.time.Period
-import java.time.ZoneId
+import java.time.*
 import java.time.format.DateTimeFormatter
 import java.util.*
 
@@ -87,5 +84,10 @@ class Formatters {
                 }
             }
         }
+
+        fun waterLastChangedFormatter(duration: Duration?, context: Context) : String{
+            return ("Last changed: " + (duration?.toHours()?.toString()?.plus(" hours ago") ?: "never"))
+        }
+
     }
 }

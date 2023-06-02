@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
@@ -31,7 +32,7 @@ fun OutlinedTextFieldWithLeadingIcon(
     fieldValue: String,
     onValueChanged: (String) -> Unit,
     onCancelClicked: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.fillMaxWidth(),
     enabled: Boolean = true,
     isError: Boolean = false,
     colors: TextFieldColors = OutlinedTextFieldDefaults.colors(
@@ -79,9 +80,9 @@ fun OutlinedTextFieldWithLeadingIcon(
             singleLine = true,
             enabled = enabled,
             colors = colors,
-            isError = (isError && !isFocused.value /*&& inputChanged.value*/),
+            isError = (isError && !isFocused.value),
             supportingText = {
-                if (isError && !isFocused.value /*&& inputChanged.value*/) {
+                if (isError && !isFocused.value) {
                     Text(
                         text = stringResource(
                             id = supportingText
@@ -92,7 +93,7 @@ fun OutlinedTextFieldWithLeadingIcon(
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,
             interactionSource = interactionSource,
-            modifier = Modifier.clickable(
+            modifier = modifier.clickable(
                 interactionSource = interactionSource,
                 onClick = onTextFieldClicked,
                 indication = null

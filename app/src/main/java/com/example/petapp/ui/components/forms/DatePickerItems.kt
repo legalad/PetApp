@@ -20,6 +20,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.petapp.R
+import java.time.Instant
 import java.util.*
 
 
@@ -165,7 +166,8 @@ fun DatePickerDialogItem(
     confirmEnabled: Boolean,
     onDismissRequest: () -> Unit,
     onConfirmedButtonClicked: () -> Unit,
-    onDismissButtonClicked: () -> Unit
+    onDismissButtonClicked: () -> Unit,
+    dateValidator: (Long) -> Boolean = { it <= Instant.now().toEpochMilli() }
 ) {
     if (openDialog) {
         DatePickerDialog(
@@ -185,7 +187,7 @@ fun DatePickerDialogItem(
                     Text(text = stringResource(R.string.components_forms_dialog_buttons_cancel))
                 }
             }) {
-            DatePicker(state = datePickerState)
+            DatePicker(state = datePickerState, dateValidator = dateValidator)
         }
     }
 }
