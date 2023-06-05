@@ -206,7 +206,8 @@ class AddPetViewModel @Inject constructor(
                     species = Species.CAT,
                     breed = "Tajski",
                     birthDate = Instant.ofEpochMilli(successUiState.value.datePickerState.selectedDateMillis?: Instant.now().toEpochMilli()),
-                    description = successUiState.value.descriptionFieldValue
+                    description = successUiState.value.descriptionFieldValue,
+                    imageUri = null
                 ),
                 PetWeightEntity(
                     id = UUID.randomUUID(),

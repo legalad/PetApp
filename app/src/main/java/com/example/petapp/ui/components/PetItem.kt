@@ -1,5 +1,6 @@
 package com.example.petapp.ui.components
 
+import android.net.Uri
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.animation.animateContentSize
@@ -22,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
 import com.example.petapp.R
 import com.example.petapp.data.PetDashboardView
 import com.example.petapp.data.PetMealEntity
@@ -101,7 +103,7 @@ fun PetItem(
         {
             Row(modifier = Modifier.fillMaxWidth()) {
                 PetIcon(
-                    petIcon = R.drawable.nika,
+                    petImageUri = pet.petDashboard.imageUri,
                     modifier = childModifier.weight(3f)
                 )
                 PetInfo(
@@ -210,7 +212,7 @@ fun PetActivity(modifier: Modifier = Modifier) {
 
 //may be change later, depends on image location
 @Composable
-fun PetIcon(modifier: Modifier = Modifier, @DrawableRes petIcon: Int = R.drawable.nika) {
+fun PetIcon(modifier: Modifier = Modifier, petImageUri: Uri?) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -223,7 +225,7 @@ fun PetIcon(modifier: Modifier = Modifier, @DrawableRes petIcon: Int = R.drawabl
                 .clip(RoundedCornerShape(50))
                 .background(MaterialTheme.colorScheme.surface),
             contentScale = ContentScale.Crop,
-            painter = painterResource(id = R.drawable.icons8_pets_96),
+            painter = rememberAsyncImagePainter( petImageUri ?: R.drawable.icons8_pets_96),
             contentDescription = null
         )
     }
@@ -367,7 +369,8 @@ fun PetItemPrev() {
                 name = "Zeus",
                 birthDate = Instant.now(),
                 waterLastChanged = Instant.now(),
-                weight = 7.1
+                weight = 7.1,
+                imageUri = null
             ),
             petMeals = emptyList(),
             waterStat = PetStatProgressIndicatorEntry(0.7f, Color.Yellow),

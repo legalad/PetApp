@@ -74,11 +74,13 @@ fun DefaultScaffold(
                 onAccountIconClicked = { /*TODO*/ },
                 onSettingsIconClicked = { navController.navigate(PetAppDestination.SETTINGS_ROUTE.name) })
         },
-        content = content)
+        content = content
+    )
 }
 
 @Composable
 fun PetAppNavGraph(
+    requestCameraPermission: (showCamera: () -> Unit) -> Unit,
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     startDestination: String = PetAppDestination.DASHBOARD_ROUTE.toString()
@@ -114,18 +116,18 @@ fun PetAppNavGraph(
             arguments = listOf(navArgument("petId") { type = NavType.StringType })
         ) {
             val petDetailsViewModel = hiltViewModel<PetDetailsViewModel>()
-            DefaultScaffold(navController = navController)  {
-                PetDetailsScreen(
-                    viewModel = petDetailsViewModel,
-                    navigateToAddWeightScreen = { navController.navigate(PetAppDestination.PET_DETAILS_ADD_WEIGHT.name + "/$it") },
-                    navigateToAddDimensionsScreen = { navController.navigate(PetAppDestination.PET_DETAILS_ADD_DIMENSIONS.name + "/$it") },
-                    navigateToWeightDashboardScreen = { navController.navigate(PetAppDestination.PET_DETAILS_WEIGHT_DASHBOARD.name + "/$it") },
-                    navigateToDimensionsDashboardScreen = { navController.navigate(PetAppDestination.PET_DETAILS_DIMENSIONS_DASHBOARD.name + "/$it") },
-                    navigateToMealsDashboardScreen = { navController.navigate(PetAppDestination.PET_DETAILS_MEALS_DASHBOARD.name + "/$it") },
-                    navigateToAddMealScreen = { navController.navigate(PetAppDestination.PET_DETAILS_ADD_MEAL.name + "/$it") },
-                    modifier = Modifier.padding(it)
-                )
-            }
+            PetDetailsScreen(
+                viewModel = petDetailsViewModel,
+                navigateBack = { navController.navigateUp() },
+                navigateToAddWeightScreen = { navController.navigate(PetAppDestination.PET_DETAILS_ADD_WEIGHT.name + "/$it") },
+                navigateToAddDimensionsScreen = { navController.navigate(PetAppDestination.PET_DETAILS_ADD_DIMENSIONS.name + "/$it") },
+                navigateToWeightDashboardScreen = { navController.navigate(PetAppDestination.PET_DETAILS_WEIGHT_DASHBOARD.name + "/$it") },
+                navigateToDimensionsDashboardScreen = { navController.navigate(PetAppDestination.PET_DETAILS_DIMENSIONS_DASHBOARD.name + "/$it") },
+                navigateToMealsDashboardScreen = { navController.navigate(PetAppDestination.PET_DETAILS_MEALS_DASHBOARD.name + "/$it") },
+                navigateToAddMealScreen = { navController.navigate(PetAppDestination.PET_DETAILS_ADD_MEAL.name + "/$it") },
+                requestCameraPermission = requestCameraPermission
+            )
+
         }
         composable(
             route = PetAppDestination.PET_DETAILS_ADD_WEIGHT.name + "/{petId}",

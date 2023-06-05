@@ -13,6 +13,10 @@ class PetDashboardLocalDatasource internal constructor(
         return petsDashboardDao.getPets()
     }
 
+    override fun getPet(petId: String): PetGeneralEntity? {
+       return petsDashboardDao.getPet(petId = petId)
+    }
+
     override fun getDashboard(): Flow<Map<PetDashboardView, List<PetMealEntity>>>{
         return petsDashboardDao.getDashboardView()
     }
@@ -91,6 +95,10 @@ class PetDashboardLocalDatasource internal constructor(
 
     override suspend fun updatePetMeal(petMealEntity: PetMealEntity) {
         petsDashboardDao.updatePetMeal(petMealEntity = petMealEntity)
+    }
+
+    override suspend fun updatePetGeneral(petGeneralEntity: PetGeneralEntity) {
+        petsDashboardDao.updatePetGeneral(petGeneralEntity = petGeneralEntity)
     }
 
     override suspend fun deletePetMeal(petMealEntity: PetMealEntity) {

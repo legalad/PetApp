@@ -11,6 +11,9 @@ interface PetsDashboardDao {
     @Query("SELECT * FROM PET_GENERAL")
     fun getPets(): Flow<List<PetGeneralEntity>>
 
+    @Query("SELECT * FROM PET_GENERAL where pet_id = :petId")
+    fun getPet(petId: String): PetGeneralEntity?
+
     @Query("SELECT * FROM pet_dashboard_view pd LEFT JOIN pet_meal pm ON pd.petId = pm.pet_id")
     fun getDashboardView(): Flow<Map<PetDashboardView, List<PetMealEntity>>>
 
@@ -58,6 +61,9 @@ interface PetsDashboardDao {
 
     @Update
     suspend fun updatePetMeal(petMealEntity: PetMealEntity)
+
+    @Update
+    suspend fun updatePetGeneral(petGeneralEntity: PetGeneralEntity)
 
     @Delete
     suspend fun deletePetMeal(petMealEntity: PetMealEntity)

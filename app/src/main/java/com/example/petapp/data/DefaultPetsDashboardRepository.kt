@@ -12,6 +12,10 @@ class DefaultPetsDashboardRepository (
         return petsDashboardLocalDatasource.getPets()
     }
 
+    override fun getPet(petId: String): PetGeneralEntity? {
+        return petsDashboardLocalDatasource.getPet(petId = petId)
+    }
+
     override fun getDashboard(): Flow<Map<PetDashboardView, List<PetMealEntity>>> {
         return petsDashboardLocalDatasource.getDashboard()
     }
@@ -90,6 +94,10 @@ class DefaultPetsDashboardRepository (
 
     override suspend fun updatePetMeal(petMealEntity: PetMealEntity) {
         petsDashboardLocalDatasource.updatePetMeal(petMealEntity = petMealEntity)
+    }
+
+    override suspend fun updatePetGeneral(petGeneralEntity: PetGeneralEntity) {
+        petsDashboardLocalDatasource.updatePetGeneral(petGeneralEntity = petGeneralEntity)
     }
 
     override suspend fun deletePetMeal(petMealEntity: PetMealEntity) {

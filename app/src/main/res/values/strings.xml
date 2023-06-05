@@ -82,4 +82,7 @@
     <string name="util_enums_food_type_dry">dry</string>
     <string name="util_enums_food_type_other">other</string>
     <string name="components_top_app_bar_navigation_content_description_back">Navigate back</string>
+    <string name="components_bottom_sheet_item_gallery">Gallery</string>
+    <string name="components_bottom_sheet_item_camera">Camera</string>
+    <string name="components_bottom_sheet_item_cancel">Cancel</string>
 </resources>

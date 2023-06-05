@@ -1,5 +1,6 @@
 package com.example.petapp.data
 
+import android.net.Uri
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -19,5 +20,6 @@ data class PetGeneralEntity(
     val breed: String?,
     @ColumnInfo(name = "birth_timestamp")
     val birthDate: Instant,
-    val description: String?
+    val description: String?,
+    val imageUri: Uri?
 )

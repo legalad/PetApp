@@ -7,14 +7,16 @@ import com.example.petapp.ui.navigation.PetAppNavGraph
 
 
 @Composable
-fun PetAppScreen() {
+fun PetAppScreen(
+    requestCameraPermission: (showCamera: () -> Unit) -> Unit
+) {
 
     val navController = rememberNavController()
-    PetAppNavGraph(navController = navController)
+    PetAppNavGraph(navController = navController, requestCameraPermission = requestCameraPermission)
 }
 
 @Preview
 @Composable
 fun Test() {
-    PetAppScreen()
+    PetAppScreen(requestCameraPermission = {})
 }

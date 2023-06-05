@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface PetsDashboardDatasource {
     fun getPets(): Flow<List<PetGeneralEntity>>
+    fun getPet(petId: String): PetGeneralEntity?
 
     fun getDashboard(): Flow<Map<PetDashboardView, List<PetMealEntity>>>
 
@@ -23,5 +24,6 @@ interface PetsDashboardDatasource {
     suspend fun addPetWaterChangeData(waterEntity: PetWaterEntity)
     suspend fun addPetMeal(petMealEntity: PetMealEntity)
     suspend fun updatePetMeal(petMealEntity: PetMealEntity)
+    suspend fun updatePetGeneral(petGeneralEntity: PetGeneralEntity)
     suspend fun deletePetMeal(petMealEntity: PetMealEntity)
 }

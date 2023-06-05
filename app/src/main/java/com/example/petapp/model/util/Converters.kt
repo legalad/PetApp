@@ -1,5 +1,6 @@
 package com.example.petapp.model.util
 
+import android.net.Uri
 import androidx.room.TypeConverter
 import com.example.petapp.data.MealType
 import com.example.petapp.model.Species
@@ -49,6 +50,24 @@ class UUIDConverter {
         fun fromStringToUUID(string: String?): UUID? {
             return string?.let { UUID.fromString(it) }
         }
+    }
+}
+
+class URIConverter {
+    companion object {
+        @TypeConverter
+        @JvmStatic
+        fun fromUriToString(uri: Uri?): String? {
+            return uri?.toString()
+        }
+
+        //TODO handle exceptions
+        @TypeConverter
+        @JvmStatic
+        fun fromStringToUri(string: String?): Uri? {
+            return string?.let { Uri.parse(string) }
+        }
+
     }
 }
 

@@ -30,7 +30,8 @@ fun Map<PetDashboardView, List<PetMealEntity>>.toPetDashboardUiState(): List<Pet
                 name = it.key.name,
                 birthDate = it.key.birthDate,
                 waterLastChanged = it.key.waterLastChanged,
-                weight = it.key.weight
+                weight = it.key.weight,
+                imageUri = it.key.imageUri
             ),
             petMeals = it.value,
             waterStat = it.key.waterLastChanged?.toPetStatProgressIndicatorEntry(24)?: PetStatProgressIndicatorEntry(1f, Color.Red),
@@ -73,10 +74,12 @@ fun PetDetailsView.toPetDetailsUiState(): PetDetailsUiState {
             weight = weight,
             height = height,
             length = length,
-            circuit = circuit
+            circuit = circuit,
+            imageUri = imageUri
         )
     )
 }
+
 
 @JvmName("weightToDateEntryList")
 fun List<PetWeightEntity>.toListDateEntryList(): List<ListDateEntry> {
