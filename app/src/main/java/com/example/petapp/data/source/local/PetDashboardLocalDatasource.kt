@@ -17,6 +17,22 @@ class PetDashboardLocalDatasource internal constructor(
        return petsDashboardDao.getPet(petId = petId)
     }
 
+    override fun getWeight(id: String): PetWeightEntity? {
+        return petsDashboardDao.getWeight(id = id)
+    }
+
+    override fun getHeight(id: String): PetHeightEntity? {
+        return petsDashboardDao.getHeight(id = id)
+    }
+
+    override fun getLength(id: String): PetLengthEntity? {
+        return petsDashboardDao.getLength(id = id)
+    }
+
+    override fun getCircuit(id: String): PetCircuitEntity? {
+        return petsDashboardDao.getCircuit(id = id)
+    }
+
     override fun getDashboard(): Flow<Map<PetDashboardView, List<PetMealEntity>>>{
         return petsDashboardDao.getDashboardView()
     }
@@ -101,7 +117,39 @@ class PetDashboardLocalDatasource internal constructor(
         petsDashboardDao.updatePetGeneral(petGeneralEntity = petGeneralEntity)
     }
 
+    override suspend fun updateWeight(petWeightEntity: PetWeightEntity) {
+        petsDashboardDao.updateWeight(petWeightEntity = petWeightEntity)
+    }
+
+    override suspend fun updateDimension(petHeightEntity: PetHeightEntity) {
+        petsDashboardDao.updateDimension(petHeightEntity = petHeightEntity)
+    }
+
+    override suspend fun updateDimension(petLengthEntity: PetLengthEntity) {
+        petsDashboardDao.updateDimension(petLengthEntity = petLengthEntity)
+    }
+
+    override suspend fun updateDimension(petCircuitEntity: PetCircuitEntity) {
+        petsDashboardDao.updateDimension(petCircuitEntity = petCircuitEntity)
+    }
+
     override suspend fun deletePetMeal(petMealEntity: PetMealEntity) {
         petsDashboardDao.deletePetMeal(petMealEntity = petMealEntity)
+    }
+
+    override suspend fun deletePetWeight(petWeightEntity: PetWeightEntity) {
+        petsDashboardDao.deletePetWeight(petWeightEntity = petWeightEntity)
+    }
+
+    override suspend fun deletePetDimension(petHeightEntity: PetHeightEntity) {
+        petsDashboardDao.deletePetDimension(petHeightEntity = petHeightEntity)
+    }
+
+    override suspend fun deletePetDimension(petLengthEntity: PetLengthEntity) {
+        petsDashboardDao.deletePetDimension(petLengthEntity = petLengthEntity)
+    }
+
+    override suspend fun deletePetDimension(petCircuitEntity: PetCircuitEntity) {
+        petsDashboardDao.deletePetDimension(petCircuitEntity = petCircuitEntity)
     }
 }

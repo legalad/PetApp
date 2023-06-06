@@ -14,6 +14,18 @@ interface PetsDashboardDao {
     @Query("SELECT * FROM PET_GENERAL where pet_id = :petId")
     fun getPet(petId: String): PetGeneralEntity?
 
+    @Query("SELECT * FROM PET_WEIGHT_HISTORY where id = :id")
+    fun getWeight(id: String): PetWeightEntity?
+
+    @Query("SELECT * FROM PET_HEIGHT_HISTORY where id = :id")
+    fun getHeight(id: String): PetHeightEntity?
+
+    @Query("SELECT * FROM PET_LENGTH_HISTORY where id = :id")
+    fun getLength(id: String): PetLengthEntity?
+
+    @Query("SELECT * FROM PET_CIRCUIT_HISTORY where id = :id")
+    fun getCircuit(id: String): PetCircuitEntity?
+
     @Query("SELECT * FROM pet_dashboard_view pd LEFT JOIN pet_meal pm ON pd.petId = pm.pet_id")
     fun getDashboardView(): Flow<Map<PetDashboardView, List<PetMealEntity>>>
 
@@ -65,9 +77,29 @@ interface PetsDashboardDao {
     @Update
     suspend fun updatePetGeneral(petGeneralEntity: PetGeneralEntity)
 
+    @Update
+    suspend fun updateWeight(petWeightEntity: PetWeightEntity)
+
+    @Update
+    suspend fun updateDimension(petHeightEntity: PetHeightEntity)
+
+    @Update
+    suspend fun updateDimension(petLengthEntity: PetLengthEntity)
+
+    @Update
+    suspend fun updateDimension(petCircuitEntity: PetCircuitEntity)
+
     @Delete
     suspend fun deletePetMeal(petMealEntity: PetMealEntity)
 
+    @Delete
+    suspend fun deletePetWeight(petWeightEntity: PetWeightEntity)
+    @Delete
+    suspend fun deletePetDimension(petHeightEntity: PetHeightEntity)
+    @Delete
+    suspend fun deletePetDimension(petLengthEntity: PetLengthEntity)
+    @Delete
+    suspend fun deletePetDimension(petCircuitEntity: PetCircuitEntity)
     @Transaction
     suspend fun addNewPet(
         petGeneralEntity: PetGeneralEntity,

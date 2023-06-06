@@ -16,6 +16,22 @@ class DefaultPetsDashboardRepository (
         return petsDashboardLocalDatasource.getPet(petId = petId)
     }
 
+    override fun getWeight(id: String): PetWeightEntity? {
+        return petsDashboardLocalDatasource.getWeight(id = id)
+    }
+
+    override fun getHeight(id: String): PetHeightEntity? {
+        return petsDashboardLocalDatasource.getHeight(id = id)
+    }
+
+    override fun getLength(id: String): PetLengthEntity? {
+        return petsDashboardLocalDatasource.getLength(id = id)
+    }
+
+    override fun getCircuit(id: String): PetCircuitEntity? {
+        return petsDashboardLocalDatasource.getCircuit(id = id)
+    }
+
     override fun getDashboard(): Flow<Map<PetDashboardView, List<PetMealEntity>>> {
         return petsDashboardLocalDatasource.getDashboard()
     }
@@ -100,7 +116,38 @@ class DefaultPetsDashboardRepository (
         petsDashboardLocalDatasource.updatePetGeneral(petGeneralEntity = petGeneralEntity)
     }
 
+    override suspend fun updateWeight(petWeightEntity: PetWeightEntity) {
+        petsDashboardLocalDatasource.updateWeight(petWeightEntity = petWeightEntity)
+    }
+
+    override suspend fun updateDimension(petHeightEntity: PetHeightEntity) {
+        petsDashboardLocalDatasource.updateDimension(petHeightEntity = petHeightEntity)
+    }
+
+    override suspend fun updateDimension(petLengthEntity: PetLengthEntity) {
+        petsDashboardLocalDatasource.updateDimension(petLengthEntity = petLengthEntity)
+    }
+
+    override suspend fun updateDimension(petCircuitEntity: PetCircuitEntity) {
+        petsDashboardLocalDatasource.updateDimension(petCircuitEntity = petCircuitEntity)
+    }
+
     override suspend fun deletePetMeal(petMealEntity: PetMealEntity) {
         petsDashboardLocalDatasource.deletePetMeal(petMealEntity = petMealEntity)
+    }
+    override suspend fun deletePetWeight(petWeightEntity: PetWeightEntity) {
+        petsDashboardLocalDatasource.deletePetWeight(petWeightEntity = petWeightEntity)
+    }
+
+    override suspend fun deletePetDimension(petHeightEntity: PetHeightEntity) {
+        petsDashboardLocalDatasource.deletePetDimension(petHeightEntity = petHeightEntity)
+    }
+
+    override suspend fun deletePetDimension(petLengthEntity: PetLengthEntity) {
+        petsDashboardLocalDatasource.deletePetDimension(petLengthEntity = petLengthEntity)
+    }
+
+    override suspend fun deletePetDimension(petCircuitEntity: PetCircuitEntity) {
+        petsDashboardLocalDatasource.deletePetDimension(petCircuitEntity = petCircuitEntity)
     }
 }

@@ -5,6 +5,13 @@ import kotlinx.coroutines.flow.Flow
 interface PetsDashboardRepository {
     fun getPets(): Flow<List<PetGeneralEntity>>
     fun getPet(petId: String): PetGeneralEntity?
+    fun getWeight(id: String): PetWeightEntity?
+
+    fun getHeight(id: String): PetHeightEntity?
+
+    fun getLength(id: String): PetLengthEntity?
+
+    fun getCircuit(id: String): PetCircuitEntity?
     fun getDashboard(): Flow<Map<PetDashboardView, List<PetMealEntity>>>
 
     fun getPetDetails(petId: String): Flow<PetDetailsView>
@@ -30,6 +37,17 @@ interface PetsDashboardRepository {
     suspend fun addPetMeal(petMealEntity: PetMealEntity)
     suspend fun updatePetMeal(petMealEntity: PetMealEntity)
     suspend fun updatePetGeneral(petGeneralEntity: PetGeneralEntity)
+    suspend fun updateWeight(petWeightEntity: PetWeightEntity)
+
+    suspend fun updateDimension(petHeightEntity: PetHeightEntity)
+
+    suspend fun updateDimension(petLengthEntity: PetLengthEntity)
+
+    suspend fun updateDimension(petCircuitEntity: PetCircuitEntity)
 
     suspend fun deletePetMeal(petMealEntity: PetMealEntity)
+    suspend fun deletePetWeight(petWeightEntity: PetWeightEntity)
+    suspend fun deletePetDimension(petHeightEntity: PetHeightEntity)
+    suspend fun deletePetDimension(petLengthEntity: PetLengthEntity)
+    suspend fun deletePetDimension(petCircuitEntity: PetCircuitEntity)
 }
