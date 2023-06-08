@@ -14,7 +14,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.petapp.data.PetWaterEntity
 import com.example.petapp.data.PetsDashboardRepository
 import com.example.petapp.data.UserSettingsDataRepository
-import com.example.petapp.di.CameraExecutor
 import com.example.petapp.di.CameraFile
 import com.example.petapp.model.HandleCameraEvents
 import com.example.petapp.model.PetStatsFormatter
@@ -28,9 +27,7 @@ import java.io.File
 import java.time.Duration
 import java.time.Instant
 import java.util.*
-import java.util.concurrent.ExecutorService
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @HiltViewModel
@@ -87,11 +84,11 @@ open class PetDetailsViewModel @Inject constructor(
         return Formatters.getFormattedAgeString(instant= instant, context = application.applicationContext)
     }
 
-    override fun getPetWeightFormattedString(weight: Double): String {
+    override fun getPetWeightFormattedString(weight: Double?): String {
         return Formatters.getFormattedWeightString(weight = weight, unit = _successUiState.value.unit, context = application.applicationContext)
     }
 
-    override fun getPetDimensionsFormattedString(value: Double): String {
+    override fun getPetDimensionsFormattedString(value: Double?): String {
         return Formatters.getFormattedDimensionString(value = value, unit = _successUiState.value.unit, context = application.applicationContext)
     }
 

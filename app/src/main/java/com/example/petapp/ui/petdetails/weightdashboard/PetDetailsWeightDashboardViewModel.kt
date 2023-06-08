@@ -16,6 +16,7 @@ import com.patrykandpatrick.vico.core.entry.ChartEntryModelProducer
 import com.patrykandpatrick.vico.core.marker.Marker
 import com.patrykandpatrick.vico.core.marker.MarkerVisibilityChangeListener
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -62,34 +63,50 @@ class PetDetailsWeightDashboardViewModel @Inject constructor(
                                     )
                                 })
                         ),
-                        selectedDateEntry = ChartDateEntry(localDate = pets.last().measurementDate, y = pets.last().value.toFloat(), x = 0f),
-                        persistentMarkerX = (pets.size - 1).toFloat()
-                    )
+                        )
+                }
+                if (pets.isNotEmpty()) {
+                    uiState = PetDetailsWeightDashboardUiState.Success()
+                    _successUiState.update {
+                        it.copy(
+                            selectedDateEntry = ChartDateEntry(
+                                localDate = pets.last().measurementDate,
+                                y = pets.last().value.toFloat(),
+                                x = (pets.size - 1).toFloat()
+                            ),
+                            persistentMarkerX = (pets.size - 1).toFloat()
+                        )
+                    }
+                } else {
+                    uiState = PetDetailsWeightDashboardUiState.NoData
                 }
             }.collect()
         }
         viewModelScope.launch {
             _successUiState.update {
-                it.copy(petName = petsDashboardRepository.getPetDetails(petId = petId).firstOrNull()?.name ?: "",
-                petIdString = petId)
+                it.copy(
+                    petName = petsDashboardRepository.getPetDetails(petId = petId)
+                        .firstOrNull()?.name ?: "",
+                    petIdString = petId
+                )
             }
         }
-        uiState = PetDetailsWeightDashboardUiState.Success()
     }
 
     override fun onMarkerShown(marker: Marker, markerEntryModels: List<Marker.EntryModel>) {
         super.onMarkerShown(marker, markerEntryModels)
         _successUiState.update {
             it.copy(
-                persistentMarkerX = markerEntryModels[0].entry.x,
-                selectedDateEntry = markerEntryModels[0].entry as ChartDateEntry
+                persistentMarkerX = markerEntryModels[markerEntryModels.lastIndex].entry.x,
+                selectedDateEntry = markerEntryModels[markerEntryModels.lastIndex].entry as ChartDateEntry
             )
         }
     }
 
     fun onChartIconClicked() {
         var dataDisplayedType = DataDisplayedType.LINE_CHART
-        if (_successUiState.value.dataDisplayedType == dataDisplayedType) dataDisplayedType = DataDisplayedType.LIST
+        if (_successUiState.value.dataDisplayedType == dataDisplayedType) dataDisplayedType =
+            DataDisplayedType.LIST
 
         _successUiState.update {
             it.copy(
@@ -98,12 +115,41 @@ class PetDetailsWeightDashboardViewModel @Inject constructor(
         }
     }
 
+    fun onDropdownMenuIconClicked() {
+        _successUiState.update {
+            it.copy(
+                topAppBarMenuExpanded = !it.topAppBarMenuExpanded
+            )
+        }
+    }
+
+    fun dropdownMenuOnDismissRequest() {
+        _successUiState.update {
+            it.copy(
+                topAppBarMenuExpanded = false
+            )
+        }
+    }
+
+    fun getSelectedWeightId(): String? {
+        return try {
+            _successUiState.value.weightHistoryList[_successUiState.value.selectedDateEntry.x.toInt()].id.toString()
+        } catch (e: IndexOutOfBoundsException) {
+            null
+        }
+    }
+
+    fun deleteWeightItem() {
+        viewModelScope.launch(Dispatchers.IO) {
+            getSelectedWeightId()?.let { id ->
+                petsDashboardRepository.getWeight(id)?.let {
+                    petsDashboardRepository.deletePetWeight(it)
+                }
+            }
+        }
+    }
 
     fun getPetId(): String {
         return petId
     }
-
-    /*private val axisValueFormatter = AxisValueFormatter<AxisPosition.Horizontal.Bottom> { i, _ ->
-        "${i.toInt()} Lorem ipsum"
-    }*/
 }

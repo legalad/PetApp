@@ -18,6 +18,7 @@
     <string name="components_dashboard_card_title_activities">Activities</string>
     <string name="components_forms_dialog_buttons_ok">OK</string>
     <string name="components_forms_dialog_buttons_cancel">Cancel</string>
+    <string name="components_forms_dialog_buttons_input">input</string>
     <string name="components_top_app_bar_menu_title_account">Account</string>
     <string name="components_top_app_bar_menu_title_settings">Settings</string>
     <string name="components_top_app_bar_menu_title_help">Get help</string>
@@ -66,6 +67,8 @@
     <string name="components_top_app_bar_title_pet_dimensions">%1$s\'s dimensions </string>
     <string name="components_top_app_bar_title_pet_meals">%1$s\'s meals</string>
     <string name="components_forms_top_app_bar_title_pet_weight">Weight form</string>
+    <string name="components_forms_top_app_bar_title_pet_dimensions">Dimensions form</string>
+    <string name="components_forms_top_app_bar_title_pet_dimension">Dimension form</string>
     <string name="components_forms_text_field_label_date">Date</string>
     <string name="components_forms_text_field_label_time">Time</string>
     <string name="components_forms_time_picker_dialog_title_select_time">Select Time"</string>
@@ -82,6 +85,9 @@
     <string name="util_enums_food_type_dry">dry</string>
     <string name="util_enums_food_type_other">other</string>
     <string name="components_top_app_bar_navigation_content_description_back">Navigate back</string>
+    <string name="components_top_app_bar_navigation_menu_add">Add</string>
+    <string name="components_top_app_bar_navigation_menu_update">Update</string>
+    <string name="components_top_app_bar_navigation_menu_delete">Delete</string>
     <string name="components_bottom_sheet_item_gallery">Gallery</string>
     <string name="components_bottom_sheet_item_camera">Camera</string>
     <string name="components_bottom_sheet_item_cancel">Cancel</string>

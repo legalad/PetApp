@@ -30,7 +30,7 @@ import com.example.petapp.ui.petdetails.dimensionsdashboard.PetDimensionsDashboa
 import com.example.petapp.ui.petdetails.fooddashboard.PetFoodDashboardResultScreen
 import com.example.petapp.ui.petdetails.fooddashboard.PetFoodDashboardViewModel
 import com.example.petapp.ui.petdetails.weightdashboard.PetDetailsWeightDashboardViewModel
-import com.example.petapp.ui.petdetails.weightdashboard.PetWeightDashboardResultScreen
+import com.example.petapp.ui.petdetails.weightdashboard.PetWeightDashboardScreen
 import com.example.petapp.ui.settings.SettingsScreen
 import com.example.petapp.ui.settings.SettingsViewModel
 
@@ -156,15 +156,71 @@ fun PetAppNavGraph(
         }
 
         composable(
+            route = PetAppDestination.PET_DETAILS_UPDATE_WEIGHT.name + "/{petId}" + "/{weightId}",
+            arguments = listOf(navArgument("petId") {type = NavType.StringType}, navArgument("weightId") {type = NavType.StringType})
+        ) {
+            val petDetailsAddWeightViewModel = hiltViewModel<PetDetailsAddWeightViewModel>()
+            AddWeightResultScreen(viewModel = petDetailsAddWeightViewModel,
+                navigateToPetDetails = {
+                    navController.navigateUp()
+                },
+                navigateBack = { navController.navigateUp() }
+            )
+        }
+
+        composable(
+            route = PetAppDestination.PET_DETAILS_UPDATE_HEIGHT.name + "/{petId}" + "/{heightId}",
+            arguments = listOf(navArgument("petId") {type = NavType.StringType}, navArgument("heightId") {type = NavType.StringType})
+        ) {
+            val petDetailsAddDimensionsViewModel = hiltViewModel<PetDetailsAddDimensionsViewModel>()
+            UpdateDimensionsResultScreen(
+                viewModel = petDetailsAddDimensionsViewModel,
+                navigateToPetDetails = {
+                    navController.navigateUp()
+                },
+                navigateBack = { navController.navigateUp() }
+            )
+        }
+
+        composable(
+            route = PetAppDestination.PET_DETAILS_UPDATE_LENGTH.name + "/{petId}" + "/{lengthId}",
+            arguments = listOf(navArgument("petId") {type = NavType.StringType}, navArgument("lengthId") {type = NavType.StringType})
+        ) {
+            val petDetailsAddDimensionsViewModel = hiltViewModel<PetDetailsAddDimensionsViewModel>()
+            UpdateDimensionsResultScreen(
+                viewModel = petDetailsAddDimensionsViewModel,
+                navigateToPetDetails = {
+                    navController.navigateUp()
+                },
+                navigateBack = { navController.navigateUp() }
+            )
+        }
+
+        composable(
+            route = PetAppDestination.PET_DETAILS_UPDATE_CIRCUIT.name + "/{petId}" + "/{circuitId}",
+            arguments = listOf(navArgument("petId") {type = NavType.StringType}, navArgument("circuitId") {type = NavType.StringType})
+        ) {
+            val petDetailsAddDimensionsViewModel = hiltViewModel<PetDetailsAddDimensionsViewModel>()
+            UpdateDimensionsResultScreen(
+                viewModel = petDetailsAddDimensionsViewModel,
+                navigateToPetDetails = {
+                    navController.navigateUp()
+                },
+                navigateBack = { navController.navigateUp() }
+            )
+        }
+
+        composable(
             route = PetAppDestination.PET_DETAILS_WEIGHT_DASHBOARD.name + "/{petId}",
             arguments = listOf(navArgument("petId") { type = NavType.StringType })
         ) {
             val petDetailsWeightDashboardViewModel =
                 hiltViewModel<PetDetailsWeightDashboardViewModel>()
-            PetWeightDashboardResultScreen(
+            PetWeightDashboardScreen(
                 viewModel = petDetailsWeightDashboardViewModel,
                 navigateToAddWeightScreen = { navController.navigate(PetAppDestination.PET_DETAILS_ADD_WEIGHT.name + "/$it") },
-                navigateBack = { navController.navigateUp() })
+                navigateBack = { navController.navigateUp() },
+                navigateToUpdateWeightScreen = { petId, weightId -> navController.navigate(PetAppDestination.PET_DETAILS_UPDATE_WEIGHT.name + "/$petId" + "/$weightId") })
         }
 
         composable(
@@ -175,8 +231,12 @@ fun PetAppNavGraph(
                 hiltViewModel<PetDetailsDimensionsDashboardViewModel>()
             PetDimensionsDashboardResultScreen(
                 viewModel = petDetailsWeightDashboardViewModel,
-                navigateToAddWeightScreen = { navController.navigate(PetAppDestination.PET_DETAILS_ADD_DIMENSIONS.name + "/$it") },
-                navigateBack = { navController.navigateUp() })
+                navigateToAddDimensionsScreen = { navController.navigate(PetAppDestination.PET_DETAILS_ADD_DIMENSIONS.name + "/$it") },
+                navigateBack = { navController.navigateUp() },
+                navigateToUpdateHeightScreen = { petId, heightId -> navController.navigate(PetAppDestination.PET_DETAILS_UPDATE_HEIGHT.name + "/$petId" + "/$heightId") },
+                navigateToUpdateLengthScreen = { petId, lengthId -> navController.navigate(PetAppDestination.PET_DETAILS_UPDATE_LENGTH.name + "/$petId" + "/$lengthId") },
+                navigateToUpdateCircuitScreen = { petId, circuitId -> navController.navigate(PetAppDestination.PET_DETAILS_UPDATE_CIRCUIT.name + "/$petId" +"/$circuitId") }
+                )
         }
 
         composable(

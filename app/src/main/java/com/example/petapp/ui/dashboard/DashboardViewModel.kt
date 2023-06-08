@@ -61,11 +61,11 @@ class DashboardViewModel @Inject constructor(
         return Formatters.getFormattedAgeString(instant = instant,context = application.applicationContext)
     }
 
-    override fun getPetWeightFormattedString(weight: Double): String {
+    override fun getPetWeightFormattedString(weight: Double?): String {
         return  Formatters.getFormattedWeightString(weight = weight, unit = _successUiState.value.unit, context = application.applicationContext)
     }
 
-    override fun getPetDimensionsFormattedString(value: Double): String {
+    override fun getPetDimensionsFormattedString(value: Double?): String {
         return getPetDimensionsFormattedString(value = value)
     }
 

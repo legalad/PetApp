@@ -100,6 +100,7 @@ fun List<PetWeightEntity>.toListDateEntryList(): List<ListDateEntry> {
         }
         tmpWeight = it.value
         ListDateEntry(
+            id = it.id,
             localDate = it.measurementDate,
             changeValue = changeValue,
             changeIconId = changeIconId,
@@ -128,6 +129,7 @@ fun List<PetHeightEntity>.toListDateEntryList(): List<ListDateEntry> {
         }
         tmpHeight = it.value
         ListDateEntry(
+            id = it.id,
             localDate = it.measurementDate,
             changeValue = changeValue,
             changeIconId = changeIconId,
@@ -191,6 +193,7 @@ fun List<PetLengthEntity>.toListDateEntryList(): List<ListDateEntry> {
         }
         tmpLength = it.value
         ListDateEntry(
+            id = it.id,
             localDate = it.measurementDate,
             changeValue = changeValue,
             changeIconId = changeIconId,
@@ -219,6 +222,7 @@ fun List<PetCircuitEntity>.toListDateEntryList(): List<ListDateEntry> {
         }
         tmpCircuit = it.value
         ListDateEntry(
+            id = it.id,
             localDate = it.measurementDate,
             changeValue = changeValue,
             changeIconId = changeIconId,

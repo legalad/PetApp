@@ -17,6 +17,7 @@ import com.example.petapp.ui.petdetails.weightdashboard.DataDisplayedType
 import com.patrykandpatrick.vico.core.marker.Marker
 import com.patrykandpatrick.vico.core.marker.MarkerVisibilityChangeListener
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -69,6 +70,45 @@ class PetDetailsDimensionsDashboardViewModel @Inject constructor(
                         lengthPersistentMarkerX = (length.size - 1).toFloat(),
                         circuitPersistentMarkerX = (circuit.size - 1).toFloat()
                     )
+                }
+                if (height.isNotEmpty()) {
+                    uiState = PetDetailsDimensionsDashboardUiState.Success()
+                    _successUiState.update {
+                        it.copy(
+                            heightSelectedDateEntry = ChartDateEntry(
+                                localDate = height.last().measurementDate,
+                                y = height.last().value.toFloat(),
+                                x = (height.size - 1).toFloat()
+                            ),
+                            heightPersistentMarkerX = (height.size - 1).toFloat()
+                        )
+                    }
+                }
+                if (length.isNotEmpty()) {
+                    uiState = PetDetailsDimensionsDashboardUiState.Success()
+                    _successUiState.update {
+                        it.copy(
+                            lengthSelectedDateEntry = ChartDateEntry(
+                                localDate = length.last().measurementDate,
+                                y = length.last().value.toFloat(),
+                                x = (length.size - 1).toFloat()
+                            ),
+                            lengthPersistentMarkerX = (length.size - 1).toFloat()
+                        )
+                    }
+                }
+                if (circuit.isNotEmpty()) {
+                    uiState = PetDetailsDimensionsDashboardUiState.Success()
+                    _successUiState.update {
+                        it.copy(
+                            circuitSelectedDateEntry = ChartDateEntry(
+                                localDate = circuit.last().measurementDate,
+                                y = circuit.last().value.toFloat(),
+                                x = (circuit.size - 1).toFloat()
+                            ),
+                            circuitPersistentMarkerX = (circuit.size - 1).toFloat()
+                        )
+                    }
                 }
             }.collect()
         }
@@ -127,6 +167,68 @@ class PetDetailsDimensionsDashboardViewModel @Inject constructor(
             it.copy(
                 displayedDimension = displayedDimension
             )
+        }
+    }
+
+    fun getSelectedHeightId(): String? {
+        return try {
+            _successUiState.value.heightHistoryListDateEntry[_successUiState.value.heightSelectedDateEntry.x.toInt()].id.toString()
+        } catch (e: IndexOutOfBoundsException) {
+            null
+        }
+    }
+
+    fun getSelectedLengthId(): String? {
+        return try {
+            _successUiState.value.lengthHistoryListDateEntry[_successUiState.value.lengthSelectedDateEntry.x.toInt()].id.toString()
+        } catch (e: IndexOutOfBoundsException) {
+            null
+        }
+    }
+
+    fun getSelectedCircuitId(): String? {
+        return try {
+            _successUiState.value.circuitHistoryListDateEntry[_successUiState.value.circuitSelectedDateEntry.x.toInt()].id.toString()
+        } catch (e: IndexOutOfBoundsException) {
+            null
+        }
+    }
+
+    fun onDropdownMenuIconClicked() {
+        _successUiState.update {
+            it.copy(
+                topAppBarMenuExpanded = !it.topAppBarMenuExpanded
+            )
+        }
+    }
+
+    fun dropdownMenuOnDismissRequest() {
+        _successUiState.update {
+            it.copy(
+                topAppBarMenuExpanded = false
+            )
+        }
+    }
+
+    fun deleteSelectedDataItem() {
+        viewModelScope.launch(Dispatchers.IO) {
+            when (_successUiState.value.displayedDimension) {
+                DisplayedDimension.HEIGHT -> getSelectedHeightId()?.let { id ->
+                    petsDashboardRepository.getHeight(id)?.let {
+                        petsDashboardRepository.deletePetDimension(it)
+                    }
+                }
+                DisplayedDimension.LENGTH -> getSelectedLengthId()?.let { id ->
+                    petsDashboardRepository.getLength(id)?.let {
+                        petsDashboardRepository.deletePetDimension(it)
+                    }
+                }
+                DisplayedDimension.CIRCUIT -> getSelectedCircuitId()?.let { id ->
+                    petsDashboardRepository.getCircuit(id)?.let {
+                        petsDashboardRepository.deletePetDimension(it)
+                    }
+                }
+            }
         }
     }
 }

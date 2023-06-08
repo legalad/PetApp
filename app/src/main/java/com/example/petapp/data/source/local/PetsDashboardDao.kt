@@ -3,7 +3,6 @@ package com.example.petapp.data.source.local
 import androidx.room.*
 import com.example.petapp.data.*
 import kotlinx.coroutines.flow.Flow
-import java.time.Instant
 import java.util.*
 
 @Dao
@@ -110,21 +109,9 @@ interface PetsDashboardDao {
     ) {
         addPetGeneralInfo(petGeneralEntity)
         addPetWeight(petWeightEntity)
-        petHeightEntity?.let { addPetHeight(it) } ?: addPetHeight(
-            PetHeightEntity(
-                UUID.randomUUID(), petGeneralEntity.id, measurementDate = Instant.now(), 0.0
-            )
-        )
-        petLengthEntity?.let { addPetLength(it) } ?: addPetLength(
-            PetLengthEntity(
-                UUID.randomUUID(), petGeneralEntity.id, measurementDate = Instant.now(), 0.0
-            )
-        )
-        petCircuitEntity?.let { addPetCircuit(it) } ?: addPetCircuit(
-            PetCircuitEntity(
-                UUID.randomUUID(), petGeneralEntity.id, measurementDate = Instant.now(), 0.0
-            )
-        )
+        petHeightEntity?.let { addPetHeight(it) }
+        petLengthEntity?.let { addPetLength(it) }
+        petCircuitEntity?.let { addPetCircuit(it) }
     }
 
     @Transaction

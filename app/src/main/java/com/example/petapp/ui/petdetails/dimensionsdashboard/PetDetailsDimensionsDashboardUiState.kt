@@ -28,10 +28,12 @@ sealed interface PetDetailsDimensionsDashboardUiState {
         val circuitPersistentMarkerX: Float = 10f,
         val unit: UserPreferences.Unit = UserPreferences.Unit.METRIC,
         val dataDisplayedType: DataDisplayedType = DataDisplayedType.LINE_CHART,
-        val displayedDimension: DisplayedDimension = DisplayedDimension.HEIGHT
-    ) : PetDetailsDimensionsDashboardUiState
+        val displayedDimension: DisplayedDimension = DisplayedDimension.HEIGHT,
+        val topAppBarMenuExpanded: Boolean = false
+        ) : PetDetailsDimensionsDashboardUiState
     object Loading : PetDetailsDimensionsDashboardUiState
     data class Error (val errorMessage: String) : PetDetailsDimensionsDashboardUiState
+    object NoData : PetDetailsDimensionsDashboardUiState
 }
 
 enum class DisplayedDimension (@StringRes val dimensionName: Int, @DrawableRes val dimensionIconId: Int) {

@@ -38,6 +38,12 @@ sealed interface PetDetailsAddDimensionsUiState {
         val lengthErrorMessage: Int = R.string.util_blank,
         val isCircuitValid: Boolean = true,
         val circuitErrorMessage: Int = R.string.util_blank,
+        val defaultFiledValuePlaceholder: Int = R.string.util_unit_dimension_meters,
+        val updatedFieldLeadingIcon: Int = R.drawable.baseline_height_24,
+        val updatedFieldLabel: Int = R.string.components_forms_text_field_label_pet_height,
+        val updatedDimensionFieldValue: String = "",
+        val updatedDimensionErrorMessage: Int = R.string.util_blank,
+        val isUpdatedDimensionValid: Boolean = true,
         val isFormValid: Boolean = true,
         val hideKeyboard: Boolean = false,
         val unit: UserPreferences.Unit = UserPreferences.Unit.METRIC

@@ -47,7 +47,7 @@ enum class PetStatsEnum(@StringRes val stringId: Int?) {
 fun PetItems(
     pets: List<PetDashboardUiState>,
     getAgeFormattedString: (instant: Instant) -> String,
-    getWeightFormattedString: (weight: Double) -> String,
+    getWeightFormattedString: (weight: Double?) -> String,
     waterIconOnClicked: (pet: PetDashboardUiState) -> Unit,
     foodIconOnClicked: (pet: PetDashboardUiState) -> Unit,
     activityIconOnClicked: (pet: PetDashboardUiState) -> Unit,
@@ -76,7 +76,7 @@ fun PetItems(
 fun PetItem(
     pet: PetDashboardUiState,
     getAgeFormattedString: (instant: Instant) -> String,
-    getWeightFormattedString: (weight: Double) -> String,
+    getWeightFormattedString: (weight: Double?) -> String,
     waterIconOnClicked: (pet: PetDashboardUiState) -> Unit,
     foodIconOnClicked: (pet: PetDashboardUiState) -> Unit,
     activityIconOnClicked: (pet: PetDashboardUiState) -> Unit,
@@ -164,7 +164,7 @@ fun PetItem(
 @Composable
 fun PetHunger(meals: List<PetMealEntity>, modifier: Modifier = Modifier) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        if (meals.isNullOrEmpty()) Text(
+        if (meals.isEmpty()) Text(
             text = "Set meals"
         )
         else {

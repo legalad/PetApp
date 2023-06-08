@@ -5,8 +5,6 @@ import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -20,6 +18,10 @@ import androidx.compose.ui.unit.dp
 import com.example.android.datastore.UserPreferences
 import com.example.petapp.R
 import com.example.petapp.model.util.Formatters
+import com.example.petapp.ui.components.ErrorScreen
+import com.example.petapp.ui.components.LoadingScreen
+import com.example.petapp.ui.components.MeasureScaffold
+import com.example.petapp.ui.components.NoContentPrev
 import com.example.petapp.ui.components.charts.rememberMarker
 import com.patrykandpatrick.vico.compose.axis.horizontal.bottomAxis
 import com.patrykandpatrick.vico.compose.axis.vertical.endAxis
@@ -41,86 +43,101 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.*
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
-fun PetWeightDashboardResultScreen(
+fun PetWeightDashboardScreen(
     viewModel: PetDetailsWeightDashboardViewModel,
     navigateToAddWeightScreen: (petId: String) -> Unit,
+    navigateToUpdateWeightScreen: (petId: String, weightId: String) -> Unit,
     navigateBack: () -> Unit
 ) {
     val uiState = viewModel.successUiState.collectAsState().value
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(
-                            id = R.string.components_top_app_bar_title_pet_weight,
-                            uiState.petName
-                        )
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = navigateBack) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "back")
-                    }
-                },
-                actions = {
-                    IconButton(onClick = viewModel::onChartIconClicked) {
-                        Icon(
-                            painterResource(id = uiState.dataDisplayedType.chartIconId),
-                            contentDescription = ""
-                        )
-                    }
-                }
-            )
+    MeasureScaffold(
+        topAppBarTitle = stringResource(
+            id = R.string.components_top_app_bar_title_pet_weight,
+            uiState.petName
+        ),
+        topAppBarMenuExpanded = uiState.topAppBarMenuExpanded,
+        navigateToAddDataScreen = {
+            navigateToAddWeightScreen(uiState.petIdString)
         },
-        bottomBar = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(4.dp), horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Button(onClick = { navigateToAddWeightScreen(uiState.petIdString) }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.round_add_24),
-                        contentDescription = null
+        navigateToUpdateDataScreen = {
+            viewModel.getSelectedWeightId()
+                ?.let {
+                    navigateToUpdateWeightScreen(
+                        uiState.petIdString,
+                        it
                     )
-                    Spacer(modifier = Modifier.padding(4.dp))
-                    Text(text = "input")
+                }
+        },
+        deleteDataItem = viewModel::deleteWeightItem,
+        navigateBack = navigateBack,
+        onDropdownMenuItemClicked = viewModel::onDropdownMenuIconClicked,
+        dropdownMenuOnDismissRequest = viewModel::dropdownMenuOnDismissRequest,
+        isListNotEmpty = uiState.weightHistoryList.isNotEmpty(),
+        actions = {
+            if (uiState.weightHistoryList.isNotEmpty()) {
+                IconButton(onClick = viewModel::onChartIconClicked) {
+                    Icon(
+                        painterResource(id = uiState.dataDisplayedType.chartIconId),
+                        contentDescription = ""
+                    )
                 }
             }
         }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-
-            when (uiState.dataDisplayedType) {
-                DataDisplayedType.LINE_CHART -> DefaultChart(
-                    chartModelProducer = uiState.chartEntryModelProducer,
+    ) {
+        when (viewModel.uiState) {
+            is PetDetailsWeightDashboardUiState.Error ->
+                ErrorScreen(message = "error")
+            is PetDetailsWeightDashboardUiState.Loading ->
+                LoadingScreen()
+            is PetDetailsWeightDashboardUiState.NoData ->
+                NoContentPrev()
+            is PetDetailsWeightDashboardUiState.Success ->
+                PetWeightDashboardResultScreen(
                     viewModel = viewModel,
-                    persistentMarkerX = uiState.persistentMarkerX,
-                    selectedDateEntry = uiState.selectedDateEntry,
-                    formattedSelectedDateEntry = Formatters.getFormattedWeightString(
-                        weight = uiState.selectedDateEntry.y.toDouble(),
-                        unit = uiState.unit,
-                        context = LocalContext.current
-                    ),
-                    cardIconId = R.drawable.weight_24
+                    modifier = Modifier.padding(it)
                 )
-
-                DataDisplayedType.LIST -> DefaultList(
-                    listDateEntryList = uiState.weightHistoryList,
-                    unit = uiState.unit,
-                    valueFormatterToString = Formatters::getFormattedWeightString
-                )
-
-            }
         }
+    }
+}
+
+
+@Composable
+fun PetWeightDashboardResultScreen(
+    viewModel: PetDetailsWeightDashboardViewModel,
+    modifier: Modifier = Modifier,
+
+    ) {
+    val uiState = viewModel.successUiState.collectAsState().value
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+        when (uiState.dataDisplayedType) {
+            DataDisplayedType.LINE_CHART -> DefaultChart(
+                chartModelProducer = uiState.chartEntryModelProducer,
+                viewModel = viewModel,
+                persistentMarkerX = uiState.persistentMarkerX,
+                selectedDateEntry = uiState.selectedDateEntry,
+                formattedSelectedDateEntry = Formatters.getFormattedWeightString(
+                    weight = uiState.selectedDateEntry.y.toDouble(),
+                    unit = uiState.unit,
+                    context = LocalContext.current
+                ),
+                cardIconId = R.drawable.weight_24
+            )
+
+            DataDisplayedType.LIST -> DefaultList(
+                listDateEntryList = uiState.weightHistoryList,
+                unit = uiState.unit,
+                valueFormatterToString = Formatters::getFormattedWeightString
+            )
+
+        }
+
     }
 }
 
@@ -157,7 +174,11 @@ fun DefaultList(
                             tint = petValue.changeIconColor
                         )
                         Text(
-                            text = valueFormatterToString(petValue.changeValue, unit, LocalContext.current)
+                            text = valueFormatterToString(
+                                petValue.changeValue,
+                                unit,
+                                LocalContext.current
+                            )
                         )
                     }
 
@@ -236,8 +257,8 @@ fun DefaultChart(
                 Text(
                     text = DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL)
                         .withLocale(Locale.getDefault()).withZone(
-                        ZoneId.systemDefault()
-                    )
+                            ZoneId.systemDefault()
+                        )
                         .format(selectedDateEntry.localDate) + " - " + DateTimeFormatter.ofLocalizedTime(
                         FormatStyle.SHORT
                     ).withZone(

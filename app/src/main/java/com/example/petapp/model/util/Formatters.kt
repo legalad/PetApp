@@ -27,38 +27,47 @@ class Formatters {
         }
 
         fun getFormattedWeightString(
-            weight: Double,
+            weight: Double?,
             unit: UserPreferences.Unit,
             context: Context
         ): String {
-            return if (unit == UserPreferences.Unit.METRIC) ("${"%.2f".format(weight)} " + context.getString(
-                R.string.util_unit_weight_kg
-            ))
-            else ("${"%.2f".format(weight * 0.45359237)} " + context.getString(R.string.util_unit_weight_lbs))
+            return weight?.let {
+                if (unit == UserPreferences.Unit.METRIC) ("${"%.2f".format(it)} " + context.getString(
+                    R.string.util_unit_weight_kg
+                ))
+                else ("${"%.2f".format(it * 2.20462262)} " + context.getString(R.string.util_unit_weight_lbs))
+            } ?: "-.-"
         }
 
         fun getFormattedDimensionString(
-            value: Double,
+            value: Double?,
             unit: UserPreferences.Unit,
             context: Context
         ): String {
-            return if (unit == UserPreferences.Unit.METRIC) {
-                if (value >= 1) ("${"%.2f".format(value)} " + context.getString(R.string.util_unit_dimension_meters))
-                else ("${"%.0f".format(value * 100)} " + context.getString(R.string.util_unit_dimension_centimeter))
-            } else {
-                if (value * 3.2808 >= 1) ("${"%.2f".format(value * 3.2808)} " + context.getString(
-                    R.string.util_unit_dimension_foot
-                ))
-                else ("${"%.2f".format(value * 39.3700787)} " + context.getString(R.string.util_unit_dimension_inch))
-            }
+            return value?.let {
+                if (unit == UserPreferences.Unit.METRIC) {
+                    if (value >= 1) ("${"%.2f".format(value)} " + context.getString(R.string.util_unit_dimension_meters))
+                    else ("${"%.0f".format(value * 100)} " + context.getString(R.string.util_unit_dimension_centimeter))
+                } else {
+                    if (value * 3.2808 >= 1) ("${"%.2f".format(value * 3.2808)} " + context.getString(
+                        R.string.util_unit_dimension_foot
+                    ))
+                    else ("${"%.2f".format(value * 39.3700787)} " + context.getString(R.string.util_unit_dimension_inch))
+                }
+            } ?: "-.-"
         }
 
         fun getWeightString(value: Double, unit: UserPreferences.Unit): String {
             return if (unit == UserPreferences.Unit.METRIC) ("%.2f".format(value))
-            else ("%.2f".format(value * 0.45359237))
+            else ("%.2f".format(value * 2.20462262))
         }
 
         fun getWeightValue(value: Double, unit: UserPreferences.Unit): Double {
+            return if (unit == UserPreferences.Unit.METRIC) value
+            else value * 2.20462262
+        }
+
+        fun getMetricWeightValue(value: Double, unit: UserPreferences.Unit): Double {
             return if (unit == UserPreferences.Unit.METRIC) value
             else value * 0.45359237
         }
