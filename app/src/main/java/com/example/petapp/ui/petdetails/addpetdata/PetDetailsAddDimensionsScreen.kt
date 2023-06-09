@@ -49,7 +49,7 @@ fun AddDimensionsResultScreen(
             )
             OutlinedTextFieldWithLeadingIcon(
                 fieldLabel = R.string.components_forms_text_field_label_pet_height,
-                fieldPlaceholder = R.string.util_unit_dimension,
+                fieldPlaceholder = uiState.defaultFiledValuePlaceholder,
                 leadingIcon = R.drawable.baseline_height_24,
                 fieldValue = uiState.heightFieldValue,
                 onValueChanged = viewModel::onHeightFieldValueChanged,
@@ -64,7 +64,7 @@ fun AddDimensionsResultScreen(
             )
             OutlinedTextFieldWithLeadingIcon(
                 fieldLabel = R.string.components_forms_text_field_label_pet_width,
-                fieldPlaceholder = R.string.util_unit_dimension,
+                fieldPlaceholder = uiState.defaultFiledValuePlaceholder,
                 leadingIcon = R.drawable.width_24,
                 fieldValue = uiState.lengthFieldValue,
                 onValueChanged = viewModel::onLengthFieldValueChanged,
@@ -80,7 +80,7 @@ fun AddDimensionsResultScreen(
 
             OutlinedTextFieldWithLeadingIcon(
                 fieldLabel = R.string.components_forms_text_field_label_pet_circuit,
-                fieldPlaceholder = R.string.util_unit_dimension,
+                fieldPlaceholder = uiState.defaultFiledValuePlaceholder,
                 leadingIcon = R.drawable.restart_alt_24,
                 fieldValue = uiState.circuitFieldValue,
                 onValueChanged = viewModel::onCircuitFieldValueChanged,
@@ -89,7 +89,7 @@ fun AddDimensionsResultScreen(
                 isError = !uiState.isFormValid,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Next
+                    imeAction = ImeAction.Done
                 ),
                 hideKeyboard = uiState.hideKeyboard
             )

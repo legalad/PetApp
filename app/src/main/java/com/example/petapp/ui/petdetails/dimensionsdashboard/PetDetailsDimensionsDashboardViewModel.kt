@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.petapp.data.PetsDashboardRepository
 import com.example.petapp.data.UserSettingsDataRepository
 import com.example.petapp.model.util.Contstans
+import com.example.petapp.model.util.Formatters
 import com.example.petapp.model.util.toChartEntryModelProducer
 import com.example.petapp.model.util.toListDateEntryList
 import com.example.petapp.ui.petdetails.weightdashboard.ChartDateEntry
@@ -77,7 +78,7 @@ class PetDetailsDimensionsDashboardViewModel @Inject constructor(
                         it.copy(
                             heightSelectedDateEntry = ChartDateEntry(
                                 localDate = height.last().measurementDate,
-                                y = height.last().value.toFloat(),
+                                y = Formatters.getDimensionValue(height.last().value, unit = unit).toFloat(),
                                 x = (height.size - 1).toFloat()
                             ),
                             heightPersistentMarkerX = (height.size - 1).toFloat()
@@ -90,7 +91,7 @@ class PetDetailsDimensionsDashboardViewModel @Inject constructor(
                         it.copy(
                             lengthSelectedDateEntry = ChartDateEntry(
                                 localDate = length.last().measurementDate,
-                                y = length.last().value.toFloat(),
+                                y = Formatters.getDimensionValue(length.last().value, unit = unit).toFloat(),
                                 x = (length.size - 1).toFloat()
                             ),
                             lengthPersistentMarkerX = (length.size - 1).toFloat()
@@ -103,7 +104,7 @@ class PetDetailsDimensionsDashboardViewModel @Inject constructor(
                         it.copy(
                             circuitSelectedDateEntry = ChartDateEntry(
                                 localDate = circuit.last().measurementDate,
-                                y = circuit.last().value.toFloat(),
+                                y = Formatters.getDimensionValue(circuit.last().value, unit = unit).toFloat(),
                                 x = (circuit.size - 1).toFloat()
                             ),
                             circuitPersistentMarkerX = (circuit.size - 1).toFloat()

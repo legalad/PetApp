@@ -122,7 +122,7 @@ fun PetWeightDashboardResultScreen(
                 viewModel = viewModel,
                 persistentMarkerX = uiState.persistentMarkerX,
                 selectedDateEntry = uiState.selectedDateEntry,
-                formattedSelectedDateEntry = Formatters.getFormattedWeightString(
+                formattedSelectedDateEntry = Formatters.getFormattedWeightUnitString(
                     weight = uiState.selectedDateEntry.y.toDouble(),
                     unit = uiState.unit,
                     context = LocalContext.current
@@ -133,7 +133,7 @@ fun PetWeightDashboardResultScreen(
             DataDisplayedType.LIST -> DefaultList(
                 listDateEntryList = uiState.weightHistoryList,
                 unit = uiState.unit,
-                valueFormatterToString = Formatters::getFormattedWeightString
+                valueFormatterToString = Formatters::getFormattedWeightUnitString
             )
 
         }

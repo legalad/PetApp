@@ -60,7 +60,7 @@ fun AddWeightResultScreen(
             supportingText = uiState.weightErrorMessage,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number,
-                imeAction = ImeAction.Next
+                imeAction = ImeAction.Done
             ),
             hideKeyboard = uiState.hideKeyboard
         )

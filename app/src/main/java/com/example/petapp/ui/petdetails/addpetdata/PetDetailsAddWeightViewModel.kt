@@ -1,6 +1,7 @@
 package com.example.petapp.ui.petdetails.addpetdata
 
 import android.app.Application
+import android.util.Log
 import androidx.compose.material3.*
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -164,23 +165,9 @@ class PetDetailsAddWeightViewModel @Inject constructor(
 
     fun onDoneButtonClicked(): Boolean {
         var output = true
-        var valueStr = _successUiState.value.weightFieldValue
-        if (valueStr.isNotEmpty()) {
-            var value = try {
-                valueStr.toDouble()
-            } catch (e: TypeCastException) {
-                return false
-            }
-            //convert unit to metric
-            value = when (_successUiState.value.unit) {
-                UserPreferences.Unit.METRIC -> value
-                UserPreferences.Unit.IMPERIAL -> Formatters.getMetricWeightValue(
-                    value,
-                    _successUiState.value.unit
-                )
-                UserPreferences.Unit.UNRECOGNIZED -> value
-            }
-            //add or update record in db
+        val value =
+            getMetricWeightValue(_successUiState.value.weightFieldValue, _successUiState.value.unit)
+        value?.let { value ->
             viewModelScope.launch(Dispatchers.IO) {
                 if (weightId.isNullOrBlank()) {
                     petsDashboardRepository.addPetWeight(
@@ -216,19 +203,18 @@ class PetDetailsAddWeightViewModel @Inject constructor(
                             )
                         )
                     }
+                } ?: _successUiState.update {
+                    it.copy(
+                        weightErrorMessage = R.string.components_forms_text_field_supporting_text_error_message_weight,
+                        isWeightValid = false
+                    )
                 }
+                output = false
             }
-        } else {
-            _successUiState.update {
-                it.copy(
-                    weightErrorMessage = R.string.components_forms_text_field_supporting_text_error_message_weight,
-                    isWeightValid = false
-                )
-            }
-            output = false
         }
         return output
     }
+
 
     fun onTimePickerTextFieldClicked() {
         _successUiState.update {
@@ -269,5 +255,25 @@ class PetDetailsAddWeightViewModel @Inject constructor(
         }
     }
 
-
+    private fun getMetricWeightValue(
+        valueStr: String,
+        unit: UserPreferences.Unit
+    ): Double? {
+        if (valueStr.isNotEmpty()) {
+            val value = try {
+                valueStr.toDouble()
+            } catch (e: TypeCastException) {
+                Log.e("info", e.message.toString())
+                return null
+            }
+            return when (unit) {
+                UserPreferences.Unit.METRIC -> value
+                UserPreferences.Unit.IMPERIAL -> Formatters.getMetricWeightValue(
+                    value,
+                    unit
+                )
+                UserPreferences.Unit.UNRECOGNIZED -> value
+            }
+        } else return null
+    }
 }

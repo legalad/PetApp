@@ -71,7 +71,7 @@ class PetDetailsWeightDashboardViewModel @Inject constructor(
                         it.copy(
                             selectedDateEntry = ChartDateEntry(
                                 localDate = pets.last().measurementDate,
-                                y = pets.last().value.toFloat(),
+                                y = Formatters.getWeightValue(pets.last().value, unit = unit).toFloat(),
                                 x = (pets.size - 1).toFloat()
                             ),
                             persistentMarkerX = (pets.size - 1).toFloat()

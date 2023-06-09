@@ -1,6 +1,7 @@
 package com.example.petapp.ui.petdetails.addpetdata
 
 import android.app.Application
+import android.util.Log
 import androidx.compose.material3.*
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -89,12 +90,12 @@ class PetDetailsAddDimensionsViewModel @Inject constructor(
                                 initialMinute = petHeight.measurementDate.atZone(ZoneId.systemDefault()).minute,
                                 is24Hour = true
                             ),
-                            updatedDimensionFieldValue = Formatters.getWeightString(
+                            updatedDimensionFieldValue = Formatters.getDimensionString(
                                 petsDashboardRepository.getHeight(
                                     id
                                 )?.value ?: 0.0, _successUiState.value.unit
                             ),
-                            updatedFieldLeadingIcon =  R.drawable.baseline_height_24,
+                            updatedFieldLeadingIcon = R.drawable.baseline_height_24,
                             updatedFieldLabel = R.string.components_forms_text_field_label_pet_height
                         )
                     }
@@ -123,12 +124,12 @@ class PetDetailsAddDimensionsViewModel @Inject constructor(
                                 initialMinute = petLength.measurementDate.atZone(ZoneId.systemDefault()).minute,
                                 is24Hour = true
                             ),
-                            updatedDimensionFieldValue = Formatters.getWeightString(
+                            updatedDimensionFieldValue = Formatters.getDimensionString(
                                 petsDashboardRepository.getLength(
                                     id
                                 )?.value ?: 0.0, _successUiState.value.unit
                             ),
-                            updatedFieldLeadingIcon =  R.drawable.width_24,
+                            updatedFieldLeadingIcon = R.drawable.width_24,
                             updatedFieldLabel = R.string.components_forms_text_field_label_pet_width
                         )
                     }
@@ -157,12 +158,12 @@ class PetDetailsAddDimensionsViewModel @Inject constructor(
                                 initialMinute = petCircuit.measurementDate.atZone(ZoneId.systemDefault()).minute,
                                 is24Hour = true
                             ),
-                            updatedDimensionFieldValue = Formatters.getWeightString(
+                            updatedDimensionFieldValue = Formatters.getDimensionString(
                                 petsDashboardRepository.getCircuit(
                                     id
                                 )?.value ?: 0.0, _successUiState.value.unit
                             ),
-                            updatedFieldLeadingIcon =  R.drawable.restart_alt_24,
+                            updatedFieldLeadingIcon = R.drawable.restart_alt_24,
                             updatedFieldLabel = R.string.components_forms_text_field_label_pet_circuit
                         )
                     }
@@ -171,6 +172,7 @@ class PetDetailsAddDimensionsViewModel @Inject constructor(
         }
         uiState = PetDetailsAddDimensionsUiState.Success()
     }
+
     fun getPetId(): String {
         return petId
     }
@@ -268,30 +270,94 @@ class PetDetailsAddDimensionsViewModel @Inject constructor(
         if (_successUiState.value.heightFieldValue.isNotEmpty() || _successUiState.value.lengthFieldValue.isNotEmpty() || _successUiState.value.circuitFieldValue.isNotEmpty())
             viewModelScope.launch(Dispatchers.IO) {
                 petsDashboardRepository.addPetDimensions(
-                    petHeightEntity = if (_successUiState.value.heightFieldValue.isNotEmpty())
+                    petHeightEntity = getMetricDimensionValue(_successUiState.value.heightFieldValue, _successUiState.value.unit)?.let {
                         PetHeightEntity(
                             id = UUID.randomUUID(),
                             pet_id = UUID.fromString(petId),
                             measurementDate = buildInstant(),
-                            value = _successUiState.value.heightFieldValue.toDouble()
-                        ) else null,
-                    petLengthEntity = if (_successUiState.value.lengthFieldValue.isNotEmpty())
+                            value = it
+                        )
+                    },
+                    petLengthEntity = getMetricDimensionValue(_successUiState.value.lengthFieldValue, _successUiState.value.unit)?.let {
                         PetLengthEntity(
                             id = UUID.randomUUID(),
                             pet_id = UUID.fromString(petId),
                             measurementDate = buildInstant(),
-                            value = _successUiState.value.lengthFieldValue.toDouble()
-                        ) else null,
-                    petCircuitEntity = if (_successUiState.value.circuitFieldValue.isNotEmpty())
+                            value = it
+                        )
+                    },
+                    petCircuitEntity = getMetricDimensionValue(_successUiState.value.circuitFieldValue, _successUiState.value.unit)?.let {
                         PetCircuitEntity(
                             id = UUID.randomUUID(),
                             pet_id = UUID.fromString(petId),
                             measurementDate = buildInstant(),
-                            value = _successUiState.value.circuitFieldValue.toDouble()
-                        ) else null
+                            value = it
+                        )
+                    }
                 )
             }
-        else {
+        else if (_successUiState.value.updatedDimensionFieldValue.isNotEmpty()) {
+            val value = getMetricDimensionValue(
+                valueStr = _successUiState.value.updatedDimensionFieldValue,
+                _successUiState.value.unit
+            )
+            value?.let { value ->
+                viewModelScope.launch {
+                    heightId?.let {
+                        petsDashboardRepository.updateDimension(
+                            PetHeightEntity(
+                                id = UUID.fromString(it),
+                                pet_id = UUID.fromString(petId),
+                                measurementDate = Instant.ofEpochMilli(
+                                    _successUiState.value.datePickerState.selectedDateMillis
+                                        ?: Instant.now().toEpochMilli()
+                                ).atZone(
+                                    ZoneId.systemDefault()
+                                ).withHour(_successUiState.value.timePickerState.hour)
+                                    .withMinute(_successUiState.value.timePickerState.minute)
+                                    .toInstant(),
+                                value = value
+                            )
+                        )
+                    }
+                    lengthId?.let {
+                        petsDashboardRepository.updateDimension(
+                            PetLengthEntity(
+                                id = UUID.fromString(it),
+                                pet_id = UUID.fromString(petId),
+                                measurementDate = Instant.ofEpochMilli(
+                                    _successUiState.value.datePickerState.selectedDateMillis
+                                        ?: Instant.now().toEpochMilli()
+                                ).atZone(
+                                    ZoneId.systemDefault()
+                                ).withHour(_successUiState.value.timePickerState.hour)
+                                    .withMinute(_successUiState.value.timePickerState.minute)
+                                    .toInstant(),
+                                value = value
+                            )
+                        )
+                    }
+                    circuitId?.let {
+                        petsDashboardRepository.updateDimension(
+                            PetCircuitEntity(
+                                id = UUID.fromString(it),
+                                pet_id = UUID.fromString(petId),
+                                measurementDate = Instant.ofEpochMilli(
+                                    _successUiState.value.datePickerState.selectedDateMillis
+                                        ?: Instant.now().toEpochMilli()
+                                ).atZone(
+                                    ZoneId.systemDefault()
+                                ).withHour(_successUiState.value.timePickerState.hour)
+                                    .withMinute(_successUiState.value.timePickerState.minute)
+                                    .toInstant(),
+                                value = value
+                            )
+                        )
+                    }
+                }
+            }
+
+        } else {
             _successUiState.update {
                 it.copy(
                     isFormValid = false
@@ -347,5 +413,24 @@ class PetDetailsAddDimensionsViewModel @Inject constructor(
         _successUiState.update {
             it.copy(hideKeyboard = true)
         }
+    }
+
+    private fun getMetricDimensionValue(valueStr: String, unit: UserPreferences.Unit): Double? {
+        if (valueStr.isNotEmpty()) {
+            val value = try {
+                valueStr.toDouble()
+            } catch (e: TypeCastException) {
+                Log.e("info", e.message.toString())
+                return null
+            }
+            return when (unit) {
+                UserPreferences.Unit.METRIC -> value
+                UserPreferences.Unit.IMPERIAL -> Formatters.getMetricDimensionValue(
+                    value,
+                    unit
+                )
+                UserPreferences.Unit.UNRECOGNIZED -> value
+            }
+        } else return null
     }
 }
