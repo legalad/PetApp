@@ -21,13 +21,15 @@ fun AddWeightResultScreen(
     val uiState = viewModel.successUiState.collectAsState().value
     AddPetDataScaffold(
         topAppBarTitleId = R.string.components_forms_top_app_bar_title_pet_weight,
-        onDoneButtonClicked = {
-            if (viewModel.onDoneButtonClicked()) navigateToPetDetails(
-                viewModel.getPetId()
-            )
+        onRightButtonClicked = {
+            if (viewModel.onDoneButtonClicked()) {
+                navigateToPetDetails(
+                    viewModel.getPetId()
+                )
+            }
         },
-        navigateToDataDashboard = { navigateToPetDetails(viewModel.getPetId()) },
-        navigateBack = navigateBack,
+        navigateBack = { navigateToPetDetails(viewModel.getPetId()) },
+        onLeftButtonClicked = navigateBack,
         hideKeyboard = viewModel::hideKeyboard
     ) {
         SingleRowDateTimePicker(

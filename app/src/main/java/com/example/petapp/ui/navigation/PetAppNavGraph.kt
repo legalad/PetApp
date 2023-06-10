@@ -98,7 +98,7 @@ fun PetAppNavGraph(
         }
         composable(PetAppDestination.SETTINGS_ROUTE.name) {
             val settingsViewModel = hiltViewModel<SettingsViewModel>()
-            SettingsScreen(viewModel = settingsViewModel, modifier = Modifier)
+            SettingsScreen(viewModel = settingsViewModel, modifier = Modifier, navigateBack = { navController.navigateUp() })
         }
         composable(PetAppDestination.DASHBOARD_ROUTE.name) {
             val dashboardVieModel = hiltViewModel<DashboardViewModel>()

@@ -167,9 +167,10 @@ class PetDetailsAddWeightViewModel @Inject constructor(
         var output = true
         val value =
             getMetricWeightValue(_successUiState.value.weightFieldValue, _successUiState.value.unit)
-        value?.let { value ->
-            viewModelScope.launch(Dispatchers.IO) {
-                if (weightId.isNullOrBlank()) {
+        value.apply { output = false }?.let { value ->
+            output = true
+            if (weightId.isNullOrEmpty()) {
+                viewModelScope.launch(Dispatchers.IO) {
                     petsDashboardRepository.addPetWeight(
                         PetWeightEntity(
                             id = UUID.randomUUID(),
@@ -185,95 +186,99 @@ class PetDetailsAddWeightViewModel @Inject constructor(
                             value = value
                         )
                     )
-                } else {
-                    weightId?.let {
-                        petsDashboardRepository.updateWeight(
-                            PetWeightEntity(
-                                id = UUID.fromString(it),
-                                pet_id = UUID.fromString(petId),
-                                measurementDate = Instant.ofEpochMilli(
-                                    _successUiState.value.datePickerState.selectedDateMillis
-                                        ?: Instant.now().toEpochMilli()
-                                ).atZone(
-                                    ZoneId.systemDefault()
-                                ).withHour(_successUiState.value.timePickerState.hour)
-                                    .withMinute(_successUiState.value.timePickerState.minute)
-                                    .toInstant(),
-                                value = value
-                            )
+                }
+            } else {
+                weightId?.let {
+                    viewModelScope.launch(Dispatchers.IO) {
+                    petsDashboardRepository.updateWeight(
+                        PetWeightEntity(
+                            id = UUID.fromString(it),
+                            pet_id = UUID.fromString(petId),
+                            measurementDate = Instant.ofEpochMilli(
+                                _successUiState.value.datePickerState.selectedDateMillis
+                                    ?: Instant.now().toEpochMilli()
+                            ).atZone(
+                                ZoneId.systemDefault()
+                            ).withHour(_successUiState.value.timePickerState.hour)
+                                .withMinute(_successUiState.value.timePickerState.minute)
+                                .toInstant(),
+                            value = value
                         )
-                    }
-                } ?: _successUiState.update {
-                    it.copy(
-                        weightErrorMessage = R.string.components_forms_text_field_supporting_text_error_message_weight,
-                        isWeightValid = false
                     )
                 }
-                output = false
             }
+            output = false
         }
-        return output
-    }
-
-
-    fun onTimePickerTextFieldClicked() {
-        _successUiState.update {
+    } ?: _successUiState.update {
             it.copy(
-                showTimePicker = !it.showTimePicker
+                weightErrorMessage = R.string.components_forms_text_field_supporting_text_error_message_weight,
+                isWeightValid = false
             )
         }
-    }
+        Log.e("info", value.toString())
+        Log.e("info", output.toString())
+    return output
+}
 
-    fun onTimePickerDialogCancelClicked() {
-        _successUiState.update {
-            it.copy(
-                showTimePicker = false
+
+fun onTimePickerTextFieldClicked() {
+    _successUiState.update {
+        it.copy(
+            showTimePicker = !it.showTimePicker
+        )
+    }
+}
+
+fun onTimePickerDialogCancelClicked() {
+    _successUiState.update {
+        it.copy(
+            showTimePicker = false
+        )
+    }
+}
+
+fun onTimePickerDialogConfirmClicked() {
+    _successUiState.update {
+        it.copy(
+            showTimePicker = false
+        )
+    }
+}
+
+fun onTimePickerDialogSwitchIconClicked() {
+    _successUiState.update {
+        it.copy(
+            showingPicker = !it.showingPicker
+        )
+    }
+}
+
+
+fun hideKeyboard() {
+    _successUiState.update {
+        it.copy(hideKeyboard = true)
+    }
+}
+
+private fun getMetricWeightValue(
+    valueStr: String,
+    unit: UserPreferences.Unit
+): Double? {
+    if (valueStr.isNotEmpty()) {
+        val value = try {
+            valueStr.toDouble()
+        } catch (e: TypeCastException) {
+            Log.e("info", e.message.toString())
+            return null
+        }
+        return when (unit) {
+            UserPreferences.Unit.METRIC -> value
+            UserPreferences.Unit.IMPERIAL -> Formatters.getMetricWeightValue(
+                value,
+                unit
             )
+            UserPreferences.Unit.UNRECOGNIZED -> value
         }
-    }
-
-    fun onTimePickerDialogConfirmClicked() {
-        _successUiState.update {
-            it.copy(
-                showTimePicker = false
-            )
-        }
-    }
-
-    fun onTimePickerDialogSwitchIconClicked() {
-        _successUiState.update {
-            it.copy(
-                showingPicker = !it.showingPicker
-            )
-        }
-    }
-
-
-    fun hideKeyboard() {
-        _successUiState.update {
-            it.copy(hideKeyboard = true)
-        }
-    }
-
-    private fun getMetricWeightValue(
-        valueStr: String,
-        unit: UserPreferences.Unit
-    ): Double? {
-        if (valueStr.isNotEmpty()) {
-            val value = try {
-                valueStr.toDouble()
-            } catch (e: TypeCastException) {
-                Log.e("info", e.message.toString())
-                return null
-            }
-            return when (unit) {
-                UserPreferences.Unit.METRIC -> value
-                UserPreferences.Unit.IMPERIAL -> Formatters.getMetricWeightValue(
-                    value,
-                    unit
-                )
-                UserPreferences.Unit.UNRECOGNIZED -> value
-            }
-        } else return null
-    }
+    } else return null
+}
 }

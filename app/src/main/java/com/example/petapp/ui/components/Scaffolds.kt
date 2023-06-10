@@ -1,6 +1,8 @@
 package com.example.petapp.ui.components
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -10,13 +12,15 @@ import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.petapp.R
-import com.example.petapp.ui.addpet.PetFormsBottomNavButtons
 import com.example.petapp.ui.components.forms.FormDefaultColumn
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -133,10 +137,14 @@ fun MeasureScaffold(
 @Composable
 fun AddPetDataScaffold(
     @StringRes topAppBarTitleId: Int,
-    onDoneButtonClicked: () -> Unit,
-    navigateToDataDashboard: () -> Unit,
+    onRightButtonClicked: () -> Unit,
     navigateBack: () -> Unit,
+    onLeftButtonClicked: () -> Unit,
     hideKeyboard: () -> Unit,
+    @StringRes headline: Int = R.string.components_forms_title_measurement,
+    @StringRes supportingText: Int = R.string.components_forms_description_fill_out,
+    @StringRes leftButtonStringId: Int = R.string.components_forms_dialog_buttons_cancel,
+    @StringRes rightButtonStringId: Int = R.string.components_forms_dialog_buttons_done,
     content: @Composable (ColumnScope.() -> Unit)
 ) {
     Scaffold(
@@ -162,20 +170,93 @@ fun AddPetDataScaffold(
                     .padding(4.dp), horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 PetFormsBottomNavButtons(
-                    leftButtonStringId = R.string.components_forms_dialog_buttons_cancel,
-                    rightButtonStringId = R.string.components_forms_dialog_buttons_done,
-                    onLeftButtonClicked = { navigateBack() },
-                    onRightButtonClicked = onDoneButtonClicked
-                    )
+                    leftButtonStringId = leftButtonStringId,
+                    rightButtonStringId = rightButtonStringId,
+                    onLeftButtonClicked = onLeftButtonClicked,
+                    onRightButtonClicked = onRightButtonClicked
+                )
             }
         }
     ) { innerPadding ->
         FormDefaultColumn(
-            headline = R.string.components_forms_title_measurement,
+            headline = headline,
+            supportingText = supportingText,
             columnOnClicked = hideKeyboard,
             modifier = Modifier.padding(innerPadding)
         ) {
             content()
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BasicScaffoldWithNavButton(
+    navigateBack: () -> Unit,
+    onColumnClicked: () -> Unit,
+    modifier: Modifier = Modifier,
+    @StringRes topAppBarTitleId: Int = R.string.util_blank,
+    content: @Composable (ColumnScope.() -> Unit)
+
+) {
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    Scaffold(
+        modifier = Modifier.nestedScroll((scrollBehavior.nestedScrollConnection)),
+        topBar = {
+            TopAppBar(
+                title = { Text(text = stringResource(id = topAppBarTitleId), maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                navigationIcon = {
+                    IconButton(onClick = navigateBack) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = stringResource(
+                                id = R.string.components_top_app_bar_navigation_content_description_back
+                            )
+                        )
+                    }
+                },
+                scrollBehavior = scrollBehavior
+            )
+        },
+    ) {
+        val interactionSource = remember { MutableInteractionSource() }
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top,
+            modifier = modifier
+                .fillMaxSize()
+                .clickable(
+                    onClick = onColumnClicked,
+                    interactionSource = interactionSource,
+                    indication = null
+                )
+                .padding(paddingValues = it)
+        ) {
+            Column(
+                modifier = Modifier.widthIn(200.dp, 300.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                content()
+            }
+        }
+    }
+}
+
+@Composable
+fun PetFormsBottomNavButtons(
+    @StringRes leftButtonStringId: Int,
+    @StringRes rightButtonStringId: Int,
+    onLeftButtonClicked: () -> Unit,
+    onRightButtonClicked: () -> Unit
+) {
+    Spacer(modifier = Modifier.padding(20.dp))
+    Row(horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()) {
+        Button(onClick = onLeftButtonClicked, modifier = Modifier.weight(1f)) {
+            Text(text = stringResource(id = leftButtonStringId))
+        }
+        Spacer(modifier = Modifier.weight(0.1f))
+        Button(onClick = onRightButtonClicked, modifier = Modifier.weight(1f)) {
+            Text(text = stringResource(id = rightButtonStringId))
         }
     }
 }

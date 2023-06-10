@@ -87,7 +87,7 @@ fun DatePicker(
     onDismissRequest: () -> Unit,
     onConfirmedButtonClicked: () -> Unit,
     onDismissButtonClicked: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.fillMaxWidth(),
     isError: Boolean = false,
     @StringRes supportingText: Int = R.string.util_blank
 

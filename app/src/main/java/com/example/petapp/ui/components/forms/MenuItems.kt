@@ -2,6 +2,7 @@ package com.example.petapp.ui.components.forms
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -21,7 +22,7 @@ fun ExposedDropdownMenu(
     onExpandedChange: () -> Unit,
     onDropdownMenuItemClicked: (String) -> Unit,
     onDismissRequest: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.fillMaxWidth(),
     enabled: Boolean = true,
     readOnly: Boolean = true,
     isError: Boolean = false,
@@ -33,14 +34,14 @@ fun ExposedDropdownMenu(
         expanded = expanded,
         onExpandedChange = { onExpandedChange() }
     ) {
-        Column (modifier = modifier) {
+        Column(modifier = modifier) {
             MenuOutlinedTextField(
                 fieldLabel = label,
                 fieldPlaceholder = R.string.util_blank,
                 fieldValue = selectedOption,
                 expanded = expanded,
                 onValueChanged = { textFieldOnValueChanged(it) },
-                modifier = Modifier.menuAnchor(),
+                modifier = modifier.menuAnchor(),
                 isError = isError,
                 supportingText = supportingText
             )
@@ -52,7 +53,7 @@ fun ExposedDropdownMenu(
             options.forEach { item ->
                 DropdownMenuItem(
                     text = { Text(item) },
-                    onClick = {onDropdownMenuItemClicked(item)},
+                    onClick = { onDropdownMenuItemClicked(item) },
                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                 )
             }
@@ -70,7 +71,7 @@ fun ExposedDropdownMenuV2(
     onExpandedChange: () -> Unit,
     onDropdownMenuItemClicked: (Int) -> Unit,
     onDismissRequest: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.fillMaxWidth(),
     enabled: Boolean = true,
     readOnly: Boolean = true,
     isError: Boolean = false,
@@ -82,14 +83,14 @@ fun ExposedDropdownMenuV2(
         expanded = expanded,
         onExpandedChange = { onExpandedChange() }
     ) {
-        Column (modifier = modifier) {
+        Column(modifier = modifier) {
             MenuOutlinedTextField(
                 fieldLabel = label,
                 fieldPlaceholder = R.string.util_blank,
                 fieldValue = stringResource(id = selectedOption),
                 expanded = expanded,
                 onValueChanged = { textFieldOnValueChanged(it) },
-                modifier = Modifier.menuAnchor(),
+                modifier = modifier.menuAnchor(),
                 isError = isError,
                 supportingText = supportingText
             )
@@ -101,7 +102,7 @@ fun ExposedDropdownMenuV2(
             options.forEach { item ->
                 DropdownMenuItem(
                     text = { Text(stringResource(id = item)) },
-                    onClick = {onDropdownMenuItemClicked(item)},
+                    onClick = { onDropdownMenuItemClicked(item) },
                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                 )
             }
@@ -118,7 +119,7 @@ fun SettingsExposedDropdownMenu(
     onExpandedChange: () -> Unit,
     onDropdownMenuItemClicked: (UserPreferences.Language) -> Unit,
     onDismissRequest: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.fillMaxWidth(),
     enabled: Boolean = true,
     readOnly: Boolean = true,
     textFieldOnValueChanged: (String) -> Unit = {}
@@ -129,7 +130,7 @@ fun SettingsExposedDropdownMenu(
         expanded = expanded,
         onExpandedChange = { onExpandedChange() }
     ) {
-        Column (modifier = modifier) {
+        Column(modifier = modifier) {
             OutlinedTextField(
                 label = { Text(text = stringResource(id = label)) },
                 value = selectedOption.name.lowercase(),
@@ -150,8 +151,9 @@ fun SettingsExposedDropdownMenu(
             options.forEach { item ->
                 DropdownMenuItem(
                     text = { Text(item.name.lowercase()) },
-                    onClick = {onDropdownMenuItemClicked(item)
-                              },
+                    onClick = {
+                        onDropdownMenuItemClicked(item)
+                    },
                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                 )
             }
@@ -168,7 +170,7 @@ fun SettingsExposedDropdownMenu(
     onExpandedChange: () -> Unit,
     onDropdownMenuItemClicked: (UserPreferences.Unit) -> Unit,
     onDismissRequest: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier.fillMaxWidth(),
     enabled: Boolean = true,
     readOnly: Boolean = true,
     textFieldOnValueChanged: (String) -> Unit = {}
@@ -179,7 +181,7 @@ fun SettingsExposedDropdownMenu(
         expanded = expanded,
         onExpandedChange = { onExpandedChange() }
     ) {
-        Column (modifier = modifier) {
+        Column(modifier = modifier) {
             OutlinedTextField(
                 label = { Text(text = stringResource(id = label)) },
                 value = selectedOption.name.lowercase(),
@@ -195,12 +197,13 @@ fun SettingsExposedDropdownMenu(
         }
         ExposedDropdownMenu(
             expanded = expanded,
-            onDismissRequest = { onDismissRequest()}
+            onDismissRequest = { onDismissRequest() }
         ) {
             options.forEach { item ->
                 DropdownMenuItem(
                     text = { Text(item.name.lowercase()) },
-                    onClick = {onDropdownMenuItemClicked(item)
+                    onClick = {
+                        onDropdownMenuItemClicked(item)
                     },
                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                 )
@@ -251,7 +254,8 @@ fun EditableExposedDropdownMenuPrev() {
         },
         onDismissRequest = { expanded = false },
         readOnly = false,
-        textFieldOnValueChanged = { selectedOptionText = it
+        textFieldOnValueChanged = {
+            selectedOptionText = it
             if (!expanded) expanded = true
         }
     )

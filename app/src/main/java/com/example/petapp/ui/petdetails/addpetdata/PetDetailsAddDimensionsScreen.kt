@@ -21,13 +21,13 @@ fun AddDimensionsResultScreen(
     val uiState = viewModel.successUiState.collectAsState().value
     AddPetDataScaffold(
         topAppBarTitleId = R.string.components_forms_top_app_bar_title_pet_dimensions,
-        onDoneButtonClicked = {
+        onRightButtonClicked = {
             if (viewModel.onDoneButtonClicked()) navigateToPetDetails(
                 viewModel.getPetId()
             )
         },
-        navigateToDataDashboard = { navigateToPetDetails(viewModel.getPetId()) },
-        navigateBack = navigateBack,
+        navigateBack = { navigateToPetDetails(viewModel.getPetId()) },
+        onLeftButtonClicked = navigateBack,
         hideKeyboard = viewModel::hideKeyboard) {
             SingleRowDateTimePicker(
                 datePickerValue = uiState.datePickerTextFieldValue,
@@ -111,13 +111,13 @@ fun UpdateDimensionsResultScreen(
     val uiState = viewModel.successUiState.collectAsState().value
     AddPetDataScaffold(
         topAppBarTitleId = R.string.components_forms_top_app_bar_title_pet_dimensions,
-        onDoneButtonClicked = {
+        onRightButtonClicked = {
             if (viewModel.onDoneButtonClicked()) navigateToPetDetails(
                 viewModel.getPetId()
             )
         },
-        navigateToDataDashboard = { navigateToPetDetails(viewModel.getPetId()) },
-        navigateBack = navigateBack,
+        navigateBack = { navigateToPetDetails(viewModel.getPetId()) },
+        onLeftButtonClicked = navigateBack,
         hideKeyboard = viewModel::hideKeyboard) {
         SingleRowDateTimePicker(
             datePickerValue = uiState.datePickerTextFieldValue,

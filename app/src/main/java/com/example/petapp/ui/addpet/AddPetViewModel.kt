@@ -26,7 +26,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AddPetViewModel @Inject constructor(
     private val dashboardRepository: PetsDashboardRepository
-) : ViewModel(), AddPetOperations, AddPetDataValidation {
+) : ViewModel(), AddPetDataValidation {
 
     var uiState: AddPetUiState by mutableStateOf(AddPetUiState.Loading)
         private set
@@ -36,21 +36,10 @@ class AddPetViewModel @Inject constructor(
 
     init {
         uiState = AddPetUiState.Success()
-        /*
-        TODO path depends on repo result (when repo will be add)
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                repo.getSomething()
-                uiState = AddPetUiState.Success
-            } catch (e: Exception) {
-                AddPetUiState.Error
-            }
-        }
-        */
+
     }
 
-    override fun onNameFieldValueChanged(name: String) {
-
+    fun onNameFieldValueChanged(name: String) {
         val value: String = if (name.isNotEmpty()) name
             .trimStart()
             .replace("\\s\\s".toRegex(), " ")
@@ -64,33 +53,32 @@ class AddPetViewModel @Inject constructor(
                 nameFieldValue = value,
                 isNameChanged = true
             )
-
         }
     }
 
-    override fun onNameFieldCancelClicked() {
+    fun onNameFieldCancelClicked() {
         _successUiState.update {
             it.copy(nameFieldValue = "", isNameChanged = false)
         }
     }
 
-    override fun onDatePickerTextFieldValueChanged(value: String) {
+    fun onDatePickerTextFieldValueChanged(value: String) {
 
     }
 
-    override fun onDatePickerTextFieldClicked() {
+    fun onDatePickerTextFieldClicked() {
         _successUiState.update {
             it.copy(datePickerOpenDialog = !it.datePickerOpenDialog)
         }
     }
 
-    override fun datePickerOnDismissRequest() {
+    fun datePickerOnDismissRequest() {
         _successUiState.update {
             it.copy(datePickerOpenDialog = false)
         }
     }
 
-    override fun datePickerOnConfirmedButtonClicked() {
+    fun datePickerOnConfirmedButtonClicked() {
         _successUiState.update {
             it.copy(
                 datePickerTextFieldValue = DateFormat.getDateInstance(DateFormat.SHORT).format(it.datePickerState.selectedDateMillis),
@@ -100,7 +88,7 @@ class AddPetViewModel @Inject constructor(
         validateBirthDate()
     }
 
-    override fun datePickerOnDismissedButtonClicked() {
+    fun datePickerOnDismissedButtonClicked() {
         _successUiState.update {
             it.copy(
                 datePickerOpenDialog = false
@@ -108,7 +96,7 @@ class AddPetViewModel @Inject constructor(
         }
     }
 
-    override fun speciesMenuOnExpandedChanged() {
+    fun speciesMenuOnExpandedChanged() {
         _successUiState.update {
             it.copy(
                 speciesMenuExpanded = !it.speciesMenuExpanded
@@ -116,7 +104,7 @@ class AddPetViewModel @Inject constructor(
         }
     }
 
-    override fun speciesMenuOnDropdownMenuItemClicked(item: String) {
+    fun speciesMenuOnDropdownMenuItemClicked(item: String) {
         _successUiState.update {
             it.copy(
                 speciesMenuSelectedOptionText = item,
@@ -125,7 +113,7 @@ class AddPetViewModel @Inject constructor(
         }
     }
 
-    override fun speciesMenuOnDismissRequest() {
+    fun speciesMenuOnDismissRequest() {
         _successUiState.update {
             it.copy(
                 speciesMenuExpanded = false
@@ -133,7 +121,7 @@ class AddPetViewModel @Inject constructor(
         }
     }
 
-    override fun breedMenuOnExpandedChanged() {
+    fun breedMenuOnExpandedChanged() {
         _successUiState.update {
             it.copy(
                 breedMenuExpanded = !it.breedMenuExpanded
@@ -141,7 +129,7 @@ class AddPetViewModel @Inject constructor(
         }
     }
 
-    override fun breedMenuOnDropdownMenuItemClicked(item: String) {
+    fun breedMenuOnDropdownMenuItemClicked(item: String) {
         _successUiState.update {
             it.copy(
                 breedMenuSelectedOptionText = item,
@@ -150,7 +138,7 @@ class AddPetViewModel @Inject constructor(
         }
     }
 
-    override fun breedMenuOnDismissRequest() {
+    fun breedMenuOnDismissRequest() {
         _successUiState.update {
             it.copy(
                 breedMenuExpanded = false
@@ -158,12 +146,12 @@ class AddPetViewModel @Inject constructor(
         }
     }
 
-    override fun onCancelButtonClicked() {
+    fun onCancelButtonClicked() {
         TODO("Not yet implemented")
     }
 
 
-    override fun onNavigateButtonClicked(stage: AddPetScreenStage) {
+    fun onNavigateButtonClicked(stage: AddPetScreenStage) {
         _successUiState.update {
             it.copy(screenStage = stage)
         }
@@ -196,7 +184,8 @@ class AddPetViewModel @Inject constructor(
         }
     }
 
-    override fun onDoneButtonClicked() {
+    fun onDoneButtonClicked() : Boolean {
+        //future validation
         viewModelScope.launch(Dispatchers.IO) {
             val petUUID: UUID = UUID.randomUUID()
             dashboardRepository.addNewPet(
@@ -235,9 +224,10 @@ class AddPetViewModel @Inject constructor(
                 ) else null
             )
         }
+        return true
     }
 
-    override fun onWeightFieldValueChanged(value: String) {
+    fun onWeightFieldValueChanged(value: String) {
         _successUiState.update {
             it.copy(weightFieldValue = Validators.validateNumberToTwoDecimalPlaces(value),
                     isWeightChanged = true)
@@ -245,49 +235,49 @@ class AddPetViewModel @Inject constructor(
         validateWeight()
     }
 
-    override fun onWeightFieldCancelClicked() {
+    fun onWeightFieldCancelClicked() {
         _successUiState.update {
             it.copy(weightFieldValue = "")
         }
     }
 
-    override fun onHeightFieldValueChanged(value: String) {
+    fun onHeightFieldValueChanged(value: String) {
         _successUiState.update {
             it.copy(heightFieldValue = Validators.validateNumberToTwoDecimalPlaces(value))
         }
     }
 
-    override fun onHeightFieldCancelClicked() {
+    fun onHeightFieldCancelClicked() {
         _successUiState.update {
             it.copy(heightFieldValue = "")
         }
     }
 
-    override fun onLengthFieldValueChanged(value: String) {
+    fun onLengthFieldValueChanged(value: String) {
         _successUiState.update {
             it.copy(lengthFieldValue = Validators.validateNumberToTwoDecimalPlaces(value))
         }
     }
 
-    override fun onLengthFieldCancelClicked() {
+    fun onLengthFieldCancelClicked() {
         _successUiState.update {
             it.copy(lengthFieldValue = "")
         }
     }
 
-    override fun onCircuitFieldValueChanged(value: String) {
+    fun onCircuitFieldValueChanged(value: String) {
         _successUiState.update {
             it.copy(circuitFieldValue = Validators.validateNumberToTwoDecimalPlaces(value))
         }
     }
 
-    override fun onCircuitFieldCancelClicked() {
+    fun onCircuitFieldCancelClicked() {
         _successUiState.update {
             it.copy(circuitFieldValue = "")
         }
     }
 
-    override fun onDescriptionTextFieldValueChanged(description: String) {
+    fun onDescriptionTextFieldValueChanged(description: String) {
         _successUiState.update {
             it.copy(descriptionFieldValue = description)
         }
