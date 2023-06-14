@@ -55,7 +55,7 @@ fun PetDetailsAddMealResultScreen(
         FormDefaultColumn(headline = R.string.components_forms_text_field_label_meal,columnOnClicked = { /*TODO*/ }, modifier = Modifier.padding(innerPadding)) {
             ExposedDropdownMenuV2(
                 label = R.string.components_forms_text_field_label_meal,
-                options = uiState.mealTypeMenuOptions.map { it.nameId }.dropLast(1),
+                options = uiState.mealTypeMenuOptions,
                 expanded = uiState.mealTypeMenuExpanded,
                 selectedOption = uiState.mealTypeMenuSelectedOption.nameId,
                 onExpandedChange = viewModel::mealTypeMenuOnExpandedChanged,

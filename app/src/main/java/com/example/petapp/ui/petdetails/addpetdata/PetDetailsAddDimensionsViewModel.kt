@@ -1,7 +1,6 @@
 package com.example.petapp.ui.petdetails.addpetdata
 
 import android.app.Application
-import android.util.Log
 import androidx.compose.material3.*
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -12,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.android.datastore.UserPreferences
 import com.example.petapp.R
 import com.example.petapp.data.*
+import com.example.petapp.model.DimensionUnit
 import com.example.petapp.model.util.Contstans
 import com.example.petapp.model.util.Formatters
 import com.example.petapp.model.util.Validators
@@ -57,14 +57,32 @@ class PetDetailsAddDimensionsViewModel @Inject constructor(
         viewModelScope.launch {
             settingsDataRepository.getUnit().collect { unit ->
                 _successUiState.update {
-                    it.copy(
-                        unit = unit,
-                        defaultFiledValuePlaceholder = when (unit) {
-                            UserPreferences.Unit.METRIC -> R.string.util_unit_dimension_meters
-                            UserPreferences.Unit.IMPERIAL -> R.string.util_unit_dimension_foot
-                            UserPreferences.Unit.UNRECOGNIZED -> R.string.util_unit_dimension_meters
-                        }
-                    )
+                    when (unit) {
+                        UserPreferences.Unit.METRIC -> it.copy(
+                            unit = unit,
+                            defaultFiledValuePlaceholder = R.string.util_unit_dimension_meters,
+                            selectedHeightUnit = DimensionUnit.METERS,
+                            selectedLengthUnit = DimensionUnit.METERS,
+                            selectedCircuitUnit = DimensionUnit.METERS,
+                            selectedUpdatedUnit = DimensionUnit.METERS
+                        )
+                        UserPreferences.Unit.IMPERIAL -> it.copy(
+                            unit = unit,
+                            defaultFiledValuePlaceholder = R.string.util_unit_dimension_foot,
+                            selectedHeightUnit = DimensionUnit.FOOTS,
+                            selectedLengthUnit = DimensionUnit.FOOTS,
+                            selectedCircuitUnit = DimensionUnit.FOOTS,
+                            selectedUpdatedUnit = DimensionUnit.FOOTS
+                        )
+                        UserPreferences.Unit.UNRECOGNIZED -> it.copy(
+                            unit = unit,
+                            defaultFiledValuePlaceholder = R.string.util_unit_dimension_meters,
+                            selectedHeightUnit = DimensionUnit.METERS,
+                            selectedLengthUnit = DimensionUnit.METERS,
+                            selectedCircuitUnit = DimensionUnit.METERS,
+                            selectedUpdatedUnit = DimensionUnit.METERS
+                        )
+                    }
                 }
             }
         }
@@ -130,7 +148,7 @@ class PetDetailsAddDimensionsViewModel @Inject constructor(
                                 )?.value ?: 0.0, _successUiState.value.unit
                             ),
                             updatedFieldLeadingIcon = R.drawable.width_24,
-                            updatedFieldLabel = R.string.components_forms_text_field_label_pet_width
+                            updatedFieldLabel = R.string.components_forms_text_field_label_pet_length
                         )
                     }
                 }
@@ -189,6 +207,31 @@ class PetDetailsAddDimensionsViewModel @Inject constructor(
         }
     }
 
+    fun onHeightUnitPickerOnExpandedChange(value: Boolean) {
+        _successUiState.update {
+            it.copy(
+                isHeightUnitPickerExpanded = value
+            )
+        }
+    }
+
+    fun onHeightUnitPickerOnDismissRequest() {
+        _successUiState.update {
+            it.copy(
+                isHeightUnitPickerExpanded = false
+            )
+        }
+    }
+
+    fun onHeightUnitPickerDropdownMenuItemClicked(ordinal: Int) {
+        _successUiState.update {
+            it.copy(
+                selectedHeightUnit = DimensionUnit.values()[ordinal],
+                isHeightUnitPickerExpanded = false
+            )
+        }
+    }
+
     fun onLengthFieldValueChanged(value: String) {
         _successUiState.update {
             it.copy(lengthFieldValue = Validators.validateNumberToTwoDecimalPlaces(value))
@@ -198,6 +241,31 @@ class PetDetailsAddDimensionsViewModel @Inject constructor(
     fun onLengthFieldCancelClicked() {
         _successUiState.update {
             it.copy(lengthFieldValue = "")
+        }
+    }
+
+    fun onLengthUnitPickerOnExpandedChange(value: Boolean) {
+        _successUiState.update {
+            it.copy(
+                isLengthUnitPickerExpanded = value
+            )
+        }
+    }
+
+    fun onLengthUnitPickerOnDismissRequest() {
+        _successUiState.update {
+            it.copy(
+                isLengthUnitPickerExpanded = false
+            )
+        }
+    }
+
+    fun onLengthUnitPickerDropdownMenuItemClicked(ordinal: Int) {
+        _successUiState.update {
+            it.copy(
+                selectedLengthUnit = DimensionUnit.values()[ordinal],
+                isLengthUnitPickerExpanded = false
+            )
         }
     }
 
@@ -213,6 +281,31 @@ class PetDetailsAddDimensionsViewModel @Inject constructor(
         }
     }
 
+    fun onCircuitUnitPickerOnExpandedChange(value: Boolean) {
+        _successUiState.update {
+            it.copy(
+                isCircuitUnitPickerExpanded = value
+            )
+        }
+    }
+
+    fun onCircuitUnitPickerOnDismissRequest() {
+        _successUiState.update {
+            it.copy(
+                isCircuitUnitPickerExpanded = false
+            )
+        }
+    }
+
+    fun onCircuitUnitPickerDropdownMenuItemClicked(ordinal: Int) {
+        _successUiState.update {
+            it.copy(
+                selectedCircuitUnit = DimensionUnit.values()[ordinal],
+                isCircuitUnitPickerExpanded = false
+            )
+        }
+    }
+
     fun onUpdatedFieldValueChanged(value: String) {
         _successUiState.update {
             it.copy(updatedDimensionFieldValue = Validators.validateNumberToTwoDecimalPlaces(value))
@@ -222,6 +315,31 @@ class PetDetailsAddDimensionsViewModel @Inject constructor(
     fun onUpdatedFieldCancelClicked() {
         _successUiState.update {
             it.copy(updatedDimensionFieldValue = "")
+        }
+    }
+
+    fun onUpdatedUnitPickerOnExpandedChange(value: Boolean) {
+        _successUiState.update {
+            it.copy(
+                isUpdatedUnitPickerExpanded = value
+            )
+        }
+    }
+
+    fun onUpdatedUnitPickerOnDismissRequest() {
+        _successUiState.update {
+            it.copy(
+                isUpdatedUnitPickerExpanded = false
+            )
+        }
+    }
+
+    fun onUpdatedUnitPickerDropdownMenuItemClicked(ordinal: Int) {
+        _successUiState.update {
+            it.copy(
+                selectedUpdatedUnit = DimensionUnit.values()[ordinal],
+                isUpdatedUnitPickerExpanded = false
+            )
         }
     }
 
@@ -270,7 +388,7 @@ class PetDetailsAddDimensionsViewModel @Inject constructor(
         if (_successUiState.value.heightFieldValue.isNotEmpty() || _successUiState.value.lengthFieldValue.isNotEmpty() || _successUiState.value.circuitFieldValue.isNotEmpty())
             viewModelScope.launch(Dispatchers.IO) {
                 petsDashboardRepository.addPetDimensions(
-                    petHeightEntity = getMetricDimensionValue(_successUiState.value.heightFieldValue, _successUiState.value.unit)?.let {
+                    petHeightEntity = Formatters.getMetricDimensionValue(_successUiState.value.heightFieldValue, _successUiState.value.selectedHeightUnit)?.let {
                         PetHeightEntity(
                             id = UUID.randomUUID(),
                             pet_id = UUID.fromString(petId),
@@ -278,7 +396,7 @@ class PetDetailsAddDimensionsViewModel @Inject constructor(
                             value = it
                         )
                     },
-                    petLengthEntity = getMetricDimensionValue(_successUiState.value.lengthFieldValue, _successUiState.value.unit)?.let {
+                    petLengthEntity = Formatters.getMetricDimensionValue(_successUiState.value.lengthFieldValue, _successUiState.value.selectedLengthUnit)?.let {
                         PetLengthEntity(
                             id = UUID.randomUUID(),
                             pet_id = UUID.fromString(petId),
@@ -286,7 +404,7 @@ class PetDetailsAddDimensionsViewModel @Inject constructor(
                             value = it
                         )
                     },
-                    petCircuitEntity = getMetricDimensionValue(_successUiState.value.circuitFieldValue, _successUiState.value.unit)?.let {
+                    petCircuitEntity = Formatters.getMetricDimensionValue(_successUiState.value.circuitFieldValue, _successUiState.value.selectedCircuitUnit)?.let {
                         PetCircuitEntity(
                             id = UUID.randomUUID(),
                             pet_id = UUID.fromString(petId),
@@ -297,11 +415,7 @@ class PetDetailsAddDimensionsViewModel @Inject constructor(
                 )
             }
         else if (_successUiState.value.updatedDimensionFieldValue.isNotEmpty()) {
-            val value = getMetricDimensionValue(
-                valueStr = _successUiState.value.updatedDimensionFieldValue,
-                _successUiState.value.unit
-            )
-            value?.let { value ->
+            Formatters.getMetricDimensionValue(_successUiState.value.updatedDimensionFieldValue, _successUiState.value.selectedUpdatedUnit)?.let { value ->
                 viewModelScope.launch {
                     heightId?.let {
                         petsDashboardRepository.updateDimension(
@@ -413,24 +527,5 @@ class PetDetailsAddDimensionsViewModel @Inject constructor(
         _successUiState.update {
             it.copy(hideKeyboard = true)
         }
-    }
-
-    private fun getMetricDimensionValue(valueStr: String, unit: UserPreferences.Unit): Double? {
-        if (valueStr.isNotEmpty()) {
-            val value = try {
-                valueStr.toDouble()
-            } catch (e: TypeCastException) {
-                Log.e("info", e.message.toString())
-                return null
-            }
-            return when (unit) {
-                UserPreferences.Unit.METRIC -> value
-                UserPreferences.Unit.IMPERIAL -> Formatters.getMetricDimensionValue(
-                    value,
-                    unit
-                )
-                UserPreferences.Unit.UNRECOGNIZED -> value
-            }
-        } else return null
     }
 }

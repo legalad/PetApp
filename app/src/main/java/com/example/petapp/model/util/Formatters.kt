@@ -3,6 +3,8 @@ package com.example.petapp.model.util
 import android.content.Context
 import com.example.android.datastore.UserPreferences
 import com.example.petapp.R
+import com.example.petapp.model.DimensionUnit
+import com.example.petapp.model.WeightUnit
 import com.example.petapp.ui.petdetails.weightdashboard.ChartDateEntry
 import com.patrykandpatrick.vico.core.axis.AxisPosition
 import com.patrykandpatrick.vico.core.axis.formatter.AxisValueFormatter
@@ -35,7 +37,7 @@ class Formatters {
                 if (unit == UserPreferences.Unit.METRIC) ("${"%.2f".format(it)} " + context.getString(
                     R.string.util_unit_weight_kg
                 ))
-                else ("${"%.2f".format(it * 2.20462262)} " + context.getString(R.string.util_unit_weight_lbs))
+                else ("${"%.2f".format(it * 2.20462262)} " + context.getString(R.string.util_unit_weight_pounds))
             } ?: "-.-"
         }
 
@@ -48,7 +50,7 @@ class Formatters {
                 if (unit == UserPreferences.Unit.METRIC) ("${"%.2f".format(it)} " + context.getString(
                     R.string.util_unit_weight_kg
                 ))
-                else ("${"%.2f".format(it)} " + context.getString(R.string.util_unit_weight_lbs))
+                else ("${"%.2f".format(it)} " + context.getString(R.string.util_unit_weight_pounds))
             } ?: "-.-"
         }
 
@@ -108,10 +110,55 @@ class Formatters {
             else value * 0.45359237
         }
 
+        fun getMetricWeightValue(valueStr: String, unit: WeightUnit): Double? {
+            val value = try {
+                valueStr.toDouble()
+            } catch (e: Exception) {
+                return null
+            }
+            return when(unit) {
+                WeightUnit.MILLIGRAMS -> value / 1000000
+                WeightUnit.GRAMS -> value / 1000
+                WeightUnit.KILOGRAMS -> value
+                else -> getImperialLbsValue(value = value, unit = unit)?.times(0.45359237)
+            }
+        }
+        private fun getImperialLbsValue(value: Double, unit: WeightUnit): Double? {
+            return when (unit) {
+                WeightUnit.OUNCE -> value / 16
+                WeightUnit.POUNDS -> value
+                WeightUnit.STONE -> value * 14
+                else -> null
+            }
+        }
+
+        fun getMetricDimensionValue(valueStr: String, unit: DimensionUnit): Double? {
+            val value = try {
+                valueStr.toDouble()
+            } catch (e: Exception) {
+                return null
+            }
+            return when (unit) {
+                DimensionUnit.CENTIMETERS -> value / 100
+                DimensionUnit.METERS -> value
+                else -> getImperialFtValue(value = value, unit = unit)?.times(0.3048)
+            }
+        }
+
+        private fun getImperialFtValue(value: Double, unit: DimensionUnit): Double? {
+            return when (unit) {
+                DimensionUnit.FOOTS -> value
+                DimensionUnit.INCHES -> value / 12
+                else -> return null
+            }
+        }
+
         fun getMetricDimensionValue(value: Double, unit: UserPreferences.Unit): Double {
             return if (unit == UserPreferences.Unit.METRIC) value
             else value * 0.3048
         }
+
+
 
         fun getDimensionValue(value: Double, unit: UserPreferences.Unit): Double {
             return if (unit == UserPreferences.Unit.METRIC) value

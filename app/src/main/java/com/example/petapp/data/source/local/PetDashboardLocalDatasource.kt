@@ -87,7 +87,7 @@ class PetDashboardLocalDatasource internal constructor(
 
     override suspend fun addNewPet(
         petGeneralEntity: PetGeneralEntity,
-        petWeightEntity: PetWeightEntity,
+        petWeightEntity: PetWeightEntity?,
         petHeightEntity: PetHeightEntity?,
         petLengthEntity: PetLengthEntity?,
         petCircuitEntity: PetCircuitEntity?

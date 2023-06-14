@@ -1,14 +1,17 @@
 package com.example.petapp.ui.addpet
 
+import android.util.Log
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.android.datastore.UserPreferences
 import com.example.petapp.R
 import com.example.petapp.data.*
-import com.example.petapp.model.Species
+import com.example.petapp.model.*
+import com.example.petapp.model.util.Formatters
 import com.example.petapp.model.util.Validators
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -25,6 +28,7 @@ import javax.inject.Inject
 @OptIn(ExperimentalMaterial3Api::class)
 @HiltViewModel
 class AddPetViewModel @Inject constructor(
+    private val settingsDataRepository: UserSettingsDataRepository,
     private val dashboardRepository: PetsDashboardRepository
 ) : ViewModel(), AddPetDataValidation {
 
@@ -35,6 +39,32 @@ class AddPetViewModel @Inject constructor(
     val successUiState: StateFlow<AddPetUiState.Success> = _successUiState
 
     init {
+        viewModelScope.launch {
+            settingsDataRepository.getUnit().collect { unit ->
+                _successUiState.update {
+                    when (unit) {
+                        UserPreferences.Unit.METRIC -> it.copy(
+                            selectedHeightUnit = DimensionUnit.METERS,
+                            selectedLengthUnit = DimensionUnit.METERS,
+                            selectedCircuitUnit = DimensionUnit.METERS,
+                            selectedWeightUnit = WeightUnit.KILOGRAMS
+                        )
+                        UserPreferences.Unit.IMPERIAL -> it.copy(
+                            selectedHeightUnit = DimensionUnit.FOOTS,
+                            selectedLengthUnit = DimensionUnit.FOOTS,
+                            selectedCircuitUnit = DimensionUnit.FOOTS,
+                            selectedWeightUnit = WeightUnit.POUNDS
+                        )
+                        UserPreferences.Unit.UNRECOGNIZED -> it.copy(
+                            selectedHeightUnit = DimensionUnit.METERS,
+                            selectedLengthUnit = DimensionUnit.METERS,
+                            selectedCircuitUnit = DimensionUnit.METERS,
+                            selectedWeightUnit = WeightUnit.KILOGRAMS
+                        )
+                    }
+                }
+            }
+        }
         uiState = AddPetUiState.Success()
 
     }
@@ -81,9 +111,11 @@ class AddPetViewModel @Inject constructor(
     fun datePickerOnConfirmedButtonClicked() {
         _successUiState.update {
             it.copy(
-                datePickerTextFieldValue = DateFormat.getDateInstance(DateFormat.SHORT).format(it.datePickerState.selectedDateMillis),
+                datePickerTextFieldValue = DateFormat.getDateInstance(DateFormat.SHORT)
+                    .format(it.datePickerState.selectedDateMillis),
                 datePickerOpenDialog = false,
-                isBirthDateChanged = true)
+                isBirthDateChanged = true
+            )
         }
         validateBirthDate()
     }
@@ -104,11 +136,38 @@ class AddPetViewModel @Inject constructor(
         }
     }
 
-    fun speciesMenuOnDropdownMenuItemClicked(item: String) {
+    fun onMaleIconButtonClicked(value: Boolean) {
         _successUiState.update {
             it.copy(
-                speciesMenuSelectedOptionText = item,
-                speciesMenuExpanded = false
+                maleIconChecked = value,
+                femaleIconChecked = false,
+                isGenderChanged = true
+            )
+        }
+        validateGender()
+    }
+
+    fun onFemaleIconButtonClicked(value: Boolean) {
+        _successUiState.update {
+            it.copy(
+                femaleIconChecked = value,
+                maleIconChecked = false,
+                isGenderChanged = true
+            )
+        }
+        validateGender()
+    }
+
+    fun speciesMenuOnDropdownMenuItemClicked(item: Int) {
+        val selectedSpecies = Species.values()[item]
+        _successUiState.update {
+            it.copy(
+                speciesMenuSelectedOption = selectedSpecies,
+                speciesMenuExpanded = false,
+                breedMenuSelectedOption = selectedSpecies.breeds.lastOrNull(),
+                breedMenuOptions = selectedSpecies.breeds,
+                isSpeciesChanged = true,
+                isSpeciesValid = true
             )
         }
     }
@@ -129,10 +188,23 @@ class AddPetViewModel @Inject constructor(
         }
     }
 
-    fun breedMenuOnDropdownMenuItemClicked(item: String) {
+    fun breedMenuOnDropdownMenuItemClicked(item: Int) {
+        //TODO handle exceptions
+        val value: Breed? = when (_successUiState.value.speciesMenuSelectedOption) {
+            Species.DOG -> DogBreed.values()[item]
+            Species.CAT -> CatBreed.values()[item]
+            Species.FISH -> null
+            Species.BIRD -> null
+            Species.REPTILE -> null
+            Species.RABBIT -> null
+            Species.HAMSTER -> null
+            Species.GUINEA_PIG -> null
+            Species.FERRET -> null
+            Species.NONE -> null
+        }
         _successUiState.update {
             it.copy(
-                breedMenuSelectedOptionText = item,
+                breedMenuSelectedOption = value,
                 breedMenuExpanded = false
             )
         }
@@ -161,19 +233,18 @@ class AddPetViewModel @Inject constructor(
         val uiStateValue = _successUiState.value
 
         validateName(uiStateValue.nameFieldValue)
+        validateGender()
         validateBirthDate()
-        //cant validate species is bug in expanded value changed
         validateSpecies()
+        validateWeight()
 
-        //cant validate species is bug in expanded value changed
-        if(uiStateValue.isNameValid && uiStateValue.isBirthDateValid /*&& uiStateValue.isSpeciesValid*/ && uiStateValue.isNameChanged && uiStateValue.isBirthDateChanged) {
+        if (uiStateValue.isNameValid && uiStateValue.isBirthDateValid && uiStateValue.isSpeciesValid && uiStateValue.isNameChanged && uiStateValue.isBirthDateChanged && uiStateValue.isSpeciesChanged && uiStateValue.isWeightValid && uiStateValue.isWeightChanged && uiStateValue.isGenderValid && uiStateValue.isGenderChanged) {
             onNavigateButtonClicked(stage = AddPetScreenStage.Dimensions)
         }
     }
 
     fun onDimensionsDoneButtonClicked() {
         val uiStateValue = _successUiState.value
-        validateWeight()
 
         if (uiStateValue.isWeightValid && uiStateValue.isWeightChanged
             && uiStateValue.isHeightValid
@@ -184,44 +255,67 @@ class AddPetViewModel @Inject constructor(
         }
     }
 
-    fun onDoneButtonClicked() : Boolean {
-        //future validation
+    fun onDoneButtonClicked(): Boolean {
         viewModelScope.launch(Dispatchers.IO) {
             val petUUID: UUID = UUID.randomUUID()
             dashboardRepository.addNewPet(
                 PetGeneralEntity(
                     id = petUUID,
                     name = successUiState.value.nameFieldValue,
-                    species = Species.CAT,
-                    breed = "Tajski",
-                    birthDate = Instant.ofEpochMilli(successUiState.value.datePickerState.selectedDateMillis?: Instant.now().toEpochMilli()),
+                    gender = if (_successUiState.value.maleIconChecked) PetGender.MALE else PetGender.FEMALE,
+                    species = successUiState.value.speciesMenuSelectedOption,
+                    breed = _successUiState.value.breedMenuSelectedOption?.toString(),
+                    birthDate = Instant.ofEpochMilli(
+                        successUiState.value.datePickerState.selectedDateMillis ?: Instant.now()
+                            .toEpochMilli()
+                    ),
                     description = successUiState.value.descriptionFieldValue,
                     imageUri = null
                 ),
-                PetWeightEntity(
-                    id = UUID.randomUUID(),
-                    pet_id = petUUID,
-                    measurementDate = Instant.now(),
-                    value = successUiState.value.weightFieldValue.toDouble() //handle possible errors
-                ),
-                if (successUiState.value.heightFieldValue.isNotEmpty()) PetHeightEntity(
-                    id = UUID.randomUUID(),
-                    pet_id = petUUID,
-                    measurementDate = Instant.now(),
-                    value = successUiState.value.heightFieldValue.toDouble()
-                ) else null,
-                if (successUiState.value.lengthFieldValue.isNotEmpty()) PetLengthEntity(
-                    id = UUID.randomUUID(),
-                    pet_id = petUUID,
-                    measurementDate = Instant.now(),
-                    value = successUiState.value.lengthFieldValue.toDouble()
-                ) else null,
-                if (successUiState.value.circuitFieldValue.isNotEmpty()) PetCircuitEntity(
-                    id = UUID.randomUUID(),
-                    pet_id = petUUID,
-                    measurementDate = Instant.now(),
-                    value = successUiState.value.circuitFieldValue.toDouble()
-                ) else null
+                Formatters.getMetricWeightValue(
+                    _successUiState.value.weightFieldValue,
+                    _successUiState.value.selectedWeightUnit
+                )?.let {
+                    PetWeightEntity(
+                        id = UUID.randomUUID(),
+                        pet_id = petUUID,
+                        measurementDate = Instant.now(),
+                        value = it
+                    )
+                },
+                Formatters.getMetricDimensionValue(
+                    _successUiState.value.heightFieldValue,
+                    _successUiState.value.selectedHeightUnit
+                )?.let {
+                    PetHeightEntity(
+                        id = UUID.randomUUID(),
+                        pet_id = petUUID,
+                        measurementDate = Instant.now(),
+                        value = it
+                    )
+                },
+                Formatters.getMetricDimensionValue(
+                    _successUiState.value.lengthFieldValue,
+                    _successUiState.value.selectedLengthUnit
+                )?.let {
+                    PetLengthEntity(
+                        id = UUID.randomUUID(),
+                        pet_id = petUUID,
+                        measurementDate = Instant.now(),
+                        value = it
+                    )
+                },
+                Formatters.getMetricDimensionValue(
+                    _successUiState.value.circuitFieldValue,
+                    _successUiState.value.selectedCircuitUnit
+                )?.let {
+                    PetCircuitEntity(
+                        id = UUID.randomUUID(),
+                        pet_id = petUUID,
+                        measurementDate = Instant.now(),
+                        value = it
+                    )
+                }
             )
         }
         return true
@@ -229,8 +323,10 @@ class AddPetViewModel @Inject constructor(
 
     fun onWeightFieldValueChanged(value: String) {
         _successUiState.update {
-            it.copy(weightFieldValue = Validators.validateNumberToTwoDecimalPlaces(value),
-                    isWeightChanged = true)
+            it.copy(
+                weightFieldValue = Validators.validateNumberToTwoDecimalPlaces(value),
+                isWeightChanged = true
+            )
         }
         validateWeight()
     }
@@ -238,6 +334,31 @@ class AddPetViewModel @Inject constructor(
     fun onWeightFieldCancelClicked() {
         _successUiState.update {
             it.copy(weightFieldValue = "")
+        }
+    }
+
+    fun onWeightUnitPickerOnExpandedChange(value: Boolean) {
+        _successUiState.update {
+            it.copy(
+                isWeightUnitPickerExpanded = value
+            )
+        }
+    }
+
+    fun onWeightUnitPickerOnDismissRequest() {
+        _successUiState.update {
+            it.copy(
+                isWeightUnitPickerExpanded = false
+            )
+        }
+    }
+
+    fun onWeightUnitPickerDropdownMenuItemClicked(ordinal: Int) {
+        _successUiState.update {
+            it.copy(
+                selectedWeightUnit = WeightUnit.values()[ordinal],
+                isWeightUnitPickerExpanded = false
+            )
         }
     }
 
@@ -250,6 +371,81 @@ class AddPetViewModel @Inject constructor(
     fun onHeightFieldCancelClicked() {
         _successUiState.update {
             it.copy(heightFieldValue = "")
+        }
+    }
+
+    fun onHeightUnitPickerOnExpandedChange(value: Boolean) {
+        _successUiState.update {
+            it.copy(
+                isHeightUnitPickerExpanded = value
+            )
+        }
+    }
+
+    fun onHeightUnitPickerOnDismissRequest() {
+        _successUiState.update {
+            it.copy(
+                isHeightUnitPickerExpanded = false
+            )
+        }
+    }
+
+    fun onHeightUnitPickerDropdownMenuItemClicked(ordinal: Int) {
+        _successUiState.update {
+            it.copy(
+                selectedHeightUnit = DimensionUnit.values()[ordinal],
+                isHeightUnitPickerExpanded = false
+            )
+        }
+    }
+
+    fun onLengthUnitPickerOnExpandedChange(value: Boolean) {
+        _successUiState.update {
+            it.copy(
+                isLengthUnitPickerExpanded = value
+            )
+        }
+    }
+
+    fun onLengthUnitPickerOnDismissRequest() {
+        _successUiState.update {
+            it.copy(
+                isLengthUnitPickerExpanded = false
+            )
+        }
+    }
+
+    fun onLengthUnitPickerDropdownMenuItemClicked(ordinal: Int) {
+        _successUiState.update {
+            it.copy(
+                selectedLengthUnit = DimensionUnit.values()[ordinal],
+                isLengthUnitPickerExpanded = false
+            )
+        }
+    }
+
+    fun onCircuitUnitPickerOnExpandedChange(value: Boolean) {
+        _successUiState.update {
+            it.copy(
+                isCircuitUnitPickerExpanded = value
+            )
+        }
+    }
+
+    fun onCircuitUnitPickerOnDismissRequest() {
+        _successUiState.update {
+            it.copy(
+                isCircuitUnitPickerExpanded = false
+            )
+        }
+    }
+
+    fun onCircuitUnitPickerDropdownMenuItemClicked(ordinal: Int) {
+        _successUiState.update {
+            it.copy(
+                selectedCircuitUnit = DimensionUnit.values()[ordinal],
+                isCircuitUnitPickerExpanded = false
+            )
         }
     }
 
@@ -299,18 +495,36 @@ class AddPetViewModel @Inject constructor(
 
         return if (value.isNotEmpty()) {
             _successUiState.update {
-                it.copy(isNameValid = true,
-                        nameErrorMessage = R.string.util_blank)
+                it.copy(
+                    isNameValid = true,
+                    nameErrorMessage = R.string.util_blank
+                )
             }
             R.string.util_blank
         } else {
             _successUiState.update {
-                it.copy(isNameValid = false,
-                        nameErrorMessage = R.string.components_forms_text_field_supporting_text_error_message_name_empty)
+                it.copy(
+                    isNameValid = false,
+                    nameErrorMessage = R.string.components_forms_text_field_supporting_text_error_message_name_empty
+                )
             }
             R.string.components_forms_text_field_supporting_text_error_message_name_empty
         }
 
+    }
+
+    override fun validateGender() {
+        if ((_successUiState.value.maleIconChecked || _successUiState.value.femaleIconChecked) && _successUiState.value.isGenderChanged) {
+            _successUiState.update {
+                it.copy(isGenderValid = true)
+            }
+        } else {
+            _successUiState.update {
+                it.copy(
+                    isGenderValid = false
+                )
+            }
+        }
     }
 
     override fun validateBirthDate() {
@@ -321,27 +535,35 @@ class AddPetViewModel @Inject constructor(
             _successUiState.update {
                 it.copy(
                     birtDateErrorMessage = R.string.components_forms_date_picker_supporting_text_error_message_birth,
-                    isBirthDateValid = false)
+                    isBirthDateValid = false
+                )
             }
         } else {
             _successUiState.update {
-                it.copy(isBirthDateValid = true,
-                        birtDateErrorMessage = R.string.util_blank)
+                it.copy(
+                    isBirthDateValid = true,
+                    birtDateErrorMessage = R.string.util_blank
+                )
             }
         }
 
     }
 
     override fun validateSpecies() {
-        if (_successUiState.value.speciesMenuSelectedOptionText.isNotEmpty()) {
+        Log.e("info", _successUiState.value.speciesMenuSelectedOption.name)
+        if (_successUiState.value.speciesMenuSelectedOption != Species.NONE) {
             _successUiState.update {
                 it.copy(isSpeciesValid = true)
             }
+            Log.e("info", "true")
         } else {
             _successUiState.update {
-                it.copy(isSpeciesValid = false,
-                    speciesErrorMessage = R.string.components_forms_menus_supporting_text_error_message_species)
+                it.copy(
+                    isSpeciesValid = false,
+                    speciesErrorMessage = R.string.components_forms_menus_supporting_text_error_message_species
+                )
             }
+            Log.e("info", "false")
         }
     }
 
@@ -350,20 +572,22 @@ class AddPetViewModel @Inject constructor(
     }
 
     override fun validateWeight() {
-    val value = _successUiState.value.weightFieldValue
-    if (value.isNotEmpty()) {
+        val value = _successUiState.value.weightFieldValue
+        if (value.isNotEmpty()) {
             _successUiState.update {
-                it.copy(isWeightValid = true,
-                    weightErrorMessage = R.string.util_blank)
+                it.copy(
+                    isWeightValid = true,
+                    weightErrorMessage = R.string.util_blank
+                )
             }
         } else {
-        _successUiState.update {
-            it.copy(
-                isWeightValid = false,
-                weightErrorMessage = R.string.components_forms_text_field_supporting_text_error_message_weight
-            )
+            _successUiState.update {
+                it.copy(
+                    isWeightValid = false,
+                    weightErrorMessage = R.string.components_forms_text_field_supporting_text_error_message_weight
+                )
+            }
         }
-    }
     }
 
 

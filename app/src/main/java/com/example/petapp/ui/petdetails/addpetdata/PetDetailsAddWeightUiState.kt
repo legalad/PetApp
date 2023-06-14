@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import androidx.compose.material3.*
 import com.example.android.datastore.UserPreferences
 import com.example.petapp.R
+import com.example.petapp.model.WeightUnit
 import java.time.Instant
 import java.time.LocalTime
 import java.time.ZoneId
@@ -33,6 +34,9 @@ sealed interface PetDetailsAddWeightUiState {
         val showingPicker: Boolean = true,
         val weightFieldValue: String = "",
         @StringRes val weightFieldValuePlaceholder: Int = R.string.util_unit_weight_kg,
+        val isWeightUnitPickerExpanded: Boolean = false,
+        val weightUnitList: List<com.example.petapp.model.Unit> = WeightUnit.values().toList(),
+        val selectedWeightUnit: WeightUnit = WeightUnit.KILOGRAMS,
         val isWeightChanged: Boolean = false,
         val isWeightValid: Boolean = true,
         val weightErrorMessage: Int = R.string.util_blank,

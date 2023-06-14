@@ -102,13 +102,13 @@ interface PetsDashboardDao {
     @Transaction
     suspend fun addNewPet(
         petGeneralEntity: PetGeneralEntity,
-        petWeightEntity: PetWeightEntity,
+        petWeightEntity: PetWeightEntity?,
         petHeightEntity: PetHeightEntity?,
         petLengthEntity: PetLengthEntity?,
         petCircuitEntity: PetCircuitEntity?
     ) {
         addPetGeneralInfo(petGeneralEntity)
-        addPetWeight(petWeightEntity)
+        petWeightEntity?.let { addPetWeight(it) }
         petHeightEntity?.let { addPetHeight(it) }
         petLengthEntity?.let { addPetLength(it) }
         petCircuitEntity?.let { addPetCircuit(it) }

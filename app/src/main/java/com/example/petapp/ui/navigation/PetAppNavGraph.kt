@@ -93,7 +93,8 @@ fun PetAppNavGraph(
             AddPetScreen(
                 viewModel = addPetViewModel,
                 { navController.navigate(PetAppDestination.DASHBOARD_ROUTE.name) },
-                modifier = Modifier
+                modifier = Modifier,
+                navigateBack = { navController.navigateUp() }
             )
         }
         composable(PetAppDestination.SETTINGS_ROUTE.name) {

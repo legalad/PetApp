@@ -36,9 +36,11 @@ fun OutlinedTextFieldWithLeadingIcon(
     onCancelClicked: () -> Unit,
     modifier: Modifier = Modifier.fillMaxWidth(),
     enabled: Boolean = true,
+    readOnly: Boolean = false,
     isError: Boolean = false,
     colors: TextFieldColors = OutlinedTextFieldDefaults.colors(
     ),
+    trailingIcon: @Composable() (() -> Unit)? = null,
     @StringRes supportingText: Int = R.string.util_blank,
     onFocusClear: () -> Unit = { },
     onTextFieldClicked: () -> Unit = { },
@@ -69,7 +71,7 @@ fun OutlinedTextFieldWithLeadingIcon(
                     contentDescription = null
                 )
             },
-            trailingIcon = {
+            trailingIcon = trailingIcon ?: {
                 if (fieldValue.isNotBlank() && isFocused.value) IconButton(onClick = onCancelClicked) {
                     Icon(
                         painter = painterResource(id = R.drawable.round_cancel_24),
@@ -83,6 +85,7 @@ fun OutlinedTextFieldWithLeadingIcon(
             enabled = enabled,
             colors = colors,
             isError = (isError && !isFocused.value),
+            readOnly = readOnly,
             supportingText = {
                 if (isError && !isFocused.value) {
                     Text(
@@ -133,7 +136,7 @@ fun PickerOutlinedTextFieldWithLeadingIcon(
     val isFocused = interactionSource.collectIsFocusedAsState()
     val inputChanged = remember { mutableStateOf(false) }
 
-    Column(modifier = modifier.padding(bottom = 4.dp)) {
+    Column(modifier = modifier.padding(bottom = 6.dp)) {
         OutlinedTextField(
             value = fieldValue,
             label = { Text(text = stringResource(id = fieldLabel)) },
@@ -176,11 +179,13 @@ fun PickerOutlinedTextFieldWithLeadingIcon(
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,
             interactionSource = interactionSource,
-            modifier = Modifier.fillMaxWidth().clickable(
-                interactionSource = interactionSource,
-                onClick = onTextFieldClicked,
-                indication = null
-            )
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(
+                    interactionSource = interactionSource,
+                    onClick = onTextFieldClicked,
+                    indication = null
+                )
         )
         if (hideKeyboard) {
             focusManager.clearFocus()
@@ -215,7 +220,7 @@ fun MenuOutlinedTextField(
     val isFocused = interactionSource.collectIsFocusedAsState()
     val inputChanged = remember { mutableStateOf(false) }
 
-    Column(modifier = modifier.padding(bottom = 4.dp)) {
+    Column(modifier = modifier.padding(bottom = 6.dp)) {
         OutlinedTextField(
             value = fieldValue,
             label = { Text(text = stringResource(id = fieldLabel)) },
@@ -228,9 +233,6 @@ fun MenuOutlinedTextField(
             singleLine = true,
             enabled = true,
             readOnly = readOnly,
-            colors = ExposedDropdownMenuDefaults.textFieldColors(
-                unfocusedContainerColor = MaterialTheme.colorScheme.surface
-            ),
             isError = (isError && !isFocused.value),
             supportingText = {
                 if (isError && !isFocused.value) {
@@ -244,11 +246,13 @@ fun MenuOutlinedTextField(
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,
             interactionSource = interactionSource,
-            modifier = Modifier.fillMaxWidth().clickable(
-                interactionSource = interactionSource,
-                onClick = onTextFieldClicked,
-                indication = null
-            )
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(
+                    interactionSource = interactionSource,
+                    onClick = onTextFieldClicked,
+                    indication = null
+                )
         )
         if (hideKeyboard) {
             focusManager.clearFocus()

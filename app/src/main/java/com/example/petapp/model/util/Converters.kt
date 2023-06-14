@@ -3,6 +3,7 @@ package com.example.petapp.model.util
 import android.net.Uri
 import androidx.room.TypeConverter
 import com.example.petapp.data.MealType
+import com.example.petapp.model.PetGender
 import com.example.petapp.model.Species
 import java.time.Instant
 import java.time.OffsetTime
@@ -95,6 +96,18 @@ class EnumConverter {
         @JvmStatic
         fun fromStringToMealType(string: String): MealType {
             return MealType.valueOf(string)
+        }
+
+        @TypeConverter
+        @JvmStatic
+        fun fromPetGenderToString(petGender: PetGender): String {
+            return petGender.name
+        }
+
+        @TypeConverter
+        @JvmStatic
+        fun fromStringToPetGender(string: String): PetGender {
+            return PetGender.valueOf(string)
         }
     }
 }

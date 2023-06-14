@@ -5,6 +5,10 @@ import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
 import com.example.petapp.R
+import com.example.petapp.model.Breed
+import com.example.petapp.model.DimensionUnit
+import com.example.petapp.model.Species
+import com.example.petapp.model.WeightUnit
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -30,13 +34,13 @@ sealed interface AddPetUiState {
             initialDisplayMode = DisplayMode.Picker
         ),
         val datePickerConfirmEnabled: Boolean = true,
-        val speciesMenuOptions: List<String> = listOf("Dog", "Cat", "Fish", "Parrot"),
+        val speciesMenuOptions: List<Species> = Species.values().toList(),
         val speciesMenuExpanded: Boolean = false,
-        val speciesMenuSelectedOptionText: String = "",
+        val speciesMenuSelectedOption: Species = Species.NONE,
         val breedMenuEnabled: Boolean = true,
-        val breedMenuOptions: List<String> = emptyList(),
+        val breedMenuOptions: List<Breed> = emptyList(),
         val breedMenuExpanded: Boolean = false,
-        val breedMenuSelectedOptionText: String = "",
+        val breedMenuSelectedOption: Breed? = null,
         val weightFieldValue: String = "",
         val heightFieldValue: String = "",
         val lengthFieldValue: String = "",
@@ -48,22 +52,37 @@ sealed interface AddPetUiState {
         val isNameChanged: Boolean = false,
         val isNameInputChanged: Boolean = false,
         val nameErrorMessage: Int = R.string.util_blank,
+        val isGenderValid: Boolean = true,
+        val isGenderChanged: Boolean = false,
         val isBirthDateValid: Boolean = true,
         val isBirthDateChanged: Boolean = false,
         val birtDateErrorMessage: Int = R.string.util_blank,
-        val isSpeciesValid: Boolean = false,
+        val isSpeciesValid: Boolean = true,
+        val isSpeciesChanged: Boolean = false,
         val speciesErrorMessage: Int = R.string.util_blank,
         val isBreedValid: Boolean = false,
         val breedErrorMessage: Int = R.string.util_blank,
         val isWeightValid: Boolean = true,
         val isWeightChanged: Boolean = false,
         val weightErrorMessage: Int = R.string.util_blank,
+        val isWeightUnitPickerExpanded: Boolean = false,
+        val weightUnitList: List<com.example.petapp.model.Unit> = WeightUnit.values().toList(),
+        val selectedWeightUnit: WeightUnit = WeightUnit.KILOGRAMS,
         val isHeightValid: Boolean = true,
         val heightErrorMessage: Int = R.string.util_blank,
+        val dimensionUnitList: List<com.example.petapp.model.Unit> = DimensionUnit.values().toList(),
+        val isHeightUnitPickerExpanded: Boolean = false,
+        val selectedHeightUnit: DimensionUnit = DimensionUnit.METERS,
         val isLengthValid: Boolean = true,
         val lengthErrorMessage: Int = R.string.util_blank,
+        val isLengthUnitPickerExpanded: Boolean = false,
+        val selectedLengthUnit: DimensionUnit = DimensionUnit.METERS,
         val isCircuitValid: Boolean = true,
-        val circuitErrorMessage: Int = R.string.util_blank
+        val circuitErrorMessage: Int = R.string.util_blank,
+        val isCircuitUnitPickerExpanded: Boolean = false,
+        val selectedCircuitUnit: DimensionUnit = DimensionUnit.METERS,
+        val maleIconChecked: Boolean = false,
+        val femaleIconChecked: Boolean = false
 
     ) : AddPetUiState
     object Loading : AddPetUiState

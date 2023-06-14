@@ -27,7 +27,7 @@ interface PetsDashboardDatasource {
 
     suspend fun addPetDimensions(petHeightEntity: PetHeightEntity?, petLengthEntity: PetLengthEntity?, petCircuitEntity: PetCircuitEntity?)
     suspend fun addPetGeneralInfo(pet: PetGeneralEntity)
-    suspend fun addNewPet(petGeneralEntity: PetGeneralEntity, petWeightEntity: PetWeightEntity, petHeightEntity: PetHeightEntity?, petLengthEntity: PetLengthEntity?, petCircuitEntity: PetCircuitEntity?)
+    suspend fun addNewPet(petGeneralEntity: PetGeneralEntity, petWeightEntity: PetWeightEntity?, petHeightEntity: PetHeightEntity?, petLengthEntity: PetLengthEntity?, petCircuitEntity: PetCircuitEntity?)
     suspend fun addPetWaterChangeData(waterEntity: PetWaterEntity)
     suspend fun addPetMeal(petMealEntity: PetMealEntity)
     suspend fun updatePetMeal(petMealEntity: PetMealEntity)

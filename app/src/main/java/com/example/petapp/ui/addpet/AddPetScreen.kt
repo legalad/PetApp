@@ -5,15 +5,20 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
+import androidx.compose.material3.IconButtonDefaults.outlinedIconToggleButtonColors
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.petapp.R
+import com.example.petapp.model.*
 import com.example.petapp.ui.components.AddPetDataScaffold
 import com.example.petapp.ui.components.ErrorScreen
 import com.example.petapp.ui.components.LoadingScreen
@@ -23,18 +28,23 @@ import com.example.petapp.ui.components.forms.*
 fun AddPetScreen(
     viewModel: AddPetViewModel,
     navigateToDashboard: () -> Unit,
+    navigateBack: () -> Unit,
     modifier: Modifier
 ) {
     when (viewModel.uiState) {
         is AddPetUiState.Error -> ErrorScreen(message = "Can't add new pet")
         is AddPetUiState.Loading -> LoadingScreen()
-        is AddPetUiState.Success -> AddPetResultScreen(viewModel, navigateToDashboard)
+        is AddPetUiState.Success -> AddPetResultScreen(viewModel, navigateToDashboard, navigateBack)
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddPetResultScreen(viewModel: AddPetViewModel, navigateToDashboard: () -> Unit) {
+fun AddPetResultScreen(
+    viewModel: AddPetViewModel,
+    navigateToDashboard: () -> Unit,
+    navigateBack: () -> Unit
+) {
     val uiState = viewModel.successUiState.collectAsState().value
 
     when (uiState.screenStage) {
@@ -45,13 +55,23 @@ fun AddPetResultScreen(viewModel: AddPetViewModel, navigateToDashboard: () -> Un
                 supportingText = R.string.components_forms_description_new_pet,
                 rightButtonStringId = R.string.components_forms_dialog_buttons_next,
                 onRightButtonClicked = viewModel::onGeneralDoneButtonClicked,
-                navigateBack = navigateToDashboard,
-                onLeftButtonClicked = navigateToDashboard,
-                hideKeyboard = viewModel::hideKeyboard) {
+                navigateBack = navigateBack,
+                onLeftButtonClicked = navigateBack,
+                hideKeyboard = viewModel::hideKeyboard
+            ) {
                 GeneralPetForm(
                     nameFieldValue = uiState.nameFieldValue,
                     onNameFieldValueChanged = viewModel::onNameFieldValueChanged,
                     onNameFieldCancelClicked = viewModel::onNameFieldCancelClicked,
+                    weightFieldValue = uiState.weightFieldValue,
+                    isWeightUnitPickerExpanded = uiState.isWeightUnitPickerExpanded,
+                    weightUnitList = uiState.weightUnitList,
+                    selectedWeightUnit = uiState.selectedWeightUnit,
+                    onWeightFieldValueChanged = viewModel::onWeightFieldValueChanged,
+                    onWeightFieldCancelClicked = viewModel::onWeightFieldCancelClicked,
+                    onWeightUnitPickerOnExpandedChange = viewModel::onWeightUnitPickerOnExpandedChange,
+                    onWeightUnitPickerOnDismissRequest = viewModel::onWeightUnitPickerOnDismissRequest,
+                    onWeightUnitPickerDropdownMenuItemClicked = viewModel::onWeightUnitPickerDropdownMenuItemClicked,
                     datePickerTextFieldValue = uiState.datePickerTextFieldValue,
                     onDatePickerTextFieldValueChanged = viewModel::onDatePickerTextFieldValueChanged,
                     onDatePickerTextFieldClicked = viewModel::onDatePickerTextFieldClicked,
@@ -63,14 +83,14 @@ fun AddPetResultScreen(viewModel: AddPetViewModel, navigateToDashboard: () -> Un
                     datePickerOnDismissedButtonClicked = viewModel::datePickerOnDismissedButtonClicked,
                     speciesOptions = uiState.speciesMenuOptions,
                     speciesMenuExpanded = uiState.speciesMenuExpanded,
-                    speciesMenuSelectedOption = uiState.speciesMenuSelectedOptionText,
+                    speciesMenuSelectedOption = uiState.speciesMenuSelectedOption,
                     speciesMenuOnExpandedChanged = viewModel::speciesMenuOnExpandedChanged,
                     speciesMenuOnDropdownMenuItemClicked = viewModel::speciesMenuOnDropdownMenuItemClicked,
                     speciesMenuOnDismissRequest = viewModel::speciesMenuOnDismissRequest,
                     breedOptions = uiState.breedMenuOptions,
                     breedMenuExpanded = uiState.breedMenuExpanded,
                     breedMenuEnabled = uiState.breedMenuEnabled,
-                    breedMenuSelectedOption = uiState.breedMenuSelectedOptionText,
+                    breedMenuSelectedOption = uiState.breedMenuSelectedOption,
                     breedMenuOnExpandedChanged = viewModel::breedMenuOnExpandedChanged,
                     breedMenuOnDropdownMenuItemClicked = viewModel::breedMenuOnDropdownMenuItemClicked,
                     breedMenuOnDismissRequest = viewModel::breedMenuOnDismissRequest,
@@ -78,57 +98,82 @@ fun AddPetResultScreen(viewModel: AddPetViewModel, navigateToDashboard: () -> Un
                     onFocusCleared = viewModel::onFocusCleared,
                     isNameValid = !uiState.isNameValid,
                     nameErrorMessage = uiState.nameErrorMessage,
+                    isWeightValid = !uiState.isWeightValid,
+                    weightErrorMessage = uiState.weightErrorMessage,
                     isBirthdateValid = !uiState.isBirthDateValid,
-                    birthDateErrorMessage = uiState.birtDateErrorMessage)
+                    birthDateErrorMessage = uiState.birtDateErrorMessage,
+                    isSpeciesValid = !uiState.isSpeciesValid,
+                    speciesMenuErrorMessage = uiState.speciesErrorMessage,
+                    isGenderValid = !uiState.isGenderValid,
+                    maleIconChecked = uiState.maleIconChecked,
+                    femaleIconChecked = uiState.femaleIconChecked,
+                    onMaleIconButtonClicked = viewModel::onMaleIconButtonClicked,
+                    onFemaleIconButtonClicked = viewModel::onFemaleIconButtonClicked
+                )
             }
         AddPetScreenStage.Dimensions ->
             AddPetDataScaffold(
                 topAppBarTitleId = R.string.util_blank,
-                headline = R.string.components_forms_title_new_pet,
-                supportingText = R.string.components_forms_description_new_pet,
-                leftButtonStringId = R.string.components_forms_dialog_buttons_previous ,
+                headline = R.string.components_forms_title_new_pet_dimensions,
+                supportingText = R.string.components_forms_description_dimension,
+                leftButtonStringId = R.string.components_forms_dialog_buttons_previous,
                 rightButtonStringId = R.string.components_forms_dialog_buttons_next,
                 onRightButtonClicked = viewModel::onDimensionsDoneButtonClicked,
                 navigateBack = navigateToDashboard,
-                onLeftButtonClicked = {viewModel.onNavigateButtonClicked(AddPetScreenStage.General)},
-                hideKeyboard = viewModel::hideKeyboard) {
+                onLeftButtonClicked = { viewModel.onNavigateButtonClicked(AddPetScreenStage.General) },
+                hideKeyboard = viewModel::hideKeyboard
+            ) {
                 DimensionsPetForm(
-                    weightFieldValue = uiState.weightFieldValue,
-                    onWeightFieldValueChanged = viewModel::onWeightFieldValueChanged,
-                    onWeightFieldCancelClicked = viewModel::onWeightFieldCancelClicked,
+                    dimensionUnitList = uiState.dimensionUnitList,
                     heightFieldValue = uiState.heightFieldValue,
+                    isHeightUnitPickerExpanded = uiState.isHeightUnitPickerExpanded,
+                    selectedHeightUnit = uiState.selectedHeightUnit,
+                    onHeightUnitPickerOnExpandedChange = viewModel::onHeightUnitPickerOnExpandedChange,
+                    onHeightUnitPickerOnDismissRequest = viewModel::onHeightUnitPickerOnDismissRequest,
+                    onHeightUnitPickerDropdownMenuItemClicked = viewModel::onHeightUnitPickerDropdownMenuItemClicked,
                     onHeightFieldValueChanged = viewModel::onHeightFieldValueChanged,
                     onHeightFieldCancelClicked = viewModel::onHeightFieldCancelClicked,
                     lengthFieldValue = uiState.lengthFieldValue,
+                    isLengthUnitPickerExpanded = uiState.isLengthUnitPickerExpanded,
+                    selectedLengthUnit = uiState.selectedLengthUnit,
+                    onLengthUnitPickerOnExpandedChange = viewModel::onLengthUnitPickerOnExpandedChange,
+                    onLengthUnitPickerOnDismissRequest = viewModel::onLengthUnitPickerOnDismissRequest,
+                    onLengthUnitPickerDropdownMenuItemClicked = viewModel::onLengthUnitPickerDropdownMenuItemClicked,
                     onLengthFieldValueChanged = viewModel::onLengthFieldValueChanged,
                     onLengthFieldCancelClicked = viewModel::onLengthFieldCancelClicked,
                     circuitFieldValue = uiState.circuitFieldValue,
+                    isCircuitUnitPickerExpanded = uiState.isCircuitUnitPickerExpanded,
+                    selectedCircuitUnit = uiState.selectedCircuitUnit,
+                    onCircuitUnitPickerOnExpandedChange = viewModel::onCircuitUnitPickerOnExpandedChange,
+                    onCircuitUnitPickerOnDismissRequest = viewModel::onCircuitUnitPickerOnDismissRequest,
+                    onCircuitUnitPickerDropdownMenuItemClicked = viewModel::onCircuitUnitPickerDropdownMenuItemClicked,
                     onCircuitFieldValueChanged = viewModel::onCircuitFieldValueChanged,
                     onCircuitFieldCancelClicked = viewModel::onCircuitFieldCancelClicked,
                     isKeyboardHide = uiState.hideKeyboard,
                     onFocusCleared = viewModel::onFocusCleared,
-                    isWeightValid = !uiState.isWeightValid,
                     isHeightValid = !uiState.isHeightValid,
                     isLengthValid = !uiState.isLengthValid,
                     isCircuitValid = !uiState.isCircuitValid,
-                    weightErrorMessage = uiState.weightErrorMessage,
                     heightErrorMessage = uiState.heightErrorMessage,
                     lengthErrorMessage = uiState.lengthErrorMessage,
-                    circuitErrorMessage = uiState.circuitErrorMessage)
+                    circuitErrorMessage = uiState.circuitErrorMessage
+                )
             }
         AddPetScreenStage.Final -> AddPetDataScaffold(
             topAppBarTitleId = R.string.util_blank,
             headline = R.string.components_forms_title_new_pet,
             supportingText = R.string.components_forms_description_new_pet,
-            leftButtonStringId = R.string.components_forms_dialog_buttons_previous ,
+            leftButtonStringId = R.string.components_forms_dialog_buttons_previous,
             rightButtonStringId = R.string.components_forms_dialog_buttons_done,
             onRightButtonClicked = { if (viewModel.onDoneButtonClicked()) navigateToDashboard() },
             navigateBack = navigateToDashboard,
-            onLeftButtonClicked = {viewModel.onNavigateButtonClicked(AddPetScreenStage.Dimensions)},
-            hideKeyboard = viewModel::hideKeyboard) {
+            onLeftButtonClicked = { viewModel.onNavigateButtonClicked(AddPetScreenStage.Dimensions) },
+            hideKeyboard = viewModel::hideKeyboard
+        ) {
             AdditionalInfoPetForm(
                 descriptionTextFieldValue = uiState.descriptionFieldValue,
-                onDescriptionTextFieldValueChanged = viewModel::onDescriptionTextFieldValueChanged)
+                onDescriptionTextFieldValueChanged = viewModel::onDescriptionTextFieldValueChanged
+            )
         }
     }
 }
@@ -139,6 +184,15 @@ fun GeneralPetForm(
     nameFieldValue: String,
     onNameFieldValueChanged: (String) -> Unit,
     onNameFieldCancelClicked: () -> Unit,
+    weightFieldValue: String,
+    onWeightFieldValueChanged: (String) -> Unit,
+    onWeightFieldCancelClicked: () -> Unit,
+    isWeightUnitPickerExpanded: Boolean,
+    weightUnitList: List<com.example.petapp.model.Unit>,
+    selectedWeightUnit: WeightUnit,
+    onWeightUnitPickerOnExpandedChange: (Boolean) -> Unit,
+    onWeightUnitPickerOnDismissRequest: () -> Unit,
+    onWeightUnitPickerDropdownMenuItemClicked: (Int) -> Unit,
     datePickerTextFieldValue: String,
     onDatePickerTextFieldValueChanged: (String) -> Unit,
     onDatePickerTextFieldClicked: () -> Unit,
@@ -148,73 +202,120 @@ fun GeneralPetForm(
     datePickerOnDismissRequest: () -> Unit,
     datePickerOnConfirmedButtonClicked: () -> Unit,
     datePickerOnDismissedButtonClicked: () -> Unit,
-    speciesOptions: List<String>,
+    speciesOptions: List<Species>,
     speciesMenuExpanded: Boolean,
-    speciesMenuSelectedOption: String,
+    speciesMenuSelectedOption: Species,
     speciesMenuOnExpandedChanged: () -> Unit,
-    speciesMenuOnDropdownMenuItemClicked: (String) -> Unit,
+    speciesMenuOnDropdownMenuItemClicked: (Int) -> Unit,
     speciesMenuOnDismissRequest: () -> Unit,
-    breedOptions: List<String>,
+    breedOptions: List<Breed>,
     breedMenuExpanded: Boolean,
     breedMenuEnabled: Boolean,
-    breedMenuSelectedOption: String,
+    breedMenuSelectedOption: Breed?,
     breedMenuOnExpandedChanged: () -> Unit,
-    breedMenuOnDropdownMenuItemClicked: (String) -> Unit,
+    breedMenuOnDropdownMenuItemClicked: (Int) -> Unit,
     breedMenuOnDismissRequest: () -> Unit,
     isKeyboardHide: Boolean,
     onFocusCleared: () -> Unit,
     isNameValid: Boolean,
     @StringRes nameErrorMessage: Int,
+    isWeightValid: Boolean,
+    @StringRes weightErrorMessage: Int,
     isBirthdateValid: Boolean,
-    @StringRes birthDateErrorMessage: Int
+    @StringRes birthDateErrorMessage: Int,
+    isSpeciesValid: Boolean,
+    @StringRes speciesMenuErrorMessage: Int,
+    isGenderValid: Boolean,
+    maleIconChecked: Boolean,
+    femaleIconChecked: Boolean,
+    onMaleIconButtonClicked: (Boolean) -> Unit,
+    onFemaleIconButtonClicked: (Boolean) -> Unit
 
-    ) {
-    PetFormsSubHeadline(headlineStringId = R.string.components_forms_title_new_pet_general)
+) {
+    val focusManager = LocalFocusManager.current
+    GenderPicker(
+        isGenderValid = isGenderValid,
+        maleIconChecked = maleIconChecked,
+        femaleIconChecked = femaleIconChecked,
+        onMaleIconButtonClicked = onMaleIconButtonClicked,
+        onFemaleIconButtonClicked = onFemaleIconButtonClicked
+    )
     OutlinedTextFieldWithLeadingIcon(
-                fieldLabel = R.string.components_forms_text_field_label_pet_name,
-                fieldPlaceholder = R.string.components_forms_text_field_placeholder_pet_name,
-                leadingIcon = R.drawable.baseline_pets_24,
-                fieldValue = nameFieldValue,
-                onValueChanged = onNameFieldValueChanged,
-                onCancelClicked = onNameFieldCancelClicked,
-                hideKeyboard = isKeyboardHide,
-                onFocusClear = onFocusCleared,
-                isError = isNameValid,
-                supportingText = nameErrorMessage
+        fieldLabel = R.string.components_forms_text_field_label_pet_name,
+        fieldPlaceholder = R.string.components_forms_text_field_placeholder_pet_name,
+        leadingIcon = R.drawable.baseline_pets_24,
+        fieldValue = nameFieldValue,
+        onValueChanged = onNameFieldValueChanged,
+        onCancelClicked = onNameFieldCancelClicked,
+        hideKeyboard = isKeyboardHide,
+        onFocusClear = onFocusCleared,
+        isError = isNameValid,
+        supportingText = nameErrorMessage
+    )
+    OutlinedTextFieldWithLeadingIcon(
+        fieldLabel = R.string.components_forms_text_field_label_pet_weight,
+        fieldPlaceholder = R.string.util_unit_weight_placeholder,
+        leadingIcon = R.drawable.weight_24,
+        trailingIcon = {
+            TextFieldUnitPicker(
+                expanded = isWeightUnitPickerExpanded,
+                onExpandedChange = onWeightUnitPickerOnExpandedChange,
+                onDismissRequest = onWeightUnitPickerOnDismissRequest,
+                onDropdownMenuItemClicked = onWeightUnitPickerDropdownMenuItemClicked,
+                options = weightUnitList,
+                selectedOption = selectedWeightUnit
             )
-            DatePicker(
-                label = R.string.components_forms_text_field_label_pet_birth_date,
-                value = datePickerTextFieldValue,
-                onValueChange = onDatePickerTextFieldValueChanged,
-                onTextFieldClicked = onDatePickerTextFieldClicked,
-                openDialog = datePickerOpenDialog,
-                datePickerState = datePickerState,
-                confirmEnabled = datePickerConfirmEnabled,
-                onDismissRequest = datePickerOnDismissRequest,
-                onConfirmedButtonClicked = datePickerOnConfirmedButtonClicked,
-                onDismissButtonClicked = datePickerOnDismissedButtonClicked,
-                isError = isBirthdateValid,
-                supportingText = birthDateErrorMessage
-            )
-            ExposedDropdownMenu(
-                label = R.string.components_forms_text_field_label_pet_species,
-                options = speciesOptions,
-                expanded = speciesMenuExpanded,
-                selectedOption = speciesMenuSelectedOption,
-                onExpandedChange = speciesMenuOnExpandedChanged,
-                onDropdownMenuItemClicked = speciesMenuOnDropdownMenuItemClicked,
-                onDismissRequest = speciesMenuOnDismissRequest
-            )
-            ExposedDropdownMenu(
-                label = R.string.components_forms_text_field_label_pet_breed,
-                options = breedOptions,
-                expanded = breedMenuExpanded,
-                enabled = breedMenuEnabled,
-                selectedOption = breedMenuSelectedOption,
-                onExpandedChange = breedMenuOnExpandedChanged,
-                onDropdownMenuItemClicked = breedMenuOnDropdownMenuItemClicked,
-                onDismissRequest = breedMenuOnDismissRequest
-            )
+        },
+        onTextFieldClicked = {},
+        fieldValue = weightFieldValue,
+        onValueChanged = onWeightFieldValueChanged,
+        onCancelClicked = onWeightFieldCancelClicked,
+        focusManager = focusManager,
+        onFocusClear = onFocusCleared.also { if (isWeightUnitPickerExpanded) focusManager.clearFocus() },
+        readOnly = isWeightUnitPickerExpanded,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Number,
+            imeAction = ImeAction.Next
+        ),
+        hideKeyboard = isKeyboardHide,
+        isError = isWeightValid,
+        supportingText = weightErrorMessage
+    )
+    DatePicker(
+        label = R.string.components_forms_text_field_label_pet_birth_date,
+        value = datePickerTextFieldValue,
+        onValueChange = onDatePickerTextFieldValueChanged,
+        onTextFieldClicked = onDatePickerTextFieldClicked,
+        openDialog = datePickerOpenDialog,
+        datePickerState = datePickerState,
+        confirmEnabled = datePickerConfirmEnabled,
+        onDismissRequest = datePickerOnDismissRequest,
+        onConfirmedButtonClicked = datePickerOnConfirmedButtonClicked,
+        onDismissButtonClicked = datePickerOnDismissedButtonClicked,
+        isError = isBirthdateValid,
+        supportingText = birthDateErrorMessage
+    )
+    ExposedDropdownMenuV2(
+        label = R.string.components_forms_text_field_label_pet_species,
+        options = speciesOptions,
+        expanded = speciesMenuExpanded,
+        selectedOption = speciesMenuSelectedOption.nameId,
+        onExpandedChange = speciesMenuOnExpandedChanged,
+        onDropdownMenuItemClicked = speciesMenuOnDropdownMenuItemClicked,
+        onDismissRequest = speciesMenuOnDismissRequest,
+        isError = isSpeciesValid,
+        supportingText = speciesMenuErrorMessage
+    )
+    ExposedDropdownMenuV2(
+        label = R.string.components_forms_text_field_label_pet_breed,
+        options = breedOptions,
+        expanded = breedMenuExpanded,
+        enabled = breedMenuEnabled,
+        selectedOption = breedMenuSelectedOption?.nameId ?: R.string.util_blank,
+        onExpandedChange = breedMenuOnExpandedChanged,
+        onDropdownMenuItemClicked = breedMenuOnDropdownMenuItemClicked,
+        onDismissRequest = breedMenuOnDismissRequest
+    )
 }
 
 @Composable
@@ -230,10 +331,23 @@ private fun PetFormsSubHeadline(
 
 @Composable
 fun DimensionsPetForm(
-    weightFieldValue: String,
-    onWeightFieldValueChanged: (String) -> Unit,
-    onWeightFieldCancelClicked: () -> Unit,
+    dimensionUnitList: List<com.example.petapp.model.Unit>,
     heightFieldValue: String,
+    isHeightUnitPickerExpanded: Boolean,
+    selectedHeightUnit: DimensionUnit,
+    onHeightUnitPickerOnExpandedChange: (Boolean) -> Unit,
+    onHeightUnitPickerOnDismissRequest: () -> Unit,
+    onHeightUnitPickerDropdownMenuItemClicked: (Int) -> Unit,
+    isLengthUnitPickerExpanded: Boolean,
+    selectedLengthUnit: DimensionUnit,
+    onLengthUnitPickerOnExpandedChange: (Boolean) -> Unit,
+    onLengthUnitPickerOnDismissRequest: () -> Unit,
+    onLengthUnitPickerDropdownMenuItemClicked: (Int) -> Unit,
+    isCircuitUnitPickerExpanded: Boolean,
+    selectedCircuitUnit: DimensionUnit,
+    onCircuitUnitPickerOnExpandedChange: (Boolean) -> Unit,
+    onCircuitUnitPickerOnDismissRequest: () -> Unit,
+    onCircuitUnitPickerDropdownMenuItemClicked: (Int) -> Unit,
     onHeightFieldValueChanged: (String) -> Unit,
     onHeightFieldCancelClicked: () -> Unit,
     lengthFieldValue: String,
@@ -244,81 +358,99 @@ fun DimensionsPetForm(
     onCircuitFieldCancelClicked: () -> Unit,
     isKeyboardHide: Boolean,
     onFocusCleared: () -> Unit,
-    isWeightValid: Boolean,
     isHeightValid: Boolean,
     isLengthValid: Boolean,
     isCircuitValid: Boolean,
-    @StringRes weightErrorMessage: Int,
     @StringRes heightErrorMessage: Int,
     @StringRes lengthErrorMessage: Int,
     @StringRes circuitErrorMessage: Int,
 
-) {
-        PetFormsSubHeadline(headlineStringId = R.string.components_forms_title_new_pet_dimensions)
-            OutlinedTextFieldWithLeadingIcon(
-                fieldLabel = R.string.components_forms_text_field_label_pet_weight,
-                fieldPlaceholder = R.string.util_unit_weight,
-                leadingIcon = R.drawable.weight_24,
-                fieldValue = weightFieldValue,
-                onValueChanged = onWeightFieldValueChanged,
-                onCancelClicked = onWeightFieldCancelClicked,
-                onFocusClear = onFocusCleared,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Next
-                ),
-                hideKeyboard = isKeyboardHide,
-                isError = isWeightValid,
-                supportingText = weightErrorMessage
+    ) {
+    val focusManager = LocalFocusManager.current
+    OutlinedTextFieldWithLeadingIcon(
+        fieldLabel = R.string.components_forms_text_field_label_pet_height,
+        fieldPlaceholder = R.string.util_unit_dimensions_placeholder,
+        leadingIcon = R.drawable.baseline_height_24,
+        trailingIcon = {
+            TextFieldUnitPicker(
+                expanded = isHeightUnitPickerExpanded,
+                onExpandedChange = onHeightUnitPickerOnExpandedChange,
+                onDismissRequest = onHeightUnitPickerOnDismissRequest,
+                onDropdownMenuItemClicked = onHeightUnitPickerDropdownMenuItemClicked,
+                options = dimensionUnitList,
+                selectedOption = selectedHeightUnit
             )
-            OutlinedTextFieldWithLeadingIcon(
-                fieldLabel = R.string.components_forms_text_field_label_pet_height,
-                fieldPlaceholder = R.string.util_unit_dimension,
-                leadingIcon = R.drawable.baseline_height_24,
-                fieldValue = heightFieldValue,
-                onValueChanged = onHeightFieldValueChanged,
-                onCancelClicked = onHeightFieldCancelClicked,
-                onFocusClear = onFocusCleared,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Next
-                ),
-                hideKeyboard = isKeyboardHide,
-                isError = isHeightValid,
-                supportingText = heightErrorMessage
+        },
+        fieldValue = heightFieldValue,
+        onValueChanged = onHeightFieldValueChanged,
+        onCancelClicked = onHeightFieldCancelClicked,
+        focusManager = focusManager,
+        onFocusClear = onFocusCleared.also { if (isHeightUnitPickerExpanded) focusManager.clearFocus() },
+        readOnly = isHeightUnitPickerExpanded,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Number,
+            imeAction = ImeAction.Next
+        ),
+        hideKeyboard = isKeyboardHide,
+        isError = isHeightValid,
+        supportingText = heightErrorMessage
+    )
+    OutlinedTextFieldWithLeadingIcon(
+        fieldLabel = R.string.components_forms_text_field_label_pet_length,
+        fieldPlaceholder = R.string.util_unit_dimensions_placeholder,
+        leadingIcon = R.drawable.width_24,
+        trailingIcon = {
+            TextFieldUnitPicker(
+                expanded = isLengthUnitPickerExpanded,
+                onExpandedChange = onLengthUnitPickerOnExpandedChange,
+                onDismissRequest = onLengthUnitPickerOnDismissRequest,
+                onDropdownMenuItemClicked = onLengthUnitPickerDropdownMenuItemClicked,
+                options = dimensionUnitList,
+                selectedOption = selectedLengthUnit
             )
-            OutlinedTextFieldWithLeadingIcon(
-                fieldLabel = R.string.components_forms_text_field_label_pet_width,
-                fieldPlaceholder = R.string.util_unit_dimension,
-                leadingIcon = R.drawable.width_24,
-                fieldValue = lengthFieldValue,
-                onValueChanged = onLengthFieldValueChanged,
-                onCancelClicked = onLengthFieldCancelClicked,
-                onFocusClear = onFocusCleared,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Next
-                ),
-                hideKeyboard = isKeyboardHide,
-                isError = isLengthValid,
-                supportingText = lengthErrorMessage
+        },
+        fieldValue = lengthFieldValue,
+        onValueChanged = onLengthFieldValueChanged,
+        onCancelClicked = onLengthFieldCancelClicked,
+        focusManager = focusManager,
+        onFocusClear = onFocusCleared.also { if (isLengthUnitPickerExpanded) focusManager.clearFocus() },
+        readOnly = isLengthUnitPickerExpanded,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Number,
+            imeAction = ImeAction.Next
+        ),
+        hideKeyboard = isKeyboardHide,
+        isError = isLengthValid,
+        supportingText = lengthErrorMessage
+    )
+    OutlinedTextFieldWithLeadingIcon(
+        fieldLabel = R.string.components_forms_text_field_label_pet_circuit,
+        fieldPlaceholder = R.string.util_unit_dimensions_placeholder,
+        leadingIcon = R.drawable.restart_alt_24,
+        trailingIcon = {
+            TextFieldUnitPicker(
+                expanded = isCircuitUnitPickerExpanded,
+                onExpandedChange = onCircuitUnitPickerOnExpandedChange,
+                onDismissRequest = onCircuitUnitPickerOnDismissRequest,
+                onDropdownMenuItemClicked = onCircuitUnitPickerDropdownMenuItemClicked,
+                options = dimensionUnitList,
+                selectedOption = selectedCircuitUnit
             )
-            OutlinedTextFieldWithLeadingIcon(
-                fieldLabel = R.string.components_forms_text_field_label_pet_circuit,
-                fieldPlaceholder = R.string.util_unit_dimension,
-                leadingIcon = R.drawable.restart_alt_24,
-                fieldValue = circuitFieldValue,
-                onValueChanged = onCircuitFieldValueChanged,
-                onCancelClicked = onCircuitFieldCancelClicked,
-                onFocusClear = onFocusCleared,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Done
-                ),
-                hideKeyboard = isKeyboardHide,
-                isError = isCircuitValid,
-                supportingText = circuitErrorMessage
-            )
+        },
+        fieldValue = circuitFieldValue,
+        onValueChanged = onCircuitFieldValueChanged,
+        onCancelClicked = onCircuitFieldCancelClicked,
+        focusManager = focusManager,
+        readOnly = isCircuitUnitPickerExpanded,
+        onFocusClear = onFocusCleared.also { if (isCircuitUnitPickerExpanded) focusManager.clearFocus() },
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Number,
+            imeAction = ImeAction.Done
+        ),
+        hideKeyboard = isKeyboardHide,
+        isError = isCircuitValid,
+        supportingText = circuitErrorMessage
+    )
 }
 
 @Composable
@@ -355,14 +487,19 @@ fun GeneralPetFormPrev() {
     val openDialog = remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
     val confirmEnabled = derivedStateOf { datePickerState.selectedDateMillis != null }
-    val speciesMenuOptions = listOf("Dog", "Cat", "Fish", "Parrot")
+    val speciesMenuOptions = Species.values().toList()
     var speciesMenuExpanded by remember { mutableStateOf(false) }
-    var speciesMenuSelectedOptionText by remember { mutableStateOf("") }
-    val breedMenuOptions = listOf("Dog", "Cat", "Fish", "Parrot")
+    var speciesMenuSelectedOptionText by remember { mutableStateOf(Species.BIRD) }
+    val breedMenuOptions = CatBreed.values().toList()
     var breedMenuExpanded by remember { mutableStateOf(false) }
-    var breedMenuSelectedOptionText by remember { mutableStateOf("") }
+    var breedMenuSelectedOptionText by remember { mutableStateOf(DogBreed.NONE) }
     val breedMenuEnabled by remember { mutableStateOf(false) }
-
+    val maleChecked = remember {
+        mutableStateOf(false)
+    }
+    val femaleChecked = remember {
+        mutableStateOf(false)
+    }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier
             .fillMaxSize()
@@ -381,6 +518,17 @@ fun GeneralPetFormPrev() {
             nameFieldValue = value.value,
             onNameFieldValueChanged = { value.value = it },
             onNameFieldCancelClicked = { value.value = "" },
+            weightFieldValue = "",
+            weightErrorMessage = R.string.util_blank,
+            isWeightValid = true,
+            isWeightUnitPickerExpanded = false,
+            weightUnitList = WeightUnit.values().toList(),
+            selectedWeightUnit = WeightUnit.KILOGRAMS,
+            onWeightFieldCancelClicked = {},
+            onWeightFieldValueChanged = {},
+            onWeightUnitPickerDropdownMenuItemClicked = {},
+            onWeightUnitPickerOnDismissRequest = {},
+            onWeightUnitPickerOnExpandedChange = {},
             datePickerTextFieldValue = "",
             onDatePickerTextFieldValueChanged = { /*TODO*/ },
             onDatePickerTextFieldClicked = { openDialog.value = true },
@@ -395,7 +543,7 @@ fun GeneralPetFormPrev() {
             speciesMenuSelectedOption = speciesMenuSelectedOptionText,
             speciesMenuOnExpandedChanged = { speciesMenuExpanded = !speciesMenuExpanded },
             speciesMenuOnDropdownMenuItemClicked = {
-                speciesMenuSelectedOptionText = it
+                speciesMenuSelectedOptionText = Species.values()[it]
                 speciesMenuExpanded = false
             },
             speciesMenuOnDismissRequest = { speciesMenuExpanded = false },
@@ -405,7 +553,7 @@ fun GeneralPetFormPrev() {
             breedMenuSelectedOption = breedMenuSelectedOptionText,
             breedMenuOnExpandedChanged = { breedMenuExpanded = !breedMenuExpanded },
             breedMenuOnDropdownMenuItemClicked = {
-                breedMenuSelectedOptionText = it
+                breedMenuSelectedOptionText = DogBreed.values()[it]
                 breedMenuExpanded = false
             },
             breedMenuOnDismissRequest = { breedMenuExpanded = false },
@@ -414,15 +562,185 @@ fun GeneralPetFormPrev() {
             isNameValid = false,
             nameErrorMessage = R.string.util_blank,
             isBirthdateValid = true,
-            birthDateErrorMessage = R.string.util_blank
+            birthDateErrorMessage = R.string.util_blank,
+            isSpeciesValid = true,
+            speciesMenuErrorMessage = R.string.util_blank,
+            isGenderValid = true,
+            femaleIconChecked = femaleChecked.value,
+            maleIconChecked = maleChecked.value,
+            onMaleIconButtonClicked = {
+                maleChecked.value = it
+                femaleChecked.value = false
+            },
+            onFemaleIconButtonClicked = {
+                femaleChecked.value = it
+                maleChecked.value = false
+            }
         )
+    }
+}
+
+@Composable
+fun GenderPicker(
+    isGenderValid: Boolean,
+    maleIconChecked: Boolean,
+    femaleIconChecked: Boolean,
+    onMaleIconButtonClicked: (Boolean) -> Unit,
+    onFemaleIconButtonClicked: (Boolean) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+
+        Row {
+            FilledTonalIconToggleButton(
+                checked = maleIconChecked,
+                onCheckedChange = onMaleIconButtonClicked,
+                colors = outlinedIconToggleButtonColors(
+                    checkedContainerColor = Color.Blue.copy(0.2f),
+                    containerColor = Color.Gray.copy(0.1f),
+                )
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.round_male_24),
+                    contentDescription = null
+                )
+            }
+            FilledTonalIconToggleButton(
+                checked = femaleIconChecked,
+                onCheckedChange = onFemaleIconButtonClicked,
+                colors = outlinedIconToggleButtonColors(
+                    checkedContainerColor = Color.Red.copy(0.2f),
+                    containerColor = Color.Gray.copy(0.1f)
+                )
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.round_female_24),
+                    contentDescription = null
+                )
+            }
+        }
+        if (isGenderValid) Text(
+            text = "Pick gender",
+            color = MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.bodySmall
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TextFieldUnitPicker(
+    expanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    onDismissRequest: () -> Unit,
+    onDropdownMenuItemClicked: (Int) -> Unit,
+    options: List<com.example.petapp.model.Unit>,
+    selectedOption: com.example.petapp.model.Unit
+) {
+    Row(
+        modifier = Modifier
+            .height(IntrinsicSize.Min)
+            .width(80.dp), horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        Divider(
+            color = MaterialTheme.colorScheme.outline,
+            modifier = Modifier
+                .fillMaxHeight()  //fill the max height
+                .width(1.dp)
+        )
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = onExpandedChange,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+                    .menuAnchor()
+            ) {
+                Text(
+                    text = stringResource(id = selectedOption.nameId)
+                )
+            }
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = onDismissRequest,
+                modifier = Modifier.height(140.dp)
+            ) {
+                options.forEach {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(id = it.nameId)) },
+                        onClick = { onDropdownMenuItemClicked(it.ordinal) })
+                }
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun GenderPickerPrev() {
+    val maleChecked = remember {
+        mutableStateOf(false)
+    }
+    val femaleChecked = remember {
+        mutableStateOf(false)
+    }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 6.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row {
+            FilledTonalIconToggleButton(
+                checked = maleChecked.value,
+                onCheckedChange = {
+                    maleChecked.value = it
+                    femaleChecked.value = false
+                },
+                colors = outlinedIconToggleButtonColors(
+                    checkedContainerColor = Color.Blue.copy(0.2f),
+                    containerColor = Color.Gray.copy(0.1f)
+                )
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.round_male_24),
+                    contentDescription = null
+                )
+            }
+            FilledTonalIconToggleButton(
+                checked = femaleChecked.value,
+                onCheckedChange = {
+                    femaleChecked.value = it
+                    maleChecked.value = false
+                },
+                colors = outlinedIconToggleButtonColors(
+                    checkedContainerColor = Color.Red.copy(0.2f),
+                    containerColor = Color.Gray.copy(0.1f)
+                )
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.round_female_24),
+                    contentDescription = null
+                )
+            }
+        }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun DimensionsPetFormPrev() {
-    val weightValue = remember { mutableStateOf("") }
     val heightValue = remember { mutableStateOf("") }
     val lengthValue = remember { mutableStateOf("") }
     val circuitValue = remember { mutableStateOf("") }
@@ -442,25 +760,36 @@ fun DimensionsPetFormPrev() {
         )
         Spacer(modifier = Modifier.padding(20.dp))
         DimensionsPetForm(
-            weightFieldValue = weightValue.value,
-            onWeightFieldValueChanged = { weightValue.value = it },
-            onWeightFieldCancelClicked = { weightValue.value = "" },
+            dimensionUnitList = DimensionUnit.values().toList(),
             heightFieldValue = heightValue.value,
+            isHeightUnitPickerExpanded = false,
+            selectedHeightUnit = DimensionUnit.METERS,
+            onHeightUnitPickerDropdownMenuItemClicked = {},
+            onHeightUnitPickerOnDismissRequest = {},
+            onHeightUnitPickerOnExpandedChange = {},
             onHeightFieldValueChanged = { heightValue.value = it },
             onHeightFieldCancelClicked = { heightValue.value = "" },
             lengthFieldValue = lengthValue.value,
+            isLengthUnitPickerExpanded = false,
+            selectedLengthUnit = DimensionUnit.METERS,
+            onLengthUnitPickerDropdownMenuItemClicked = {},
+            onLengthUnitPickerOnDismissRequest = {},
+            onLengthUnitPickerOnExpandedChange = {},
             onLengthFieldValueChanged = { lengthValue.value = it },
             onLengthFieldCancelClicked = { lengthValue.value = "" },
             circuitFieldValue = circuitValue.value,
+            selectedCircuitUnit = DimensionUnit.METERS,
+            isCircuitUnitPickerExpanded = false,
+            onCircuitUnitPickerDropdownMenuItemClicked = {},
+            onCircuitUnitPickerOnExpandedChange = {},
+            onCircuitUnitPickerOnDismissRequest = {},
             onCircuitFieldValueChanged = { circuitValue.value = it },
             onCircuitFieldCancelClicked = { circuitValue.value = "" },
             isKeyboardHide = false,
             onFocusCleared = {},
-            isWeightValid = false,
             isHeightValid = false,
             isLengthValid = false,
             isCircuitValid = false,
-            weightErrorMessage = R.string.util_blank,
             heightErrorMessage = R.string.util_blank,
             lengthErrorMessage = R.string.util_blank,
             circuitErrorMessage = R.string.util_blank

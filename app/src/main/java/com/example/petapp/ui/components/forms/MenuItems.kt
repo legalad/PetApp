@@ -10,6 +10,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.android.datastore.UserPreferences
 import com.example.petapp.R
+import com.example.petapp.model.Menu
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,7 +66,7 @@ fun ExposedDropdownMenu(
 @Composable
 fun ExposedDropdownMenuV2(
     @StringRes label: Int,
-    options: List<Int>,
+    options: List<Menu>,
     expanded: Boolean,
     selectedOption: Int,
     onExpandedChange: () -> Unit,
@@ -79,32 +80,36 @@ fun ExposedDropdownMenuV2(
     textFieldOnValueChanged: (String) -> Unit = {}
 ) {
 
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { onExpandedChange() }
-    ) {
-        Column(modifier = modifier) {
-            MenuOutlinedTextField(
-                fieldLabel = label,
-                fieldPlaceholder = R.string.util_blank,
-                fieldValue = stringResource(id = selectedOption),
-                expanded = expanded,
-                onValueChanged = { textFieldOnValueChanged(it) },
-                modifier = modifier.menuAnchor(),
-                isError = isError,
-                supportingText = supportingText
-            )
-        }
-        ExposedDropdownMenu(
+    if (options.isNotEmpty()) {
+        ExposedDropdownMenuBox(
             expanded = expanded,
-            onDismissRequest = onDismissRequest
+            onExpandedChange = { onExpandedChange() }
         ) {
-            options.forEach { item ->
-                DropdownMenuItem(
-                    text = { Text(stringResource(id = item)) },
-                    onClick = { onDropdownMenuItemClicked(item) },
-                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+            Column(modifier = modifier) {
+                MenuOutlinedTextField(
+                    fieldLabel = label,
+                    fieldPlaceholder = R.string.util_blank,
+                    fieldValue = stringResource(id = selectedOption),
+                    expanded = expanded,
+                    onValueChanged = { textFieldOnValueChanged(it) },
+                    modifier = modifier.menuAnchor(),
+                    isError = isError,
+                    supportingText = supportingText
                 )
+            }
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = onDismissRequest
+            ) {
+
+                options.dropLast(1).forEach { item ->
+                    DropdownMenuItem(
+                        text = { Text(stringResource(id = item.nameId)) },
+                        onClick = { onDropdownMenuItemClicked(item.ordinal) },
+                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                    )
+                }
+
             }
         }
     }

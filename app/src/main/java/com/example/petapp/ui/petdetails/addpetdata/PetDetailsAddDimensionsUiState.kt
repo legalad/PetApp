@@ -3,6 +3,7 @@ package com.example.petapp.ui.petdetails.addpetdata
 import androidx.compose.material3.*
 import com.example.android.datastore.UserPreferences
 import com.example.petapp.R
+import com.example.petapp.model.DimensionUnit
 import java.time.Instant
 import java.time.LocalTime
 import java.time.ZoneId
@@ -34,15 +35,24 @@ sealed interface PetDetailsAddDimensionsUiState {
         val circuitFieldValue: String = "",
         val isHeightValid: Boolean = true,
         val heightErrorMessage: Int = R.string.util_blank,
+        val dimensionUnitList: List<com.example.petapp.model.Unit> = DimensionUnit.values().toList(),
+        val isHeightUnitPickerExpanded: Boolean = false,
+        val selectedHeightUnit: DimensionUnit = DimensionUnit.METERS,
         val isLengthValid: Boolean = true,
         val lengthErrorMessage: Int = R.string.util_blank,
+        val isLengthUnitPickerExpanded: Boolean = false,
+        val selectedLengthUnit: DimensionUnit = DimensionUnit.METERS,
         val isCircuitValid: Boolean = true,
         val circuitErrorMessage: Int = R.string.util_blank,
+        val isCircuitUnitPickerExpanded: Boolean = false,
+        val selectedCircuitUnit: DimensionUnit = DimensionUnit.METERS,
         val defaultFiledValuePlaceholder: Int = R.string.util_unit_dimension_meters,
         val updatedFieldLeadingIcon: Int = R.drawable.baseline_height_24,
         val updatedFieldLabel: Int = R.string.components_forms_text_field_label_pet_height,
         val updatedDimensionFieldValue: String = "",
         val updatedDimensionErrorMessage: Int = R.string.util_blank,
+        val isUpdatedUnitPickerExpanded: Boolean = false,
+        val selectedUpdatedUnit: DimensionUnit = DimensionUnit.METERS,
         val isUpdatedDimensionValid: Boolean = true,
         val isFormValid: Boolean = true,
         val hideKeyboard: Boolean = false,

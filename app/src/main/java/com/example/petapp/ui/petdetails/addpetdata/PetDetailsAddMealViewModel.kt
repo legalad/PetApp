@@ -88,6 +88,7 @@ class PetDetailsAddMealViewModel @Inject constructor(
     }
 
     fun mealTypeMenuOnDropdownMenuItemClicked(item: Int) {
+        //TODO change
         _successUiState.update {
             it.copy(
                 mealTypeMenuSelectedOption = MealType.values().firstOrNull {it.nameId == item} ?: MealType.NONE,

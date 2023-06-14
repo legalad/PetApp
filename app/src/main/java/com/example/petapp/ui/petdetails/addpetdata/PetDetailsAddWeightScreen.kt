@@ -4,9 +4,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import com.example.petapp.R
+import com.example.petapp.ui.addpet.TextFieldUnitPicker
 import com.example.petapp.ui.components.AddPetDataScaffold
 import com.example.petapp.ui.components.forms.*
 
@@ -32,6 +34,7 @@ fun AddWeightResultScreen(
         onLeftButtonClicked = navigateBack,
         hideKeyboard = viewModel::hideKeyboard
     ) {
+        val focusManager = LocalFocusManager.current
         SingleRowDateTimePicker(
             datePickerValue = uiState.datePickerTextFieldValue,
             datePickerOpenDialog = uiState.datePickerOpenDialog,
@@ -52,12 +55,24 @@ fun AddWeightResultScreen(
         )
         OutlinedTextFieldWithLeadingIcon(
             fieldLabel = R.string.components_forms_text_field_label_pet_weight,
-            fieldPlaceholder = uiState.weightFieldValuePlaceholder,
+            fieldPlaceholder = R.string.util_unit_weight_placeholder,
             leadingIcon = R.drawable.weight_24,
+            trailingIcon = {
+                TextFieldUnitPicker(
+                    expanded = uiState.isWeightUnitPickerExpanded,
+                    onExpandedChange = viewModel::onWeightUnitPickerOnExpandedChange,
+                    onDismissRequest = viewModel::onWeightUnitPickerOnDismissRequest,
+                    onDropdownMenuItemClicked = viewModel::onWeightUnitPickerDropdownMenuItemClicked,
+                    options = uiState.weightUnitList,
+                    selectedOption = uiState.selectedWeightUnit
+                )
+            },
             fieldValue = uiState.weightFieldValue,
             onValueChanged = viewModel::onWeightFieldValueChanged,
             onCancelClicked = viewModel::onWeightFieldCancelClicked,
-            onFocusClear = viewModel::onFocusCleared,
+            focusManager = focusManager,
+            onFocusClear = viewModel::onFocusCleared.also { if (uiState.isWeightUnitPickerExpanded) focusManager.clearFocus() },
+            readOnly = uiState.isWeightUnitPickerExpanded,
             isError = !uiState.isWeightValid,
             supportingText = uiState.weightErrorMessage,
             keyboardOptions = KeyboardOptions(

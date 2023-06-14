@@ -5,6 +5,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.petapp.R
+import com.example.petapp.model.Menu
 import java.time.Instant
 import java.time.OffsetTime
 import java.util.*
@@ -38,7 +39,7 @@ data class PetFoodEntity(
     val id: UUID
 )
 
-enum class MealType (@StringRes val nameId: Int) {
+enum class MealType (@StringRes override val nameId: Int) : Menu {
     BREAKFAST(R.string.util_enums_meal_type_breakfast),
     LUNCH(R.string.util_enums_meal_type_lunch),
     DINNER(R.string.util_enums_meal_type_dinner),
