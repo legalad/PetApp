@@ -4,9 +4,9 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.example.petapp.R
 
-enum class PetGender {
-    MALE,
-    FEMALE
+enum class PetGender (@StringRes val nameId: Int, @DrawableRes val iconId: Int) {
+    MALE(R.string.util_gender_male, R.drawable.round_male_24),
+    FEMALE(R.string.util_gender_female, R.drawable.round_female_24)
 }
 
 enum class DimensionUnit(@StringRes override val nameId: Int) : Unit{
@@ -36,10 +36,19 @@ enum class Species (@StringRes override val nameId: Int, @DrawableRes val iconId
     FERRET (nameId = R.string.util_enums_species_ferret, iconId = null, breeds = emptyList()),
     NONE(nameId = R.string.util_blank, iconId = null, breeds = emptyList())
 }
-interface Menu { val ordinal: Int; val nameId: Int }
-interface Breed : Menu { override val nameId: Int; override val ordinal: Int }
+interface Menu {
+    val ordinal: Int
+    val nameId: Int
+}
+interface Breed : Menu {
+    override val nameId: Int
+    override val ordinal: Int
+}
 
-interface Unit { val nameId: Int; val ordinal: Int }
+interface Unit {
+    val nameId: Int
+    val ordinal: Int
+}
 
 enum class DogBreed (@StringRes override val nameId: Int) : Breed {
     LABRADOR_RETRIEVER (R.string.pet_breed_dog_labrador_retriever),

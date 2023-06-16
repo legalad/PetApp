@@ -75,7 +75,10 @@ fun PetDetailsView.toPetDetailsUiState(): PetDetailsUiState {
             height = height,
             length = length,
             circuit = circuit,
-            imageUri = imageUri
+            imageUri = imageUri,
+            gender = gender,
+            species = species,
+            breed = breed
         )
     )
 }

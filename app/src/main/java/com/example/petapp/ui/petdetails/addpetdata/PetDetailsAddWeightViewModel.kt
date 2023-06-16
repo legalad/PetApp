@@ -2,14 +2,12 @@ package com.example.petapp.ui.petdetails.addpetdata
 
 import android.app.Application
 import androidx.compose.material3.*
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.android.datastore.UserPreferences
 import com.example.petapp.R
+import com.example.petapp.data.Async
 import com.example.petapp.data.PetWeightEntity
 import com.example.petapp.data.PetsDashboardRepository
 import com.example.petapp.data.UserSettingsDataRepository
@@ -41,16 +39,39 @@ class PetDetailsAddWeightViewModel @Inject constructor(
     private val petId: String = checkNotNull(savedStateHandle["petId"])
     private val weightId: String? = savedStateHandle["weightId"]
 
-    var uiState: PetDetailsAddWeightUiState by mutableStateOf(PetDetailsAddWeightUiState.Loading)
-        private set
-
     private val _successUiState = MutableStateFlow(PetDetailsAddWeightUiState.Success())
 
-    val successUiState: StateFlow<PetDetailsAddWeightUiState.Success> = _successUiState
-        .stateIn(
+    private val _asyncData = settingsDataRepository.getUnit().map { unit ->
+        _successUiState.update {
+            it.copy(
+                unit = unit,
+                weightFieldValuePlaceholder = when (unit) {
+                    UserPreferences.Unit.METRIC -> R.string.util_unit_weight_kg
+                    UserPreferences.Unit.IMPERIAL -> R.string.util_unit_weight_pounds
+                    UserPreferences.Unit.UNRECOGNIZED -> R.string.util_unit_weight_kg
+                },
+                selectedWeightUnit = when (unit) {
+                    UserPreferences.Unit.METRIC -> WeightUnit.KILOGRAMS
+                    UserPreferences.Unit.IMPERIAL -> WeightUnit.POUNDS
+                    UserPreferences.Unit.UNRECOGNIZED -> WeightUnit.KILOGRAMS
+                }
+            )
+        }
+    }
+        .map { Async.Success(_successUiState.value) }
+        .catch<Async<PetDetailsAddWeightUiState.Success>> { emit(Async.Error("Error")) }
+
+    val uiState: StateFlow<PetDetailsAddWeightUiState> =
+        combine(_asyncData, _successUiState) { async, success ->
+            when (async) {
+                Async.Loading -> PetDetailsAddWeightUiState.Loading
+                is Async.Success -> success
+                is Async.Error -> PetDetailsAddWeightUiState.Error("Error")
+            }
+        }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(Contstans.TIMEOUT_MILLIS),
-            initialValue = _successUiState.value
+            initialValue = PetDetailsAddWeightUiState.Loading
         )
 
     init {
@@ -64,7 +85,7 @@ class PetDetailsAddWeightViewModel @Inject constructor(
                             UserPreferences.Unit.IMPERIAL -> R.string.util_unit_weight_pounds
                             UserPreferences.Unit.UNRECOGNIZED -> R.string.util_unit_weight_kg
                         },
-                        selectedWeightUnit = when(unit) {
+                        selectedWeightUnit = when (unit) {
                             UserPreferences.Unit.METRIC -> WeightUnit.KILOGRAMS
                             UserPreferences.Unit.IMPERIAL -> WeightUnit.POUNDS
                             UserPreferences.Unit.UNRECOGNIZED -> WeightUnit.KILOGRAMS
@@ -106,7 +127,6 @@ class PetDetailsAddWeightViewModel @Inject constructor(
                 }
             }
         }
-        uiState = PetDetailsAddWeightUiState.Success()
     }
 
     fun getPetId(): String {
@@ -170,7 +190,11 @@ class PetDetailsAddWeightViewModel @Inject constructor(
 
     fun onDoneButtonClicked(): Boolean {
         var output = true
-        Formatters.getMetricWeightValue(_successUiState.value.weightFieldValue, _successUiState.value.selectedWeightUnit).apply { output = false }?.let {value ->
+
+        Formatters.getMetricWeightValue(
+            _successUiState.value.weightFieldValue,
+            _successUiState.value.selectedWeightUnit
+        ).apply { output = false }?.let { value ->
             output = true
             if (weightId.isNullOrEmpty()) {
                 viewModelScope.launch(Dispatchers.IO) {
@@ -209,6 +233,7 @@ class PetDetailsAddWeightViewModel @Inject constructor(
                             )
                         )
                     }
+                    return true
                 }
                 output = false
             }

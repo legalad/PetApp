@@ -1,26 +1,29 @@
 package com.example.petapp.ui.addpet
 
 import android.util.Log
+import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.DatePickerState
+import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.android.datastore.UserPreferences
 import com.example.petapp.R
 import com.example.petapp.data.*
 import com.example.petapp.model.*
+import com.example.petapp.model.util.Contstans
 import com.example.petapp.model.util.Formatters
 import com.example.petapp.model.util.Validators
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.text.DateFormat
 import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.*
 import javax.inject.Inject
 
@@ -28,45 +31,82 @@ import javax.inject.Inject
 @OptIn(ExperimentalMaterial3Api::class)
 @HiltViewModel
 class AddPetViewModel @Inject constructor(
-    private val settingsDataRepository: UserSettingsDataRepository,
-    private val dashboardRepository: PetsDashboardRepository
+    private val dashboardRepository: PetsDashboardRepository,
+    settingsDataRepository: UserSettingsDataRepository,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel(), AddPetDataValidation {
 
-    var uiState: AddPetUiState by mutableStateOf(AddPetUiState.Loading)
-        private set
+    private val petId: String? = savedStateHandle["petId"]
 
     private val _successUiState = MutableStateFlow(AddPetUiState.Success())
-    val successUiState: StateFlow<AddPetUiState.Success> = _successUiState
+
+    private val _asyncData = settingsDataRepository.getUnit().map { unit ->
+        _successUiState.update {
+            when (unit) {
+                UserPreferences.Unit.METRIC -> it.copy(
+                    selectedHeightUnit = DimensionUnit.METERS,
+                    selectedLengthUnit = DimensionUnit.METERS,
+                    selectedCircuitUnit = DimensionUnit.METERS,
+                    selectedWeightUnit = WeightUnit.KILOGRAMS
+                )
+                UserPreferences.Unit.IMPERIAL -> it.copy(
+                    selectedHeightUnit = DimensionUnit.FOOTS,
+                    selectedLengthUnit = DimensionUnit.FOOTS,
+                    selectedCircuitUnit = DimensionUnit.FOOTS,
+                    selectedWeightUnit = WeightUnit.POUNDS
+                )
+                UserPreferences.Unit.UNRECOGNIZED -> it.copy(
+                    selectedHeightUnit = DimensionUnit.METERS,
+                    selectedLengthUnit = DimensionUnit.METERS,
+                    selectedCircuitUnit = DimensionUnit.METERS,
+                    selectedWeightUnit = WeightUnit.KILOGRAMS
+                )
+            }
+        }
+    }
+        .map { Async.Success(_successUiState.value) }
+        .catch<Async<AddPetUiState.Success>> { emit(Async.Error("Error")) }
+
+    val uiState: StateFlow<AddPetUiState> =
+        combine(_asyncData, _successUiState) { async, success ->
+            when (async) {
+                Async.Loading -> AddPetUiState.Loading
+                is Async.Success -> success
+                is Async.Error -> AddPetUiState.Error("Error")
+            }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(Contstans.TIMEOUT_MILLIS),
+            initialValue = AddPetUiState.Loading
+        )
 
     init {
-        viewModelScope.launch {
-            settingsDataRepository.getUnit().collect { unit ->
-                _successUiState.update {
-                    when (unit) {
-                        UserPreferences.Unit.METRIC -> it.copy(
-                            selectedHeightUnit = DimensionUnit.METERS,
-                            selectedLengthUnit = DimensionUnit.METERS,
-                            selectedCircuitUnit = DimensionUnit.METERS,
-                            selectedWeightUnit = WeightUnit.KILOGRAMS
-                        )
-                        UserPreferences.Unit.IMPERIAL -> it.copy(
-                            selectedHeightUnit = DimensionUnit.FOOTS,
-                            selectedLengthUnit = DimensionUnit.FOOTS,
-                            selectedCircuitUnit = DimensionUnit.FOOTS,
-                            selectedWeightUnit = WeightUnit.POUNDS
-                        )
-                        UserPreferences.Unit.UNRECOGNIZED -> it.copy(
-                            selectedHeightUnit = DimensionUnit.METERS,
-                            selectedLengthUnit = DimensionUnit.METERS,
-                            selectedCircuitUnit = DimensionUnit.METERS,
-                            selectedWeightUnit = WeightUnit.KILOGRAMS
+        petId?.let { petId ->
+            viewModelScope.launch(Dispatchers.IO) {
+                dashboardRepository.getPet(petId)?.let { pet ->
+                    _successUiState.update { it ->
+                        it.copy(
+                            nameFieldValue = pet.name,
+                            datePickerTextFieldValue = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)
+                                .withLocale(
+                                    Locale.getDefault()
+                                ).withZone(ZoneId.systemDefault()).format(pet.birthDate),
+                            datePickerState = DatePickerState(
+                                initialSelectedDateMillis = pet.birthDate.toEpochMilli(),
+                                initialDisplayedMonthMillis = pet.birthDate.toEpochMilli(),
+                                yearRange = DatePickerDefaults.YearRange,
+                                initialDisplayMode = DisplayMode.Picker
+                            ),
+                            speciesMenuSelectedOption = pet.species,
+                            maleIconChecked = pet.gender == PetGender.MALE,
+                            femaleIconChecked = pet.gender == PetGender.FEMALE,
+                            breedMenuSelectedOption = pet?.breed?.let { pet.species.breeds[it] },
+                            breedMenuOptions = pet.species.breeds
                         )
                     }
                 }
             }
         }
-        uiState = AddPetUiState.Success()
-
     }
 
     fun onNameFieldValueChanged(name: String) {
@@ -261,15 +301,15 @@ class AddPetViewModel @Inject constructor(
             dashboardRepository.addNewPet(
                 PetGeneralEntity(
                     id = petUUID,
-                    name = successUiState.value.nameFieldValue,
+                    name = _successUiState.value.nameFieldValue,
                     gender = if (_successUiState.value.maleIconChecked) PetGender.MALE else PetGender.FEMALE,
-                    species = successUiState.value.speciesMenuSelectedOption,
-                    breed = _successUiState.value.breedMenuSelectedOption?.toString(),
+                    species = _successUiState.value.speciesMenuSelectedOption,
+                    breed = _successUiState.value.breedMenuSelectedOption?.ordinal,
                     birthDate = Instant.ofEpochMilli(
-                        successUiState.value.datePickerState.selectedDateMillis ?: Instant.now()
+                        _successUiState.value.datePickerState.selectedDateMillis ?: Instant.now()
                             .toEpochMilli()
                     ),
-                    description = successUiState.value.descriptionFieldValue,
+                    description = _successUiState.value.descriptionFieldValue,
                     imageUri = null
                 ),
                 Formatters.getMetricWeightValue(
@@ -319,6 +359,43 @@ class AddPetViewModel @Inject constructor(
             )
         }
         return true
+    }
+
+    fun onUpdateButtonClicked(): Boolean {
+        _successUiState.update {
+            it.copy(
+                isNameChanged = true,
+                isBirthDateChanged = true,
+                isSpeciesChanged = true,
+                isGenderChanged = true
+            )
+        }
+        validateGender()
+        validateName(_successUiState.value.nameFieldValue)
+        validateSpecies()
+        //validateBreed()
+        return if (_successUiState.value.isNameValid && _successUiState.value.isGenderValid && _successUiState.value.isSpeciesValid) {
+            viewModelScope.launch(Dispatchers.IO) {
+                petId?.let { petId ->
+                    dashboardRepository.getPet(petId)?.let { entity ->
+                        dashboardRepository.updatePetGeneral(
+                            entity.copy(
+                                name = _successUiState.value.nameFieldValue,
+                                gender = if (_successUiState.value.maleIconChecked) PetGender.MALE else PetGender.FEMALE,
+                                species = _successUiState.value.speciesMenuSelectedOption,
+                                birthDate = _successUiState.value.datePickerState.selectedDateMillis?.let {
+                                    Instant.ofEpochMilli(
+                                        it
+                                    )
+                                } ?: entity.birthDate,
+                                breed = _successUiState.value.breedMenuSelectedOption?.ordinal
+                            )
+                        )
+                    }
+                }
+            }
+            true
+        } else false
     }
 
     fun onWeightFieldValueChanged(value: String) {

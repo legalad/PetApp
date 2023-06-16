@@ -29,23 +29,118 @@ fun AddPetScreen(
     viewModel: AddPetViewModel,
     navigateToDashboard: () -> Unit,
     navigateBack: () -> Unit,
-    modifier: Modifier
+    modifier: Modifier = Modifier
 ) {
-    when (viewModel.uiState) {
-        is AddPetUiState.Error -> ErrorScreen(message = "Can't add new pet")
+    when (val uiState = viewModel.uiState.collectAsState().value) {
+        is AddPetUiState.Error -> ErrorScreen(message = uiState.errorMessage)
         is AddPetUiState.Loading -> LoadingScreen()
-        is AddPetUiState.Success -> AddPetResultScreen(viewModel, navigateToDashboard, navigateBack)
+        is AddPetUiState.Success -> AddPetResultScreen(
+            uiState = uiState,
+            viewModel = viewModel,
+            navigateToDashboard = navigateToDashboard,
+            navigateBack = navigateBack
+        )
+    }
+}
+
+@Composable
+fun UpdatePetScreen(
+    viewModel: AddPetViewModel,
+    navigateBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    when (val uiState = viewModel.uiState.collectAsState().value) {
+        is AddPetUiState.Error -> ErrorScreen(message = uiState.errorMessage)
+        is AddPetUiState.Loading -> LoadingScreen()
+        is AddPetUiState.Success -> UpdatePetResultScreen(
+            uiState = uiState,
+            viewModel = viewModel,
+            navigateBack = navigateBack
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun UpdatePetResultScreen(
+    uiState: AddPetUiState.Success,
+    viewModel: AddPetViewModel,
+    navigateBack: () -> Unit
+) {
+    AddPetDataScaffold(
+        topAppBarTitleId = R.string.util_blank,
+        headline = R.string.components_forms_title_update_pet,
+        supportingText = R.string.components_forms_description_new_pet,
+        rightButtonStringId = R.string.components_forms_dialog_buttons_done,
+        onRightButtonClicked = { if (viewModel.onUpdateButtonClicked()) navigateBack() },
+        navigateBack = navigateBack,
+        onLeftButtonClicked = navigateBack,
+        hideKeyboard = viewModel::hideKeyboard
+    ) {
+        GeneralPetForm(
+            nameFieldValue = uiState.nameFieldValue,
+            onNameFieldValueChanged = viewModel::onNameFieldValueChanged,
+            onNameFieldCancelClicked = viewModel::onNameFieldCancelClicked,
+            weightFieldValue = uiState.weightFieldValue,
+            isWeightUnitPickerExpanded = uiState.isWeightUnitPickerExpanded,
+            weightUnitList = uiState.weightUnitList,
+            selectedWeightUnit = uiState.selectedWeightUnit,
+            onWeightFieldValueChanged = viewModel::onWeightFieldValueChanged,
+            onWeightFieldCancelClicked = viewModel::onWeightFieldCancelClicked,
+            onWeightUnitPickerOnExpandedChange = viewModel::onWeightUnitPickerOnExpandedChange,
+            onWeightUnitPickerOnDismissRequest = viewModel::onWeightUnitPickerOnDismissRequest,
+            onWeightUnitPickerDropdownMenuItemClicked = viewModel::onWeightUnitPickerDropdownMenuItemClicked,
+            datePickerTextFieldValue = uiState.datePickerTextFieldValue,
+            onDatePickerTextFieldValueChanged = viewModel::onDatePickerTextFieldValueChanged,
+            onDatePickerTextFieldClicked = viewModel::onDatePickerTextFieldClicked,
+            datePickerOpenDialog = uiState.datePickerOpenDialog,
+            datePickerState = uiState.datePickerState,
+            datePickerConfirmEnabled = uiState.datePickerConfirmEnabled,
+            datePickerOnDismissRequest = viewModel::datePickerOnDismissRequest,
+            datePickerOnConfirmedButtonClicked = viewModel::datePickerOnConfirmedButtonClicked,
+            datePickerOnDismissedButtonClicked = viewModel::datePickerOnDismissedButtonClicked,
+            speciesOptions = uiState.speciesMenuOptions,
+            speciesMenuExpanded = uiState.speciesMenuExpanded,
+            speciesMenuSelectedOption = uiState.speciesMenuSelectedOption,
+            speciesMenuOnExpandedChanged = viewModel::speciesMenuOnExpandedChanged,
+            speciesMenuOnDropdownMenuItemClicked = viewModel::speciesMenuOnDropdownMenuItemClicked,
+            speciesMenuOnDismissRequest = viewModel::speciesMenuOnDismissRequest,
+            breedOptions = uiState.breedMenuOptions,
+            breedMenuExpanded = uiState.breedMenuExpanded,
+            breedMenuEnabled = uiState.breedMenuEnabled,
+            breedMenuSelectedOption = uiState.breedMenuSelectedOption,
+            breedMenuOnExpandedChanged = viewModel::breedMenuOnExpandedChanged,
+            breedMenuOnDropdownMenuItemClicked = viewModel::breedMenuOnDropdownMenuItemClicked,
+            breedMenuOnDismissRequest = viewModel::breedMenuOnDismissRequest,
+            isKeyboardHide = uiState.hideKeyboard,
+            onFocusCleared = viewModel::onFocusCleared,
+            isNameValid = !uiState.isNameValid,
+            nameErrorMessage = uiState.nameErrorMessage,
+            isWeightValid = !uiState.isWeightValid,
+            weightErrorMessage = uiState.weightErrorMessage,
+            isBirthdateValid = !uiState.isBirthDateValid,
+            birthDateErrorMessage = uiState.birtDateErrorMessage,
+            isSpeciesValid = !uiState.isSpeciesValid,
+            speciesMenuErrorMessage = uiState.speciesErrorMessage,
+            isGenderValid = !uiState.isGenderValid,
+            maleIconChecked = uiState.maleIconChecked,
+            femaleIconChecked = uiState.femaleIconChecked,
+            onMaleIconButtonClicked = viewModel::onMaleIconButtonClicked,
+            onFemaleIconButtonClicked = viewModel::onFemaleIconButtonClicked,
+            isUpdate = true
+        )
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddPetResultScreen(
+    uiState: AddPetUiState.Success,
     viewModel: AddPetViewModel,
     navigateToDashboard: () -> Unit,
     navigateBack: () -> Unit
 ) {
-    val uiState = viewModel.successUiState.collectAsState().value
+    /*val uiState = viewModel.successUiState.collectAsState().value*/
 
     when (uiState.screenStage) {
         AddPetScreenStage.General ->
@@ -229,8 +324,8 @@ fun GeneralPetForm(
     maleIconChecked: Boolean,
     femaleIconChecked: Boolean,
     onMaleIconButtonClicked: (Boolean) -> Unit,
-    onFemaleIconButtonClicked: (Boolean) -> Unit
-
+    onFemaleIconButtonClicked: (Boolean) -> Unit,
+    isUpdate: Boolean = false
 ) {
     val focusManager = LocalFocusManager.current
     GenderPicker(
@@ -252,35 +347,37 @@ fun GeneralPetForm(
         isError = isNameValid,
         supportingText = nameErrorMessage
     )
-    OutlinedTextFieldWithLeadingIcon(
-        fieldLabel = R.string.components_forms_text_field_label_pet_weight,
-        fieldPlaceholder = R.string.util_unit_weight_placeholder,
-        leadingIcon = R.drawable.weight_24,
-        trailingIcon = {
-            TextFieldUnitPicker(
-                expanded = isWeightUnitPickerExpanded,
-                onExpandedChange = onWeightUnitPickerOnExpandedChange,
-                onDismissRequest = onWeightUnitPickerOnDismissRequest,
-                onDropdownMenuItemClicked = onWeightUnitPickerDropdownMenuItemClicked,
-                options = weightUnitList,
-                selectedOption = selectedWeightUnit
-            )
-        },
-        onTextFieldClicked = {},
-        fieldValue = weightFieldValue,
-        onValueChanged = onWeightFieldValueChanged,
-        onCancelClicked = onWeightFieldCancelClicked,
-        focusManager = focusManager,
-        onFocusClear = onFocusCleared.also { if (isWeightUnitPickerExpanded) focusManager.clearFocus() },
-        readOnly = isWeightUnitPickerExpanded,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Number,
-            imeAction = ImeAction.Next
-        ),
-        hideKeyboard = isKeyboardHide,
-        isError = isWeightValid,
-        supportingText = weightErrorMessage
-    )
+    if (!isUpdate) {
+        OutlinedTextFieldWithLeadingIcon(
+            fieldLabel = R.string.components_forms_text_field_label_pet_weight,
+            fieldPlaceholder = R.string.util_unit_weight_placeholder,
+            leadingIcon = R.drawable.weight_24,
+            trailingIcon = {
+                TextFieldUnitPicker(
+                    expanded = isWeightUnitPickerExpanded,
+                    onExpandedChange = onWeightUnitPickerOnExpandedChange,
+                    onDismissRequest = onWeightUnitPickerOnDismissRequest,
+                    onDropdownMenuItemClicked = onWeightUnitPickerDropdownMenuItemClicked,
+                    options = weightUnitList,
+                    selectedOption = selectedWeightUnit
+                )
+            },
+            onTextFieldClicked = {},
+            fieldValue = weightFieldValue,
+            onValueChanged = onWeightFieldValueChanged,
+            onCancelClicked = onWeightFieldCancelClicked,
+            focusManager = focusManager,
+            onFocusClear = onFocusCleared.also { if (isWeightUnitPickerExpanded) focusManager.clearFocus() },
+            readOnly = isWeightUnitPickerExpanded,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Next
+            ),
+            hideKeyboard = isKeyboardHide,
+            isError = isWeightValid,
+            supportingText = weightErrorMessage
+        )
+    }
     DatePicker(
         label = R.string.components_forms_text_field_label_pet_birth_date,
         value = datePickerTextFieldValue,

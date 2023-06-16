@@ -1,10 +1,6 @@
 package com.example.petapp.ui.petdetails.addpetdata
 
-import android.app.Application
 import androidx.compose.material3.*
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -31,61 +27,57 @@ import javax.inject.Inject
 @HiltViewModel
 class PetDetailsAddDimensionsViewModel @Inject constructor(
     private val petsDashboardRepository: PetsDashboardRepository,
-    private val settingsDataRepository: UserSettingsDataRepository,
-    private val application: Application,
-    private val savedStateHandle: SavedStateHandle
+    settingsDataRepository: UserSettingsDataRepository,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val petId: String = checkNotNull(savedStateHandle["petId"])
     private val heightId: String? = savedStateHandle["heightId"]
     private val lengthId: String? = savedStateHandle["lengthId"]
     private val circuitId: String? = savedStateHandle["circuitId"]
 
-
-    var uiState: PetDetailsAddDimensionsUiState by mutableStateOf(PetDetailsAddDimensionsUiState.Loading)
-        private set
-
     private val _successUiState = MutableStateFlow(PetDetailsAddDimensionsUiState.Success())
 
-    val successUiState: StateFlow<PetDetailsAddDimensionsUiState.Success> = _successUiState
-        .stateIn(
+    private val _asyncData = settingsDataRepository.getUnit().map { unit ->
+        _successUiState.update {
+            when (unit) {
+                UserPreferences.Unit.METRIC -> it.copy(
+                    selectedHeightUnit = DimensionUnit.METERS,
+                    selectedLengthUnit = DimensionUnit.METERS,
+                    selectedCircuitUnit = DimensionUnit.METERS,
+                    selectedUpdatedUnit = DimensionUnit.METERS
+                )
+                UserPreferences.Unit.IMPERIAL -> it.copy(
+                    selectedHeightUnit = DimensionUnit.FOOTS,
+                    selectedLengthUnit = DimensionUnit.FOOTS,
+                    selectedCircuitUnit = DimensionUnit.FOOTS,
+                    selectedUpdatedUnit = DimensionUnit.METERS
+                )
+                UserPreferences.Unit.UNRECOGNIZED -> it.copy(
+                    selectedHeightUnit = DimensionUnit.METERS,
+                    selectedLengthUnit = DimensionUnit.METERS,
+                    selectedCircuitUnit = DimensionUnit.METERS,
+                    selectedUpdatedUnit = DimensionUnit.METERS
+                )
+            }
+        }
+    }
+        .map { Async.Success(_successUiState.value) }
+        .catch<Async<PetDetailsAddDimensionsUiState.Success>> { emit(Async.Error("Error")) }
+
+    val uiState: StateFlow<PetDetailsAddDimensionsUiState> =
+        combine(_asyncData, _successUiState) { async, success ->
+            when (async) {
+                Async.Loading -> PetDetailsAddDimensionsUiState.Loading
+                is Async.Success -> success
+                is Async.Error -> PetDetailsAddDimensionsUiState.Error("Error")
+            }
+        }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(Contstans.TIMEOUT_MILLIS),
-            initialValue = _successUiState.value
+            initialValue = PetDetailsAddDimensionsUiState.Loading
         )
 
     init {
-        viewModelScope.launch {
-            settingsDataRepository.getUnit().collect { unit ->
-                _successUiState.update {
-                    when (unit) {
-                        UserPreferences.Unit.METRIC -> it.copy(
-                            unit = unit,
-                            defaultFiledValuePlaceholder = R.string.util_unit_dimension_meters,
-                            selectedHeightUnit = DimensionUnit.METERS,
-                            selectedLengthUnit = DimensionUnit.METERS,
-                            selectedCircuitUnit = DimensionUnit.METERS,
-                            selectedUpdatedUnit = DimensionUnit.METERS
-                        )
-                        UserPreferences.Unit.IMPERIAL -> it.copy(
-                            unit = unit,
-                            defaultFiledValuePlaceholder = R.string.util_unit_dimension_foot,
-                            selectedHeightUnit = DimensionUnit.FOOTS,
-                            selectedLengthUnit = DimensionUnit.FOOTS,
-                            selectedCircuitUnit = DimensionUnit.FOOTS,
-                            selectedUpdatedUnit = DimensionUnit.FOOTS
-                        )
-                        UserPreferences.Unit.UNRECOGNIZED -> it.copy(
-                            unit = unit,
-                            defaultFiledValuePlaceholder = R.string.util_unit_dimension_meters,
-                            selectedHeightUnit = DimensionUnit.METERS,
-                            selectedLengthUnit = DimensionUnit.METERS,
-                            selectedCircuitUnit = DimensionUnit.METERS,
-                            selectedUpdatedUnit = DimensionUnit.METERS
-                        )
-                    }
-                }
-            }
-        }
         heightId?.let { id ->
             viewModelScope.launch(Dispatchers.IO) {
                 val pet = petsDashboardRepository.getHeight(id = id)
@@ -188,7 +180,6 @@ class PetDetailsAddDimensionsViewModel @Inject constructor(
                 }
             }
         }
-        uiState = PetDetailsAddDimensionsUiState.Success()
     }
 
     fun getPetId(): String {
@@ -388,7 +379,10 @@ class PetDetailsAddDimensionsViewModel @Inject constructor(
         if (_successUiState.value.heightFieldValue.isNotEmpty() || _successUiState.value.lengthFieldValue.isNotEmpty() || _successUiState.value.circuitFieldValue.isNotEmpty())
             viewModelScope.launch(Dispatchers.IO) {
                 petsDashboardRepository.addPetDimensions(
-                    petHeightEntity = Formatters.getMetricDimensionValue(_successUiState.value.heightFieldValue, _successUiState.value.selectedHeightUnit)?.let {
+                    petHeightEntity = Formatters.getMetricDimensionValue(
+                        _successUiState.value.heightFieldValue,
+                        _successUiState.value.selectedHeightUnit
+                    )?.let {
                         PetHeightEntity(
                             id = UUID.randomUUID(),
                             pet_id = UUID.fromString(petId),
@@ -396,7 +390,10 @@ class PetDetailsAddDimensionsViewModel @Inject constructor(
                             value = it
                         )
                     },
-                    petLengthEntity = Formatters.getMetricDimensionValue(_successUiState.value.lengthFieldValue, _successUiState.value.selectedLengthUnit)?.let {
+                    petLengthEntity = Formatters.getMetricDimensionValue(
+                        _successUiState.value.lengthFieldValue,
+                        _successUiState.value.selectedLengthUnit
+                    )?.let {
                         PetLengthEntity(
                             id = UUID.randomUUID(),
                             pet_id = UUID.fromString(petId),
@@ -404,7 +401,10 @@ class PetDetailsAddDimensionsViewModel @Inject constructor(
                             value = it
                         )
                     },
-                    petCircuitEntity = Formatters.getMetricDimensionValue(_successUiState.value.circuitFieldValue, _successUiState.value.selectedCircuitUnit)?.let {
+                    petCircuitEntity = Formatters.getMetricDimensionValue(
+                        _successUiState.value.circuitFieldValue,
+                        _successUiState.value.selectedCircuitUnit
+                    )?.let {
                         PetCircuitEntity(
                             id = UUID.randomUUID(),
                             pet_id = UUID.fromString(petId),
@@ -415,7 +415,10 @@ class PetDetailsAddDimensionsViewModel @Inject constructor(
                 )
             }
         else if (_successUiState.value.updatedDimensionFieldValue.isNotEmpty()) {
-            Formatters.getMetricDimensionValue(_successUiState.value.updatedDimensionFieldValue, _successUiState.value.selectedUpdatedUnit)?.let { value ->
+            Formatters.getMetricDimensionValue(
+                _successUiState.value.updatedDimensionFieldValue,
+                _successUiState.value.selectedUpdatedUnit
+            )?.let { value ->
                 viewModelScope.launch {
                     heightId?.let {
                         petsDashboardRepository.updateDimension(

@@ -89,6 +89,9 @@ interface PetsDashboardDao {
     suspend fun updateDimension(petCircuitEntity: PetCircuitEntity)
 
     @Delete
+    suspend fun deletePet(pet: PetGeneralEntity)
+
+    @Delete
     suspend fun deletePetMeal(petMealEntity: PetMealEntity)
 
     @Delete

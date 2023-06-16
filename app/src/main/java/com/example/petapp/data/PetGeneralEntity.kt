@@ -19,7 +19,7 @@ data class PetGeneralEntity(
     val name: String,
     val gender: PetGender,
     val species: Species,
-    val breed: String?,
+    val breed: Int?,
     @ColumnInfo(name = "birth_timestamp")
     val birthDate: Instant,
     val description: String?,

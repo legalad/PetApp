@@ -23,7 +23,6 @@ sealed interface PetDetailsWeightDashboardUiState {
     ) : PetDetailsWeightDashboardUiState
     object Loading : PetDetailsWeightDashboardUiState
     data class Error (val errorMessage: String) : PetDetailsWeightDashboardUiState
-    object NoData : PetDetailsWeightDashboardUiState
 }
 
 class ChartDateEntry(

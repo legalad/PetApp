@@ -26,9 +26,8 @@ import javax.inject.Inject
 class PetDetailsAddMealViewModel @Inject constructor(
     private val petsDashboardRepository: PetsDashboardRepository,
     private val settingsDataRepository: UserSettingsDataRepository,
-    private val application: Application,
-    private val savedStateHandle: SavedStateHandle
-): ViewModel() {
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
     private val petId: String = checkNotNull(savedStateHandle["petId"])
 
     var uiState: PetDetailsAddMealUiState by mutableStateOf(PetDetailsAddMealUiState.Loading)
@@ -91,7 +90,8 @@ class PetDetailsAddMealViewModel @Inject constructor(
         //TODO change
         _successUiState.update {
             it.copy(
-                mealTypeMenuSelectedOption = MealType.values().firstOrNull {it.nameId == item} ?: MealType.NONE,
+                mealTypeMenuSelectedOption = MealType.values().firstOrNull { it.nameId == item }
+                    ?: MealType.NONE,
                 mealTypeMenuExpanded = false
             )
         }
@@ -133,12 +133,13 @@ class PetDetailsAddMealViewModel @Inject constructor(
     fun onRadioButtonSelectedOptionClicked(value: Int) {
         _successUiState.update { state ->
             state.copy(
-                foodTypeRadioSelectedOption = FoodTypeEnum.values().firstOrNull() { it.nameId == value } ?: state.foodTypeRadioSelectedOption
+                foodTypeRadioSelectedOption = FoodTypeEnum.values()
+                    .firstOrNull() { it.nameId == value } ?: state.foodTypeRadioSelectedOption
             )
         }
     }
 
-    fun onDoneButtonCLicked() : Boolean {
+    fun onDoneButtonCLicked(): Boolean {
         var output = true
         if (_successUiState.value.mealTypeMenuSelectedOption != MealType.NONE)
             viewModelScope.launch(Dispatchers.IO) {
@@ -146,7 +147,12 @@ class PetDetailsAddMealViewModel @Inject constructor(
                     PetMealEntity(
                         id = UUID.randomUUID(),
                         pet_id = UUID.fromString(petId),
-                        time = OffsetTime.of(LocalTime.of(_successUiState.value.timePickerState.hour, _successUiState.value.timePickerState.minute), ZoneOffset.UTC),
+                        time = OffsetTime.of(
+                            LocalTime.of(
+                                _successUiState.value.timePickerState.hour,
+                                _successUiState.value.timePickerState.minute
+                            ), ZoneOffset.UTC
+                        ),
                         type = _successUiState.value.mealTypeMenuSelectedOption,
                         petFoodId = null
                     )

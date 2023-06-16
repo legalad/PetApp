@@ -21,7 +21,6 @@ import com.example.petapp.model.util.Formatters
 import com.example.petapp.ui.components.ErrorScreen
 import com.example.petapp.ui.components.LoadingScreen
 import com.example.petapp.ui.components.MeasureScaffold
-import com.example.petapp.ui.components.NoContentPrev
 import com.example.petapp.ui.components.charts.rememberMarker
 import com.patrykandpatrick.vico.compose.axis.horizontal.bottomAxis
 import com.patrykandpatrick.vico.compose.axis.vertical.endAxis
@@ -51,65 +50,62 @@ fun PetWeightDashboardScreen(
     navigateToUpdateWeightScreen: (petId: String, weightId: String) -> Unit,
     navigateBack: () -> Unit
 ) {
-    val uiState = viewModel.successUiState.collectAsState().value
-    MeasureScaffold(
-        topAppBarTitle = stringResource(
-            id = R.string.components_top_app_bar_title_pet_weight,
-            uiState.petName
-        ),
-        topAppBarMenuExpanded = uiState.topAppBarMenuExpanded,
-        navigateToAddDataScreen = {
-            navigateToAddWeightScreen(uiState.petIdString)
-        },
-        navigateToUpdateDataScreen = {
-            viewModel.getSelectedWeightId()
-                ?.let {
-                    navigateToUpdateWeightScreen(
-                        uiState.petIdString,
-                        it
-                    )
+    when (val uiState = viewModel.uiState.collectAsState().value) {
+        PetDetailsWeightDashboardUiState.Loading -> LoadingScreen()
+        is PetDetailsWeightDashboardUiState.Success -> {
+            MeasureScaffold(
+                topAppBarTitle = stringResource(
+                    id = R.string.components_top_app_bar_title_pet_weight,
+                    uiState.petName
+                ),
+                topAppBarMenuExpanded = uiState.topAppBarMenuExpanded,
+                navigateToAddDataScreen = {
+                    navigateToAddWeightScreen(uiState.petIdString)
+                },
+                navigateToUpdateDataScreen = {
+                    viewModel.getSelectedWeightId()
+                        ?.let {
+                            navigateToUpdateWeightScreen(
+                                uiState.petIdString,
+                                it
+                            )
+                        }
+                },
+                deleteDataItem = viewModel::deleteWeightItem,
+                navigateBack = navigateBack,
+                onDropdownMenuItemClicked = viewModel::onDropdownMenuIconClicked,
+                dropdownMenuOnDismissRequest = viewModel::dropdownMenuOnDismissRequest,
+                isListNotEmpty = uiState.weightHistoryList.isNotEmpty(),
+                actions = {
+                    if (uiState.weightHistoryList.isNotEmpty()) {
+                        IconButton(onClick = viewModel::onChartIconClicked) {
+                            Icon(
+                                painterResource(id = uiState.dataDisplayedType.chartIconId),
+                                contentDescription = ""
+                            )
+                        }
+                    }
                 }
-        },
-        deleteDataItem = viewModel::deleteWeightItem,
-        navigateBack = navigateBack,
-        onDropdownMenuItemClicked = viewModel::onDropdownMenuIconClicked,
-        dropdownMenuOnDismissRequest = viewModel::dropdownMenuOnDismissRequest,
-        isListNotEmpty = uiState.weightHistoryList.isNotEmpty(),
-        actions = {
-            if (uiState.weightHistoryList.isNotEmpty()) {
-                IconButton(onClick = viewModel::onChartIconClicked) {
-                    Icon(
-                        painterResource(id = uiState.dataDisplayedType.chartIconId),
-                        contentDescription = ""
-                    )
-                }
-            }
-        }
-    ) {
-        when (viewModel.uiState) {
-            is PetDetailsWeightDashboardUiState.Error ->
-                ErrorScreen(message = "error")
-            is PetDetailsWeightDashboardUiState.Loading ->
-                LoadingScreen()
-            is PetDetailsWeightDashboardUiState.NoData ->
-                NoContentPrev()
-            is PetDetailsWeightDashboardUiState.Success ->
+            ) {
                 PetWeightDashboardResultScreen(
+                    uiState = uiState,
                     viewModel = viewModel,
                     modifier = Modifier.padding(it)
                 )
+            }
         }
+        is PetDetailsWeightDashboardUiState.Error -> ErrorScreen(message = uiState.errorMessage)
     }
 }
 
 
 @Composable
 fun PetWeightDashboardResultScreen(
+    uiState: PetDetailsWeightDashboardUiState.Success,
     viewModel: PetDetailsWeightDashboardViewModel,
     modifier: Modifier = Modifier,
 
     ) {
-    val uiState = viewModel.successUiState.collectAsState().value
     Column(
         modifier = modifier
             .fillMaxSize()

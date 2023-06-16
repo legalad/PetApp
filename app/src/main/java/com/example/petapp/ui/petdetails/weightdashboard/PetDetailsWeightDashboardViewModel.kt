@@ -1,12 +1,9 @@
 package com.example.petapp.ui.petdetails.weightdashboard
 
-import android.app.Application
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.petapp.data.Async
 import com.example.petapp.data.PetsDashboardRepository
 import com.example.petapp.data.UserSettingsDataRepository
 import com.example.petapp.model.util.Contstans
@@ -23,75 +20,67 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PetDetailsWeightDashboardViewModel @Inject constructor(
-    private val settingsDataRepository: UserSettingsDataRepository,
     private val petsDashboardRepository: PetsDashboardRepository,
-    private val application: Application,
-    private val savedStateHandle: SavedStateHandle
+    settingsDataRepository: UserSettingsDataRepository,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel(), MarkerVisibilityChangeListener {
     private val petId: String = checkNotNull(savedStateHandle["petId"])
 
-    var uiState: PetDetailsWeightDashboardUiState by mutableStateOf(PetDetailsWeightDashboardUiState.Loading)
-        private set
-
     private val _successUiState = MutableStateFlow(PetDetailsWeightDashboardUiState.Success())
 
-    val successUiState: StateFlow<PetDetailsWeightDashboardUiState.Success> = _successUiState
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(Contstans.TIMEOUT_MILLIS),
-            initialValue = _successUiState.value
-        )
-
-    init {
-        viewModelScope.launch {
-            combine(
-                petsDashboardRepository.getPetWeightHistory(petId = petId),
-                settingsDataRepository.getUnit()
-            ) { pets, unit ->
-                _successUiState.update {
-                    it.copy(
-                        unit = unit,
-                        weightHistoryList = pets.toListDateEntryList(),
-                        chartEntryModelProducer = ChartEntryModelProducer(
-                            entryCollections = listOf(
-                                pets.mapIndexed { index, petWeightEntity ->
-                                    ChartDateEntry(
-                                        localDate = petWeightEntity.measurementDate,
-                                        y = Formatters.getWeightValue(petWeightEntity.value, unit)
-                                            .toFloat(),
-                                        x = index.toFloat()
-                                    )
-                                })
-                        ),
-                        )
-                }
-                if (pets.isNotEmpty()) {
-                    uiState = PetDetailsWeightDashboardUiState.Success()
-                    _successUiState.update {
-                        it.copy(
-                            selectedDateEntry = ChartDateEntry(
-                                localDate = pets.last().measurementDate,
-                                y = Formatters.getWeightValue(pets.last().value, unit = unit).toFloat(),
-                                x = (pets.size - 1).toFloat()
-                            ),
-                            persistentMarkerX = (pets.size - 1).toFloat()
-                        )
-                    }
-                } else {
-                    uiState = PetDetailsWeightDashboardUiState.NoData
-                }
-            }.collect()
+    private val _asyncData = combine(
+        petsDashboardRepository.getPetWeightHistory(petId = petId),
+        settingsDataRepository.getUnit(),
+        petsDashboardRepository.getPetDetails(petId = petId)
+    ) { pets, unit, details->
+        _successUiState.update {
+            it.copy(
+                petName = details.name,
+                petIdString = details.petId.toString(),
+                unit = unit,
+                weightHistoryList = pets.toListDateEntryList(),
+                chartEntryModelProducer = ChartEntryModelProducer(
+                    entryCollections = listOf(
+                        pets.mapIndexed { index, petWeightEntity ->
+                            ChartDateEntry(
+                                localDate = petWeightEntity.measurementDate,
+                                y = Formatters.getWeightValue(petWeightEntity.value, unit)
+                                    .toFloat(),
+                                x = index.toFloat()
+                            )
+                        })
+                ),
+            )
         }
-        viewModelScope.launch {
+        if (pets.isNotEmpty()) {
             _successUiState.update {
                 it.copy(
-                    petName = petsDashboardRepository.getPetDetails(petId = petId)
-                        .firstOrNull()?.name ?: "",
-                    petIdString = petId
+                    selectedDateEntry = ChartDateEntry(
+                        localDate = pets.last().measurementDate,
+                        y = Formatters.getWeightValue(pets.last().value, unit = unit).toFloat(),
+                        x = (pets.size - 1).toFloat()
+                    ),
+                    persistentMarkerX = (pets.size - 1).toFloat()
                 )
             }
         }
     }
+        .map { Async.Success(_successUiState.value) }
+        .catch<Async<PetDetailsWeightDashboardUiState.Success>> { emit(Async.Error("Error")) }
+
+    val uiState: StateFlow<PetDetailsWeightDashboardUiState> =
+        combine(_asyncData, _successUiState) { async, success ->
+            when (async) {
+                Async.Loading -> PetDetailsWeightDashboardUiState.Loading
+                is Async.Success -> success
+                is Async.Error -> PetDetailsWeightDashboardUiState.Error("Error")
+            }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(Contstans.TIMEOUT_MILLIS),
+            initialValue = PetDetailsWeightDashboardUiState.Loading
+        )
+
 
     override fun onMarkerShown(marker: Marker, markerEntryModels: List<Marker.EntryModel>) {
         super.onMarkerShown(marker, markerEntryModels)

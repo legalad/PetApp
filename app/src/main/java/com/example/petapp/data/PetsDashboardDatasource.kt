@@ -39,6 +39,7 @@ interface PetsDashboardDatasource {
     suspend fun updateDimension(petLengthEntity: PetLengthEntity)
 
     suspend fun updateDimension(petCircuitEntity: PetCircuitEntity)
+    suspend fun deletePet(pet: PetGeneralEntity)
     suspend fun deletePetMeal(petMealEntity: PetMealEntity)
     suspend fun deletePetWeight(petWeightEntity: PetWeightEntity)
     suspend fun deletePetDimension(petHeightEntity: PetHeightEntity)

@@ -1,7 +1,10 @@
 package com.example.petapp.ui.petdetails.dimensionsdashboard
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -11,15 +14,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.petapp.model.util.Formatters
+import com.example.petapp.ui.components.ErrorScreen
+import com.example.petapp.ui.components.LoadingScreen
 import com.example.petapp.ui.components.MeasureScaffold
 import com.example.petapp.ui.components.NoContentPrev
 import com.example.petapp.ui.petdetails.weightdashboard.DataDisplayedType
 import com.example.petapp.ui.petdetails.weightdashboard.DefaultChart
 import com.example.petapp.ui.petdetails.weightdashboard.DefaultList
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PetDimensionsDashboardResultScreen(
+fun PetDimensionsDashboardScreen(
     viewModel: PetDetailsDimensionsDashboardViewModel,
     navigateToAddDimensionsScreen: (petId: String) -> Unit,
     navigateToUpdateHeightScreen: (petId: String, heightId: String) -> Unit,
@@ -27,7 +31,31 @@ fun PetDimensionsDashboardResultScreen(
     navigateToUpdateCircuitScreen: (petId: String, circuitId: String) -> Unit,
     navigateBack: () -> Unit
 ) {
-    val uiState = viewModel.successUiState.collectAsState().value
+    when (val uiState = viewModel.uiState.collectAsState().value) {
+        PetDetailsDimensionsDashboardUiState.Loading -> LoadingScreen()
+        is PetDetailsDimensionsDashboardUiState.Success -> PetDimensionsDashboardResultScreen(
+            uiState = uiState,
+            viewModel = viewModel,
+            navigateToAddDimensionsScreen = navigateToAddDimensionsScreen,
+            navigateToUpdateHeightScreen = navigateToUpdateHeightScreen,
+            navigateToUpdateLengthScreen = navigateToUpdateLengthScreen,
+            navigateToUpdateCircuitScreen = navigateToUpdateCircuitScreen,
+            navigateBack = navigateBack
+        )
+        is PetDetailsDimensionsDashboardUiState.Error -> ErrorScreen(message = uiState.errorMessage)
+    }
+}
+
+@Composable
+fun PetDimensionsDashboardResultScreen(
+    uiState: PetDetailsDimensionsDashboardUiState.Success,
+    viewModel: PetDetailsDimensionsDashboardViewModel,
+    navigateToAddDimensionsScreen: (petId: String) -> Unit,
+    navigateToUpdateHeightScreen: (petId: String, heightId: String) -> Unit,
+    navigateToUpdateLengthScreen: (petId: String, lengthId: String) -> Unit,
+    navigateToUpdateCircuitScreen: (petId: String, circuitId: String) -> Unit,
+    navigateBack: () -> Unit
+) {
     MeasureScaffold(
         topAppBarTitle = uiState.petName + " " + stringResource(
             id = uiState.displayedDimension.dimensionName
@@ -81,7 +109,10 @@ fun PetDimensionsDashboardResultScreen(
                 }
             }
             IconButton(onClick = viewModel::onDimensionIconClicked) {
-                Icon(painterResource(id = uiState.displayedDimension.dimensionIconId), contentDescription = "")
+                Icon(
+                    painterResource(id = uiState.displayedDimension.dimensionIconId),
+                    contentDescription = ""
+                )
             }
         }
     ) {
@@ -114,7 +145,6 @@ fun PetDimensionsDashboardResultScreen(
                             valueFormatterToString = Formatters::getFormattedDimensionUnitString
                         )
                     }
-
                 }
                 DisplayedDimension.LENGTH -> if (uiState.lengthHistoryListDateEntry.isEmpty()) {
                     NoContentPrev()
@@ -138,7 +168,6 @@ fun PetDimensionsDashboardResultScreen(
                             valueFormatterToString = Formatters::getFormattedDimensionUnitString
                         )
                     }
-
                 }
                 DisplayedDimension.CIRCUIT -> if (uiState.circuitHistoryListDateEntry.isEmpty()) {
                     NoContentPrev()
@@ -162,7 +191,6 @@ fun PetDimensionsDashboardResultScreen(
                             valueFormatterToString = Formatters::getFormattedDimensionUnitString
                         )
                     }
-
                 }
             }
         }

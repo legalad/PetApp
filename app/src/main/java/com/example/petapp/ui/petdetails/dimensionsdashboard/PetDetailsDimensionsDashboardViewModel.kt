@@ -1,12 +1,9 @@
 package com.example.petapp.ui.petdetails.dimensionsdashboard
 
-import android.app.Application
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.petapp.data.Async
 import com.example.petapp.data.PetsDashboardRepository
 import com.example.petapp.data.UserSettingsDataRepository
 import com.example.petapp.model.util.Contstans
@@ -26,105 +23,112 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PetDetailsDimensionsDashboardViewModel @Inject constructor(
-    private val settingsDataRepository: UserSettingsDataRepository,
     private val petsDashboardRepository: PetsDashboardRepository,
-    private val application: Application,
-    private val savedStateHandle: SavedStateHandle
-): ViewModel(), MarkerVisibilityChangeListener {
+    settingsDataRepository: UserSettingsDataRepository,
+    savedStateHandle: SavedStateHandle
+) : ViewModel(), MarkerVisibilityChangeListener {
 
     private val petId: String = checkNotNull(savedStateHandle["petId"])
 
-    var uiState: PetDetailsDimensionsDashboardUiState by mutableStateOf(PetDetailsDimensionsDashboardUiState.Loading)
-        private set
-
     private val _successUiState = MutableStateFlow(PetDetailsDimensionsDashboardUiState.Success())
 
-    val successUiState: StateFlow<PetDetailsDimensionsDashboardUiState.Success> = _successUiState
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(Contstans.TIMEOUT_MILLIS),
-            initialValue = _successUiState.value
-        )
-
-    init {
-        viewModelScope.launch {
-            combine(
-                petsDashboardRepository.getPetHeightHistory(petId = petId),
-                petsDashboardRepository.getPetLengthHistory(petId = petId),
-                petsDashboardRepository.getPetCircuitHistory(petId = petId),
-                settingsDataRepository.getUnit()
-            ) {
-                height, length, circuit, unit ->
-                _successUiState.update {
-                    it.copy(
-                        unit = unit,
-                        heightHistoryListDateEntry = height.toListDateEntryList(),
-                        lengthHistoryListDateEntry = length.toListDateEntryList(),
-                        circuitHistoryListDateEntry = circuit.toListDateEntryList(),
-                        heightChartEntryModelProducer = height.toChartEntryModelProducer(unit = unit),
-                        lengthChartEntryModelProducer = length.toChartEntryModelProducer(unit = unit),
-                        circuitChartEntryModelProducer = circuit.toChartEntryModelProducer(unit = unit),
-                        heightSelectedDateEntry = ChartDateEntry(localDate = height.lastOrNull()?.measurementDate ?: Instant.now(), y = height.lastOrNull()?.value?.toFloat() ?: 0f, x = 0f),
-                        lengthSelectedDateEntry = ChartDateEntry(localDate = length.lastOrNull()?.measurementDate ?: Instant.now(), y = length.lastOrNull()?.value?.toFloat() ?: 0f, x = 0f),
-                        circuitSelectedDateEntry = ChartDateEntry(localDate = circuit.lastOrNull()?.measurementDate ?: Instant.now(), y = circuit.lastOrNull()?.value?.toFloat() ?: 0f, x = 0f),
-                        heightPersistentMarkerX = (height.size - 1).toFloat(),
-                        lengthPersistentMarkerX = (length.size - 1).toFloat(),
-                        circuitPersistentMarkerX = (circuit.size - 1).toFloat()
-                    )
-                }
-                if (height.isNotEmpty()) {
-                    uiState = PetDetailsDimensionsDashboardUiState.Success()
-                    _successUiState.update {
-                        it.copy(
-                            heightSelectedDateEntry = ChartDateEntry(
-                                localDate = height.last().measurementDate,
-                                y = Formatters.getDimensionValue(height.last().value, unit = unit).toFloat(),
-                                x = (height.size - 1).toFloat()
-                            ),
-                            heightPersistentMarkerX = (height.size - 1).toFloat()
-                        )
-                    }
-                }
-                if (length.isNotEmpty()) {
-                    uiState = PetDetailsDimensionsDashboardUiState.Success()
-                    _successUiState.update {
-                        it.copy(
-                            lengthSelectedDateEntry = ChartDateEntry(
-                                localDate = length.last().measurementDate,
-                                y = Formatters.getDimensionValue(length.last().value, unit = unit).toFloat(),
-                                x = (length.size - 1).toFloat()
-                            ),
-                            lengthPersistentMarkerX = (length.size - 1).toFloat()
-                        )
-                    }
-                }
-                if (circuit.isNotEmpty()) {
-                    uiState = PetDetailsDimensionsDashboardUiState.Success()
-                    _successUiState.update {
-                        it.copy(
-                            circuitSelectedDateEntry = ChartDateEntry(
-                                localDate = circuit.last().measurementDate,
-                                y = Formatters.getDimensionValue(circuit.last().value, unit = unit).toFloat(),
-                                x = (circuit.size - 1).toFloat()
-                            ),
-                            circuitPersistentMarkerX = (circuit.size - 1).toFloat()
-                        )
-                    }
-                }
-            }.collect()
+    private val _asyncData = combine(
+        petsDashboardRepository.getPetHeightHistory(petId = petId),
+        petsDashboardRepository.getPetLengthHistory(petId = petId),
+        petsDashboardRepository.getPetCircuitHistory(petId = petId),
+        settingsDataRepository.getUnit(),
+        petsDashboardRepository.getPetDetails(petId = petId)
+    ) { height, length, circuit, unit, details ->
+        _successUiState.update {
+            it.copy(
+                petName = details.name,
+                petIdString = petId,
+                unit = unit,
+                heightHistoryListDateEntry = height.toListDateEntryList(),
+                lengthHistoryListDateEntry = length.toListDateEntryList(),
+                circuitHistoryListDateEntry = circuit.toListDateEntryList(),
+                heightChartEntryModelProducer = height.toChartEntryModelProducer(unit = unit),
+                lengthChartEntryModelProducer = length.toChartEntryModelProducer(unit = unit),
+                circuitChartEntryModelProducer = circuit.toChartEntryModelProducer(unit = unit),
+                heightSelectedDateEntry = ChartDateEntry(
+                    localDate = height.lastOrNull()?.measurementDate ?: Instant.now(),
+                    y = height.lastOrNull()?.value?.toFloat() ?: 0f,
+                    x = 0f
+                ),
+                lengthSelectedDateEntry = ChartDateEntry(
+                    localDate = length.lastOrNull()?.measurementDate ?: Instant.now(),
+                    y = length.lastOrNull()?.value?.toFloat() ?: 0f,
+                    x = 0f
+                ),
+                circuitSelectedDateEntry = ChartDateEntry(
+                    localDate = circuit.lastOrNull()?.measurementDate ?: Instant.now(),
+                    y = circuit.lastOrNull()?.value?.toFloat() ?: 0f,
+                    x = 0f
+                ),
+                heightPersistentMarkerX = (height.size - 1).toFloat(),
+                lengthPersistentMarkerX = (length.size - 1).toFloat(),
+                circuitPersistentMarkerX = (circuit.size - 1).toFloat()
+            )
         }
-        viewModelScope.launch {
+        if (height.isNotEmpty()) {
             _successUiState.update {
-                it.copy(petName = petsDashboardRepository.getPetDetails(petId = petId).firstOrNull()?.name ?: "",
-                    petIdString = petId)
+                it.copy(
+                    heightSelectedDateEntry = ChartDateEntry(
+                        localDate = height.last().measurementDate,
+                        y = Formatters.getDimensionValue(height.last().value, unit = unit)
+                            .toFloat(),
+                        x = (height.size - 1).toFloat()
+                    ),
+                    heightPersistentMarkerX = (height.size - 1).toFloat()
+                )
             }
         }
-        uiState = PetDetailsDimensionsDashboardUiState.Success()
+        if (length.isNotEmpty()) {
+            _successUiState.update {
+                it.copy(
+                    lengthSelectedDateEntry = ChartDateEntry(
+                        localDate = length.last().measurementDate,
+                        y = Formatters.getDimensionValue(length.last().value, unit = unit)
+                            .toFloat(),
+                        x = (length.size - 1).toFloat()
+                    ),
+                    lengthPersistentMarkerX = (length.size - 1).toFloat()
+                )
+            }
+        }
+        if (circuit.isNotEmpty()) {
+            _successUiState.update {
+                it.copy(
+                    circuitSelectedDateEntry = ChartDateEntry(
+                        localDate = circuit.last().measurementDate,
+                        y = Formatters.getDimensionValue(circuit.last().value, unit = unit)
+                            .toFloat(),
+                        x = (circuit.size - 1).toFloat()
+                    ),
+                    circuitPersistentMarkerX = (circuit.size - 1).toFloat()
+                )
+            }
+        }
     }
+        .map { Async.Success(_successUiState.value) }
+        .catch<Async<PetDetailsDimensionsDashboardUiState.Success>> { emit(Async.Error("Error")) }
+
+    val uiState: StateFlow<PetDetailsDimensionsDashboardUiState> =
+        combine(_asyncData, _successUiState) { async, success ->
+            when (async) {
+                Async.Loading -> PetDetailsDimensionsDashboardUiState.Loading
+                is Async.Success -> success
+                is Async.Error -> PetDetailsDimensionsDashboardUiState.Error("Error")
+            }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(Contstans.TIMEOUT_MILLIS),
+            initialValue = PetDetailsDimensionsDashboardUiState.Loading
+        )
 
     override fun onMarkerShown(marker: Marker, markerEntryModels: List<Marker.EntryModel>) {
         super.onMarkerShown(marker, markerEntryModels)
-        when(_successUiState.value.displayedDimension) {
+        when (_successUiState.value.displayedDimension) {
             DisplayedDimension.HEIGHT -> _successUiState.update {
                 it.copy(
                     heightPersistentMarkerX = markerEntryModels[0].entry.x,
@@ -146,9 +150,11 @@ class PetDetailsDimensionsDashboardViewModel @Inject constructor(
         }
 
     }
+
     fun onChartIconClicked() {
         var dataDisplayedType = DataDisplayedType.LINE_CHART
-        if (_successUiState.value.dataDisplayedType == dataDisplayedType) dataDisplayedType = DataDisplayedType.LIST
+        if (_successUiState.value.dataDisplayedType == dataDisplayedType) dataDisplayedType =
+            DataDisplayedType.LIST
 
         _successUiState.update {
             it.copy(
@@ -158,7 +164,7 @@ class PetDetailsDimensionsDashboardViewModel @Inject constructor(
     }
 
     fun onDimensionIconClicked() {
-        val displayedDimension = when(_successUiState.value.displayedDimension) {
+        val displayedDimension = when (_successUiState.value.displayedDimension) {
             DisplayedDimension.HEIGHT -> DisplayedDimension.LENGTH
             DisplayedDimension.LENGTH -> DisplayedDimension.CIRCUIT
             DisplayedDimension.CIRCUIT -> DisplayedDimension.HEIGHT

@@ -1,11 +1,9 @@
 package com.example.petapp.ui.dashboard
 
 import android.app.Application
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.petapp.data.Async
 import com.example.petapp.data.PetWaterEntity
 import com.example.petapp.data.PetsDashboardRepository
 import com.example.petapp.data.UserSettingsDataRepository
@@ -25,44 +23,52 @@ import javax.inject.Inject
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     private val petsDashboardRepository: PetsDashboardRepository,
-    private val settingsDataRepository: UserSettingsDataRepository,
-    private val application: Application
+    private val application: Application,
+    settingsDataRepository: UserSettingsDataRepository
 ) : ViewModel(), PetStatsFormatter {
 
-
-    var uiState: DashboardUiState by mutableStateOf(DashboardUiState.Loading)
-        private set
-
     private val _successUiState = MutableStateFlow(DashboardUiState.Success())
-    val successUiState: StateFlow<DashboardUiState.Success> = _successUiState
-        .stateIn(
+
+    private val _asyncData = combine(
+        petsDashboardRepository.getDashboard(),
+        settingsDataRepository.getUnit()
+    ) { dashboard, unit ->
+        _successUiState.update {
+            it.copy(
+                pets = dashboard.toPetDashboardUiState(),
+                unit = unit
+            )
+        }
+    }
+        .map { Async.Success(_successUiState.value) }
+        .catch<Async<DashboardUiState.Success>> { emit(Async.Error("Error")) }
+
+    val uiState: StateFlow<DashboardUiState> =
+        combine(_asyncData, _successUiState) { async, success ->
+            when (async) {
+                Async.Loading -> DashboardUiState.Loading
+                is Async.Success -> success
+                is Async.Error -> DashboardUiState.Error("Error")
+            }
+        }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(Contstans.TIMEOUT_MILLIS),
-            initialValue = _successUiState.value)
-
-    init {
-        viewModelScope.launch {
-            petsDashboardRepository.getDashboard().collect { pets ->
-                _successUiState.update { it.copy(pets = pets.toPetDashboardUiState()) }
-            }
-        }
-        viewModelScope.launch {
-            settingsDataRepository.getUnit().collect { unit ->
-                _successUiState.update {it.copy(unit = unit)
-                }
-            }
-        }
-        uiState = DashboardUiState.Success()
-
-
-    }
+            initialValue = DashboardUiState.Loading
+        )
 
     override fun getPetAgeFormattedString(instant: Instant): String {
-        return Formatters.getFormattedAgeString(instant = instant,context = application.applicationContext)
+        return Formatters.getFormattedAgeString(
+            instant = instant,
+            context = application.applicationContext
+        )
     }
 
     override fun getPetWeightFormattedString(weight: Double?): String {
-        return  Formatters.getFormattedWeightString(weight = weight, unit = _successUiState.value.unit, context = application.applicationContext)
+        return Formatters.getFormattedWeightString(
+            weight = weight,
+            unit = _successUiState.value.unit,
+            context = application.applicationContext
+        )
     }
 
     override fun getPetDimensionsFormattedString(value: Double?): String {
@@ -72,9 +78,10 @@ class DashboardViewModel @Inject constructor(
     fun waterIconOnClicked(pet: PetDashboardUiState) {
         val pets = _successUiState.value.pets.toMutableList()
         val index = pets.indexOf(pet)
-        if (pets[index].petStat != PetStatsEnum.THIRST) pets[index] = pets[index].copy(petStat = PetStatsEnum.THIRST)
+        if (pets[index].petStat != PetStatsEnum.THIRST) pets[index] =
+            pets[index].copy(petStat = PetStatsEnum.THIRST)
         else pets[index] = pets[index].copy(petStat = PetStatsEnum.NONE)
-        if (index != -1){
+        if (index != -1) {
             _successUiState.update {
                 it.copy(
                     pets = pets
@@ -99,9 +106,10 @@ class DashboardViewModel @Inject constructor(
     fun foodIconOnClicked(pet: PetDashboardUiState) {
         val pets = _successUiState.value.pets.toMutableList()
         val index = pets.indexOf(pet)
-        if (pets[index].petStat != PetStatsEnum.HUNGER) pets[index] = pets[index].copy(petStat = PetStatsEnum.HUNGER)
+        if (pets[index].petStat != PetStatsEnum.HUNGER) pets[index] =
+            pets[index].copy(petStat = PetStatsEnum.HUNGER)
         else pets[index] = pets[index].copy(petStat = PetStatsEnum.NONE)
-        if (index != -1){
+        if (index != -1) {
             _successUiState.update {
                 it.copy(
                     pets = pets
@@ -113,9 +121,10 @@ class DashboardViewModel @Inject constructor(
     fun activityIconOnClicked(pet: PetDashboardUiState) {
         val pets = _successUiState.value.pets.toMutableList()
         val index = pets.indexOf(pet)
-        if (pets[index].petStat != PetStatsEnum.ACTIVITY) pets[index] = pets[index].copy(petStat = PetStatsEnum.ACTIVITY)
+        if (pets[index].petStat != PetStatsEnum.ACTIVITY) pets[index] =
+            pets[index].copy(petStat = PetStatsEnum.ACTIVITY)
         else pets[index] = pets[index].copy(petStat = PetStatsEnum.NONE)
-        if (index != -1){
+        if (index != -1) {
             _successUiState.update {
                 it.copy(
                     pets = pets

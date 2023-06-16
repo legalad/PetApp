@@ -13,18 +13,37 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.petapp.R
+import com.example.petapp.ui.components.ErrorScreen
+import com.example.petapp.ui.components.LoadingScreen
 import com.example.petapp.ui.components.NoContentPrev
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PetFoodDashboardResultScreen(
+fun PetFoodDashboardScreen(
     viewModel: PetFoodDashboardViewModel,
     navigateToAddMealScreen: (String) -> Unit,
     navigateBack: () -> Unit
 ) {
-    val uiState = viewModel.successUiState.collectAsState().value
+    when (val uiState = viewModel.uiState.collectAsState().value) {
+        PetFoodDashboardUiState.Loading -> LoadingScreen()
+        is PetFoodDashboardUiState.Success -> PetFoodDashboardResultScreen(
+            uiState = uiState,
+            viewModel = viewModel,
+            navigateToAddMealScreen = navigateToAddMealScreen,
+            navigateBack = navigateBack
+        )
+        is PetFoodDashboardUiState.Error -> ErrorScreen(message = uiState.errorMessage)
+    }
+}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PetFoodDashboardResultScreen(
+    uiState: PetFoodDashboardUiState.Success,
+    viewModel: PetFoodDashboardViewModel,
+    navigateToAddMealScreen: (String) -> Unit,
+    navigateBack: () -> Unit
+) {
     Scaffold(
         topBar = {
             TopAppBar(

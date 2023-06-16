@@ -132,6 +132,10 @@ class DefaultPetsDashboardRepository (
         petsDashboardLocalDatasource.updateDimension(petCircuitEntity = petCircuitEntity)
     }
 
+    override suspend fun deletePet(pet: PetGeneralEntity) {
+        petsDashboardLocalDatasource.deletePet(pet = pet)
+    }
+
     override suspend fun deletePetMeal(petMealEntity: PetMealEntity) {
         petsDashboardLocalDatasource.deletePetMeal(petMealEntity = petMealEntity)
     }

@@ -133,6 +133,10 @@ class PetDashboardLocalDatasource internal constructor(
         petsDashboardDao.updateDimension(petCircuitEntity = petCircuitEntity)
     }
 
+    override suspend fun deletePet(pet: PetGeneralEntity) {
+        petsDashboardDao.deletePet(pet = pet)
+    }
+
     override suspend fun deletePetMeal(petMealEntity: PetMealEntity) {
         petsDashboardDao.deletePetMeal(petMealEntity = petMealEntity)
     }

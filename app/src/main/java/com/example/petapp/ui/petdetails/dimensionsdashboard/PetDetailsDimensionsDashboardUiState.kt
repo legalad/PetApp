@@ -33,7 +33,6 @@ sealed interface PetDetailsDimensionsDashboardUiState {
         ) : PetDetailsDimensionsDashboardUiState
     object Loading : PetDetailsDimensionsDashboardUiState
     data class Error (val errorMessage: String) : PetDetailsDimensionsDashboardUiState
-    object NoData : PetDetailsDimensionsDashboardUiState
 }
 
 enum class DisplayedDimension (@StringRes val dimensionName: Int, @DrawableRes val dimensionIconId: Int) {

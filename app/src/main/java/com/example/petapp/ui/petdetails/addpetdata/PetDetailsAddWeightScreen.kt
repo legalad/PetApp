@@ -10,17 +10,16 @@ import androidx.compose.ui.text.input.KeyboardType
 import com.example.petapp.R
 import com.example.petapp.ui.addpet.TextFieldUnitPicker
 import com.example.petapp.ui.components.AddPetDataScaffold
+import com.example.petapp.ui.components.ErrorScreen
+import com.example.petapp.ui.components.LoadingScreen
 import com.example.petapp.ui.components.forms.*
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddWeightResultScreen(
+fun AddWeightScreen(
     viewModel: PetDetailsAddWeightViewModel,
     navigateBack: () -> Unit,
     navigateToPetDetails: (petId: String) -> Unit
 ) {
-    val uiState = viewModel.successUiState.collectAsState().value
     AddPetDataScaffold(
         topAppBarTitleId = R.string.components_forms_top_app_bar_title_pet_weight,
         onRightButtonClicked = {
@@ -34,53 +33,69 @@ fun AddWeightResultScreen(
         onLeftButtonClicked = navigateBack,
         hideKeyboard = viewModel::hideKeyboard
     ) {
-        val focusManager = LocalFocusManager.current
-        SingleRowDateTimePicker(
-            datePickerValue = uiState.datePickerTextFieldValue,
-            datePickerOpenDialog = uiState.datePickerOpenDialog,
-            datePickerState = uiState.datePickerState,
-            datePickerConfirmEnabled = uiState.datePickerConfirmEnabled,
-            datePickerOnValueChanged = viewModel::onDatePickerTextFieldValueChanged,
-            datePickerOnTextFieldClicked = viewModel::onDatePickerTextFieldClicked,
-            datePickerOnDismissRequest = viewModel::datePickerOnDismissRequest,
-            datePickerOnConfirmedButtonClicked = viewModel::datePickerOnConfirmedButtonClicked,
-            datePickerOnDismissedButtonClicked = viewModel::datePickerOnDismissedButtonClicked,
-            timePickerState = uiState.timePickerState,
-            timePickerOpenDialog = uiState.showTimePicker,
-            timePickerShowingPicker = uiState.showingPicker,
-            onTimePickerTextFieldClicked = viewModel::onTimePickerTextFieldClicked,
-            onTimePickerDialogCancelClicked = viewModel::onTimePickerDialogCancelClicked,
-            onTimePickerDialogConfirmClicked = viewModel::onTimePickerDialogConfirmClicked,
-            onTimePickerDialogSwitchIconClicked = viewModel::onTimePickerDialogSwitchIconClicked
-        )
-        OutlinedTextFieldWithLeadingIcon(
-            fieldLabel = R.string.components_forms_text_field_label_pet_weight,
-            fieldPlaceholder = R.string.util_unit_weight_placeholder,
-            leadingIcon = R.drawable.weight_24,
-            trailingIcon = {
-                TextFieldUnitPicker(
-                    expanded = uiState.isWeightUnitPickerExpanded,
-                    onExpandedChange = viewModel::onWeightUnitPickerOnExpandedChange,
-                    onDismissRequest = viewModel::onWeightUnitPickerOnDismissRequest,
-                    onDropdownMenuItemClicked = viewModel::onWeightUnitPickerDropdownMenuItemClicked,
-                    options = uiState.weightUnitList,
-                    selectedOption = uiState.selectedWeightUnit
-                )
-            },
-            fieldValue = uiState.weightFieldValue,
-            onValueChanged = viewModel::onWeightFieldValueChanged,
-            onCancelClicked = viewModel::onWeightFieldCancelClicked,
-            focusManager = focusManager,
-            onFocusClear = viewModel::onFocusCleared.also { if (uiState.isWeightUnitPickerExpanded) focusManager.clearFocus() },
-            readOnly = uiState.isWeightUnitPickerExpanded,
-            isError = !uiState.isWeightValid,
-            supportingText = uiState.weightErrorMessage,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
-                imeAction = ImeAction.Done
-            ),
-            hideKeyboard = uiState.hideKeyboard
-        )
+        when (val uiState = viewModel.uiState.collectAsState().value) {
+            PetDetailsAddWeightUiState.Loading -> LoadingScreen()
+            is PetDetailsAddWeightUiState.Success -> AddWeightResultScreen(
+                uiState = uiState,
+                viewModel = viewModel
+            )
+            is PetDetailsAddWeightUiState.Error -> ErrorScreen(message = uiState.errorMessage)
+        }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddWeightResultScreen(
+    uiState: PetDetailsAddWeightUiState.Success,
+    viewModel: PetDetailsAddWeightViewModel
+) {
+    val focusManager = LocalFocusManager.current
+    SingleRowDateTimePicker(
+        datePickerValue = uiState.datePickerTextFieldValue,
+        datePickerOpenDialog = uiState.datePickerOpenDialog,
+        datePickerState = uiState.datePickerState,
+        datePickerConfirmEnabled = uiState.datePickerConfirmEnabled,
+        datePickerOnValueChanged = viewModel::onDatePickerTextFieldValueChanged,
+        datePickerOnTextFieldClicked = viewModel::onDatePickerTextFieldClicked,
+        datePickerOnDismissRequest = viewModel::datePickerOnDismissRequest,
+        datePickerOnConfirmedButtonClicked = viewModel::datePickerOnConfirmedButtonClicked,
+        datePickerOnDismissedButtonClicked = viewModel::datePickerOnDismissedButtonClicked,
+        timePickerState = uiState.timePickerState,
+        timePickerOpenDialog = uiState.showTimePicker,
+        timePickerShowingPicker = uiState.showingPicker,
+        onTimePickerTextFieldClicked = viewModel::onTimePickerTextFieldClicked,
+        onTimePickerDialogCancelClicked = viewModel::onTimePickerDialogCancelClicked,
+        onTimePickerDialogConfirmClicked = viewModel::onTimePickerDialogConfirmClicked,
+        onTimePickerDialogSwitchIconClicked = viewModel::onTimePickerDialogSwitchIconClicked
+    )
+    OutlinedTextFieldWithLeadingIcon(
+        fieldLabel = R.string.components_forms_text_field_label_pet_weight,
+        fieldPlaceholder = R.string.util_unit_weight_placeholder,
+        leadingIcon = R.drawable.weight_24,
+        trailingIcon = {
+            TextFieldUnitPicker(
+                expanded = uiState.isWeightUnitPickerExpanded,
+                onExpandedChange = viewModel::onWeightUnitPickerOnExpandedChange,
+                onDismissRequest = viewModel::onWeightUnitPickerOnDismissRequest,
+                onDropdownMenuItemClicked = viewModel::onWeightUnitPickerDropdownMenuItemClicked,
+                options = uiState.weightUnitList,
+                selectedOption = uiState.selectedWeightUnit
+            )
+        },
+        fieldValue = uiState.weightFieldValue,
+        onValueChanged = viewModel::onWeightFieldValueChanged,
+        onCancelClicked = viewModel::onWeightFieldCancelClicked,
+        focusManager = focusManager,
+        onFocusClear = viewModel::onFocusCleared.also { if (uiState.isWeightUnitPickerExpanded) focusManager.clearFocus() },
+        readOnly = uiState.isWeightUnitPickerExpanded,
+        isError = !uiState.isWeightValid,
+        supportingText = uiState.weightErrorMessage,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Number,
+            imeAction = ImeAction.Done
+        ),
+        hideKeyboard = uiState.hideKeyboard
+    )
 }
 

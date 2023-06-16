@@ -1,60 +1,55 @@
 package com.example.petapp.ui.petdetails.fooddashboard
 
-import android.app.Application
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.petapp.data.Async
 import com.example.petapp.data.PetsDashboardRepository
 import com.example.petapp.data.UserSettingsDataRepository
 import com.example.petapp.model.util.Contstans
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class PetFoodDashboardViewModel @Inject constructor(
-    private val settingsDataRepository: UserSettingsDataRepository,
-    private val petsDashboardRepository: PetsDashboardRepository,
-    private val application: Application,
-    private val savedStateHandle: SavedStateHandle
+    settingsDataRepository: UserSettingsDataRepository,
+    petsDashboardRepository: PetsDashboardRepository,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val petId: String = checkNotNull(savedStateHandle["petId"])
 
-    var uiState: PetFoodDashboardUiState by mutableStateOf(
-        PetFoodDashboardUiState.Loading)
-        private set
-
     private val _successUiState = MutableStateFlow(PetFoodDashboardUiState.Success())
 
-    val successUiState: StateFlow<PetFoodDashboardUiState.Success> = _successUiState
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(Contstans.TIMEOUT_MILLIS),
-            initialValue = _successUiState.value
-        )
-
-    init {
-        viewModelScope.launch {
-            combine(
-                petsDashboardRepository.getPetMeals(petId = petId),
-                petsDashboardRepository.getPetDetails(petId = petId),
-                settingsDataRepository.getUnit()
-            ) {
-                meals, pet, unit ->
-                _successUiState.update {
-                    it.copy(
-                        petName = pet.name,
-                        petMeals = meals
-                    )
-                }
-            }.collect()
+    private val _asyncData = combine(
+        petsDashboardRepository.getPetMeals(petId = petId),
+        petsDashboardRepository.getPetDetails(petId = petId),
+        settingsDataRepository.getUnit()
+    ) {
+            meals, pet, unit ->
+        _successUiState.update {
+            it.copy(
+                petName = pet.name,
+                petMeals = meals
+            )
         }
     }
+        .map { Async.Success(_successUiState.value) }
+        .catch<Async<PetFoodDashboardUiState.Success>> { emit(Async.Error("Error")) }
+
+    val uiState: StateFlow<PetFoodDashboardUiState> =
+        combine(_asyncData, _successUiState) { async, success ->
+            when (async) {
+                Async.Loading -> PetFoodDashboardUiState.Loading
+                is Async.Success -> success
+                is Async.Error -> PetFoodDashboardUiState.Error("Error")
+            }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(Contstans.TIMEOUT_MILLIS),
+            initialValue = PetFoodDashboardUiState.Loading
+        )
 
     fun getPetId(): String {
         return petId

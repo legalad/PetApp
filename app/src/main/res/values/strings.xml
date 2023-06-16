@@ -27,6 +27,7 @@
     <string name="components_top_app_bar_menu_content_description_nav_to_help">Navigate to help</string>
     <string name="components_top_app_bar_menu_content_description_open_menu">Open top app bar menu</string>
     <string name="components_forms_title_new_pet">New pet friend?</string>
+    <string name="components_forms_title_update_pet">Update pet data</string>
     <string name="components_forms_description_new_pet">Fill out information about your pet</string>
     <string name="components_forms_description_dimension">Optionally fill out your pet dimensions</string>
     <string name="components_forms_dialog_buttons_next">next</string>
@@ -66,6 +67,8 @@
     <string name="util_unit_dimension_centimeter">cm</string>
     <string name="util_unit_dimension_foot">ft</string>
     <string name="util_unit_dimension_inch">in</string>
+    <string name="util_gender_male">Male</string>
+    <string name="util_gender_female">Female</string>
     <string name="components_forms_description_fill_out_v2">Fill out form</string>
     <string name="components_forms_title_measurement">Measurement</string>
     <string name="components_forms_text_field_label_measurement">Measurement date</string>
