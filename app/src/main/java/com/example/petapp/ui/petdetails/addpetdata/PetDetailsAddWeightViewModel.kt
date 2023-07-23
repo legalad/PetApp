@@ -75,7 +75,7 @@ class PetDetailsAddWeightViewModel @Inject constructor(
         )
 
     init {
-        viewModelScope.launch {
+        /*viewModelScope.launch {
             settingsDataRepository.getUnit().collect { unit ->
                 _successUiState.update {
                     it.copy(
@@ -93,7 +93,7 @@ class PetDetailsAddWeightViewModel @Inject constructor(
                     )
                 }
             }
-        }
+        }*/
         //todo
         weightId?.let { weightId ->
             viewModelScope.launch(Dispatchers.IO) {

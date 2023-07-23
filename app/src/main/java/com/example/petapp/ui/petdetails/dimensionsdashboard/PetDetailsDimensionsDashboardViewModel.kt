@@ -12,10 +12,12 @@ import com.example.petapp.model.util.toChartEntryModelProducer
 import com.example.petapp.model.util.toListDateEntryList
 import com.example.petapp.ui.petdetails.weightdashboard.ChartDateEntry
 import com.example.petapp.ui.petdetails.weightdashboard.DataDisplayedType
+import com.example.petapp.ui.petdetails.weightdashboard.ListDateEntry
 import com.patrykandpatrick.vico.core.marker.Marker
 import com.patrykandpatrick.vico.core.marker.MarkerVisibilityChangeListener
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -236,6 +238,96 @@ class PetDetailsDimensionsDashboardViewModel @Inject constructor(
                     }
                 }
             }
+        }
+    }
+
+    fun onDimensionItemClicked(item: ListDateEntry) {
+        val selectedDimensionItem = _successUiState.value.selectedDimensionsItems
+        if (selectedDimensionItem.isNotEmpty()) {
+            val outputList = selectedDimensionItem.find {
+                it.id == item.id
+            }?.let {
+                selectedDimensionItem.minus(it)
+            } ?: selectedDimensionItem.plus(item)
+            _successUiState.update {
+                it.copy(
+                    selectedDimensionsItems = outputList,
+                )
+            }
+            _successUiState.update {
+                when (_successUiState.value.displayedDimension) {
+                    DisplayedDimension.HEIGHT -> it.copy(
+                        heightHistoryListDateEntry = it.heightHistoryListDateEntry.map { height -> if(height.id == item.id) height.copy(isClicked = !height.isClicked) else height }
+                    )
+                    DisplayedDimension.LENGTH -> it.copy(
+                        lengthHistoryListDateEntry = it.lengthHistoryListDateEntry.map { length -> if(length.id == item.id) length.copy(isClicked = !length.isClicked) else length }
+                    )
+                    DisplayedDimension.CIRCUIT -> it.copy(
+                        circuitHistoryListDateEntry = it.circuitHistoryListDateEntry.map { circuit -> if(circuit.id == item.id) circuit.copy(isClicked = !circuit.isClicked) else circuit }
+                    )
+                }
+            }
+        }
+    }
+
+    fun onDimensionItemLongClicked(item: ListDateEntry) {
+        val selectedDimensionItem = _successUiState.value.selectedDimensionsItems
+        val outputList = selectedDimensionItem.find {
+            it.id == item.id
+        }?.let {
+            selectedDimensionItem.minus(it)
+        } ?: selectedDimensionItem.plus(item)
+        _successUiState.update {
+            it.copy(
+                selectedDimensionsItems = outputList,
+            )
+        }
+        _successUiState.update {
+            when (_successUiState.value.displayedDimension) {
+                DisplayedDimension.HEIGHT -> it.copy(
+                    heightHistoryListDateEntry = it.heightHistoryListDateEntry.map { height -> if(height.id == item.id) height.copy(isClicked = !height.isClicked) else height }
+                )
+                DisplayedDimension.LENGTH -> it.copy(
+                    lengthHistoryListDateEntry = it.lengthHistoryListDateEntry.map { length -> if(length.id == item.id) length.copy(isClicked = !length.isClicked) else length }
+                )
+                DisplayedDimension.CIRCUIT -> it.copy(
+                    circuitHistoryListDateEntry = it.circuitHistoryListDateEntry.map { circuit -> if(circuit.id == item.id) circuit.copy(isClicked = !circuit.isClicked) else circuit }
+                )
+            }
+        }
+    }
+
+    fun clearSelectedDimensionItems (delay: Long) {
+        viewModelScope.launch {
+            delay(delay)
+            _successUiState.update { success ->
+                success.copy(
+                    selectedDimensionsItems = emptyList(),
+                    heightHistoryListDateEntry = success.heightHistoryListDateEntry.map { it.copy(isClicked = false) },
+                    lengthHistoryListDateEntry = success.lengthHistoryListDateEntry.map { it.copy(isClicked = false) },
+                    circuitHistoryListDateEntry = success.circuitHistoryListDateEntry.map { it.copy(isClicked = false) }
+                )
+            }
+        }
+    }
+
+    fun deletePetDimensions() {
+        viewModelScope.launch(Dispatchers.IO) {
+            _successUiState.value.selectedDimensionsItems.forEach {item ->
+                when (_successUiState.value.displayedDimension) {
+                    DisplayedDimension.HEIGHT -> petsDashboardRepository.getHeight(item.id.toString())?.let {
+                        petsDashboardRepository.deletePetDimension(it)
+                    }
+                    DisplayedDimension.LENGTH -> petsDashboardRepository.getLength(item.id.toString())?.let {
+                        petsDashboardRepository.deletePetDimension(it)
+                    }
+                    DisplayedDimension.CIRCUIT -> petsDashboardRepository.getCircuit(item.id.toString())?.let {
+                        petsDashboardRepository.deletePetDimension(it)
+                    }
+                }
+
+            }
+            clearSelectedDimensionItems(0)
         }
     }
 }

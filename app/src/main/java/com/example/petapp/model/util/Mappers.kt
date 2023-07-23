@@ -5,9 +5,7 @@ import androidx.compose.ui.graphics.Color
 import com.example.android.datastore.UserPreferences
 import com.example.petapp.R
 import com.example.petapp.data.*
-import com.example.petapp.model.PetDashboardUiState
-import com.example.petapp.model.PetDetailsUiState
-import com.example.petapp.model.PetStatProgressIndicatorEntry
+import com.example.petapp.model.*
 import com.example.petapp.ui.petdetails.weightdashboard.ChartDateEntry
 import com.example.petapp.ui.petdetails.weightdashboard.ListDateEntry
 import com.example.petapp.ui.settings.SettingsUiState
@@ -232,5 +230,21 @@ fun List<PetCircuitEntity>.toListDateEntryList(): List<ListDateEntry> {
             changeIconColor = changeIconColor,
             value = it.value
         )
+    }
+}
+
+fun PetMealEntity.toPetMealUiState(unit: UserPreferences.Unit) : PetMealUiState {
+    return PetMealUiState(
+        mealEntity = PetMealEntity(
+            id, pet_id, time, mealType, foodType, petFoodId, amount?.let { Formatters.getWeightValue(it, unit) }, reminderId
+        ),
+        isClicked = false,
+        isReminderIconClicked = reminderId?.let { true } ?: false
+    )
+}
+
+fun List<PetMealEntity>.toPetMealUiStateList(unit: UserPreferences.Unit): List<PetMealUiState> {
+    return map {
+        it.toPetMealUiState(unit = unit)
     }
 }

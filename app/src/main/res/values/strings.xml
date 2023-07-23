@@ -44,10 +44,12 @@
     <string name="components_forms_dialog_buttons_done">Done</string>
     <string name="components_forms_text_field_supporting_text_error_message_name_empty">Pet name can not be empty</string>
     <string name="util_blank" />
+    <string name="util_number">%1$s\</string>
     <string name="components_forms_text_field_supporting_text_error_message_name_not_empty">Name should consist of at least one letter</string>
-    <string name="components_forms_menus_supporting_text_error_message_species">Species selection is nessesary</string>
+    <string name="components_forms_menus_supporting_text_error_message_species">Species selection is necessary</string>
     <string name="components_forms_text_field_supporting_text_error_message_weight">Weight can not be empty</string>
     <string name="components_forms_date_picker_supporting_text_error_message_birth">You did not choose birth date</string>
+    <string name="components_forms_date_picker_supporting_text_error_message_meal_type">Select meal type</string>
     <string name="components_forms_text_field_label_language">Language</string>
     <string name="components_forms_text_field_label_unit">Unit</string>
     <string name="components_dashboard_screen_title_pets">Your pets</string>
@@ -78,6 +80,7 @@
     <string name="components_forms_top_app_bar_title_pet_weight">Weight form</string>
     <string name="components_forms_top_app_bar_title_pet_dimensions">Dimensions form</string>
     <string name="components_forms_top_app_bar_title_pet_dimension">Dimension form</string>
+    <string name="components_forms_top_app_bar_title_pet_meal">Meals form</string>
     <string name="components_forms_text_field_label_date">Date</string>
     <string name="components_forms_text_field_label_time">Time</string>
     <string name="components_forms_time_picker_dialog_title_select_time">Select Time"</string>
@@ -158,4 +161,6 @@
     <string name="pet_breed_cat_scottish_fold">Scottish Fold</string>
     <string name="pet_breed_cat_siamese">Siamese</string>
     <string name="pet_breed_cat_sphynx">Sphynx</string>
+    <string name="tap_and_hold_tooltip">Tap and hold on item for more options</string>
+    <string name="notification_meal_reminder">Feed me!</string>
 </resources>

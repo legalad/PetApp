@@ -17,6 +17,7 @@ sealed interface PetDetailsDimensionsDashboardUiState {
         val heightHistoryListDateEntry: List<ListDateEntry> = emptyList(),
         val lengthHistoryListDateEntry: List<ListDateEntry> = emptyList(),
         val circuitHistoryListDateEntry: List<ListDateEntry> = emptyList(),
+        val selectedDimensionsItems: List<ListDateEntry> = emptyList(),
         val heightChartEntryModelProducer: ChartEntryModelProducer = ChartEntryModelProducer(),
         val lengthChartEntryModelProducer: ChartEntryModelProducer = ChartEntryModelProducer(),
         val circuitChartEntryModelProducer: ChartEntryModelProducer = ChartEntryModelProducer(),

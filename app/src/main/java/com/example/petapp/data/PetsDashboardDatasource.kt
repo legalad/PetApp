@@ -12,6 +12,7 @@ interface PetsDashboardDatasource {
     fun getLength(id: String): PetLengthEntity?
 
     fun getCircuit(id: String): PetCircuitEntity?
+    fun getPetMeal(mealId: String): PetMealEntity?
 
     fun getDashboard(): Flow<Map<PetDashboardView, List<PetMealEntity>>>
 
@@ -22,6 +23,7 @@ interface PetsDashboardDatasource {
     fun getPetLastWaterChanged(petId: String): Flow<PetWaterEntity?>
     fun getPetDetails(petId: String): Flow<PetDetailsView>
     fun getPetMeals(petId: String): Flow<List<PetMealEntity>>
+
 
     suspend fun addPetWeight(weightEntity: PetWeightEntity)
 

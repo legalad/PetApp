@@ -1,11 +1,12 @@
 package com.example.petapp.ui.components
 
 
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
@@ -17,10 +18,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.isContainer
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.example.petapp.R
+import com.example.petapp.ui.dashboard.DashboardUiState
+import com.example.petapp.ui.dashboard.DashboardViewModel
 
 @Composable
 fun TopAppBarDropdownMenu(
@@ -33,7 +39,10 @@ fun TopAppBarDropdownMenu(
 ) {
 
     IconButton(onClick = onDropdownMenuIconClicked) {
-        Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.components_top_app_bar_menu_content_description_open_menu))
+        Icon(
+            Icons.Default.MoreVert,
+            contentDescription = stringResource(R.string.components_top_app_bar_menu_content_description_open_menu)
+        )
     }
     DropdownMenu(
         expanded = expanded,
@@ -74,34 +83,47 @@ fun TopAppBarDropdownMenu(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PetAppTopAppBar(
-    scrollBehavior: TopAppBarScrollBehavior,
     expanded: Boolean,
     onDropdownMenuIconClicked: () -> Unit,
     onDismissRequest: () -> Unit,
     onAccountIconClicked: () -> Unit,
-    onSettingsIconClicked: () -> Unit
-    ) {
-    TopAppBar(
-        title = {
-            Logo()
-        },
-        actions = {
-            TopAppBarDropdownMenu(
-                expanded = expanded,
-                onDropdownMenuIconClicked = onDropdownMenuIconClicked,
-                onDismissRequest = onDismissRequest,
-                onAccountIconClicked = onAccountIconClicked,
-                onSettingsIconClicked = onSettingsIconClicked) {
+    onSettingsIconClicked: () -> Unit,
+    onCancelSearchIconClicked: () -> Unit,
+    onSearchIconClicked: () -> Unit,
+    scrollBehavior: TopAppBarScrollBehavior,
+    isSearchBarActive: Boolean,
+    searchBar: @Composable (() -> Unit)
 
-            }
-        },
-        scrollBehavior = scrollBehavior
-    )
+) {
+    if (isSearchBarActive) {
+        searchBar()
+    } else {
+        TopAppBar(
+            title = {
+                Logo()
+            },
+            actions = {
+                IconButton(onClick = onSearchIconClicked) {
+                    Icon(Icons.Default.Search, contentDescription = "Search")
+                }
+                TopAppBarDropdownMenu(
+                    expanded = expanded,
+                    onDropdownMenuIconClicked = onDropdownMenuIconClicked,
+                    onDismissRequest = onDismissRequest,
+                    onAccountIconClicked = onAccountIconClicked,
+                    onSettingsIconClicked = onSettingsIconClicked
+                ) {
+
+                }
+            },
+            scrollBehavior = scrollBehavior
+        )
+    }
 }
 
 @Composable
 fun Logo() {
-    Row (verticalAlignment = Alignment.CenterVertically) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(
             painter = painterResource(id = R.drawable.icons8_cat_footprint_96),
             contentDescription = "logo",
@@ -127,4 +149,77 @@ fun TopAppBarDropdownMenuPrev() {
         onAccountIconClicked = { /*TODO*/ },
         onSettingsIconClicked = { /*TODO*/ }
     ) { /*TODO*/ }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SearchBar(
+    uiState: DashboardUiState.Success,
+    viewModel: DashboardViewModel
+) {
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp)) {
+        Box(
+            Modifier
+                .semantics {
+                    isContainer = true
+                }
+                .zIndex(1f)
+                .fillMaxWidth()) {
+            DockedSearchBar(
+                modifier = Modifier.align(Alignment.TopCenter),
+                query = uiState.searchBarText,
+                onQueryChange = viewModel::searchBarOnQueryChange,
+                onSearch = viewModel::searchBarOnSearchClicked,
+                active = uiState.isSearchBarActive,
+                onActiveChange = viewModel::searchBarOnActiveChange,
+                placeholder = { Text("Enter pet name") },
+                leadingIcon = {
+                    IconButton(onClick = viewModel::onCancelSearchIconClicked) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = null)
+                    }
+                },
+                trailingIcon = {
+                    if (uiState.searchBarText.isNotBlank()) IconButton(onClick = viewModel::searchBarOnCancelClicked) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.round_cancel_24),
+                            contentDescription = stringResource(
+                                R.string.components_forms_dialog_buttons_cancel
+                            )
+                        )
+                    }
+                })
+            {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    items(
+                        uiState.filteredPets.subList(
+                            0,
+                            if (uiState.filteredPets.size > 3) 3 else uiState.filteredPets.size
+                        )
+                    ) { pet ->
+                        ListItem(
+                            headlineContent = { Text(pet.petDashboard.name) },
+                            supportingContent = { Text("cat") },
+                            leadingContent = {
+                                Icon(
+                                    Icons.Filled.Star,
+                                    contentDescription = null
+                                )
+                            },
+                            modifier = Modifier.clickable {
+                                viewModel.searchBarOnQueryChange(pet.petDashboard.name)
+                                viewModel.searchBarOnSearchClicked(pet.petDashboard.name)
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    }
 }

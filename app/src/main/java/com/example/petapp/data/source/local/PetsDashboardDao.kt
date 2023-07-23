@@ -48,6 +48,8 @@ interface PetsDashboardDao {
 
     @Query("SELECT * FROM pet_meal where pet_id = :petId ORDER BY time ASC")
     fun getPetMeals(petId: String): Flow<List<PetMealEntity>>
+    @Query("SELECT * FROM PET_MEAL where id = :mealId")
+    fun getPetMeal(mealId: String): PetMealEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addPetGeneralInfo(pet: PetGeneralEntity)

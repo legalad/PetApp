@@ -6,6 +6,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Add
@@ -16,7 +17,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -35,8 +35,10 @@ fun MeasureScaffold(
     onDropdownMenuItemClicked: () -> Unit,
     dropdownMenuOnDismissRequest: () -> Unit,
     isListNotEmpty: Boolean,
+    itemsSelected: Boolean = true,
+    clearSelectedItems: (Long) -> Unit,
     actions: @Composable (RowScope.() -> Unit),
-    content: @Composable (PaddingValues) -> Unit
+    content: @Composable (PaddingValues) -> Unit,
 
 ) {
     Scaffold(
@@ -48,85 +50,80 @@ fun MeasureScaffold(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = navigateBack) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = stringResource(
-                                id = R.string.components_top_app_bar_navigation_content_description_back
+                    if (!itemsSelected) {
+                        IconButton(onClick = { clearSelectedItems(0) }) {
+                            Icon(imageVector = Icons.Default.Close, contentDescription = "Close")
+                        }
+                    } else {
+                        IconButton(onClick = navigateBack) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowBack,
+                                contentDescription = stringResource(
+                                    id = R.string.components_top_app_bar_navigation_content_description_back
+                                )
                             )
-                        )
+                        }
                     }
                 },
                 actions = {
                     actions()
-                    IconButton(onClick = onDropdownMenuItemClicked) {
-                        Icon(
-                            Icons.Default.MoreVert,
-                            contentDescription = stringResource(R.string.components_top_app_bar_menu_content_description_open_menu)
-                        )
-                    }
-                    DropdownMenu(
-                        expanded = topAppBarMenuExpanded,
-                        onDismissRequest = dropdownMenuOnDismissRequest
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(id = R.string.components_top_app_bar_navigation_menu_add)) },
-                            onClick = {
-                                navigateToAddDataScreen()
-                                dropdownMenuOnDismissRequest()
-                            },
-                            leadingIcon = {
-                                Icon(
-                                    Icons.Outlined.Add,
-                                    contentDescription = null
-                                )
-                            })
-                        if (isListNotEmpty) {
+                    if (itemsSelected && isListNotEmpty) {
+                        IconButton(onClick = onDropdownMenuItemClicked) {
+                            Icon(
+                                Icons.Default.MoreVert,
+                                contentDescription = stringResource(R.string.components_top_app_bar_menu_content_description_open_menu)
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = topAppBarMenuExpanded,
+                            onDismissRequest = dropdownMenuOnDismissRequest
+                        ) {
                             DropdownMenuItem(
-                                text = { Text(stringResource(id = R.string.components_top_app_bar_navigation_menu_update)) },
+                                text = { Text(stringResource(id = R.string.components_top_app_bar_navigation_menu_add)) },
                                 onClick = {
-                                    navigateToUpdateDataScreen()
+                                    navigateToAddDataScreen()
                                     dropdownMenuOnDismissRequest()
                                 },
                                 leadingIcon = {
                                     Icon(
-                                        Icons.Outlined.Edit,
+                                        Icons.Outlined.Add,
                                         contentDescription = null
                                     )
                                 })
-                            Divider()
-                            DropdownMenuItem(
-                                text = { Text(stringResource(id = R.string.components_top_app_bar_navigation_menu_delete)) },
-                                onClick = {
-                                    deleteDataItem()
-                                    dropdownMenuOnDismissRequest()
-                                },
-                                leadingIcon = {
-                                    Icon(
-                                        Icons.Default.Delete,
-                                        contentDescription = null
-                                    )
-                                })
+
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(id = R.string.components_top_app_bar_navigation_menu_update)) },
+                                    onClick = {
+                                        navigateToUpdateDataScreen()
+                                        dropdownMenuOnDismissRequest()
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.Outlined.Edit,
+                                            contentDescription = null
+                                        )
+                                    })
+                                Divider()
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(id = R.string.components_top_app_bar_navigation_menu_delete)) },
+                                    onClick = {
+                                        deleteDataItem()
+                                        dropdownMenuOnDismissRequest()
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            Icons.Default.Delete,
+                                            contentDescription = null
+                                        )
+                                    })
+
                         }
                     }
                 }
             )
         },
-        bottomBar = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(4.dp), horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Button(onClick = navigateToAddDataScreen) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.round_add_24),
-                        contentDescription = null
-                    )
-                    Spacer(modifier = Modifier.padding(4.dp))
-                    Text(text = stringResource(id = R.string.components_forms_dialog_buttons_input))
-                }
-            }
+        floatingActionButton = {
+            AddSimpleFab(onClick = navigateToAddDataScreen)
         }
     ) {
         content(it)
@@ -204,7 +201,13 @@ fun BasicScaffoldWithNavButton(
         modifier = Modifier.nestedScroll((scrollBehavior.nestedScrollConnection)),
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(id = topAppBarTitleId), maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                title = {
+                    Text(
+                        text = stringResource(id = topAppBarTitleId),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = navigateBack) {
                         Icon(

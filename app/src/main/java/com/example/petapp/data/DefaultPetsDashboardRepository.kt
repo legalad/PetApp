@@ -32,6 +32,10 @@ class DefaultPetsDashboardRepository (
         return petsDashboardLocalDatasource.getCircuit(id = id)
     }
 
+    override fun getPetMeal(mealId: String): PetMealEntity? {
+        return petsDashboardLocalDatasource.getPetMeal(mealId = mealId)
+    }
+
     override fun getDashboard(): Flow<Map<PetDashboardView, List<PetMealEntity>>> {
         return petsDashboardLocalDatasource.getDashboard()
     }

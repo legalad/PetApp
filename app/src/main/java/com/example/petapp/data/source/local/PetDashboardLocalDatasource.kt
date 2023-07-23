@@ -33,6 +33,10 @@ class PetDashboardLocalDatasource internal constructor(
         return petsDashboardDao.getCircuit(id = id)
     }
 
+    override fun getPetMeal(mealId: String): PetMealEntity? {
+        return petsDashboardDao.getPetMeal(mealId = mealId)
+    }
+
     override fun getDashboard(): Flow<Map<PetDashboardView, List<PetMealEntity>>>{
         return petsDashboardDao.getDashboardView()
     }

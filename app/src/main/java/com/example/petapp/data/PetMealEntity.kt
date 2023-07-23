@@ -6,6 +6,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.petapp.R
 import com.example.petapp.model.Menu
+import com.example.petapp.ui.petdetails.addpetdata.FoodTypeEnum
 import java.time.Instant
 import java.time.OffsetTime
 import java.util.*
@@ -17,8 +18,11 @@ data class PetMealEntity(
     @ColumnInfo(name = "pet_id")
     val pet_id: UUID,
     val time: OffsetTime,
-    val type: MealType,
-    val petFoodId: UUID?
+    val mealType: MealType,
+    val foodType: FoodTypeEnum,
+    val petFoodId: UUID?,
+    val amount: Double?,
+    val reminderId: UUID?
 )
 
 @Entity(tableName = "pet_meal_history")
@@ -29,8 +33,10 @@ data class PetMealHistoryEntity(
     val pet_id: UUID,
     @ColumnInfo(name = "serving_datetime")
     val time: Instant,
-    val type: MealType,
-    val petFoodId: UUID?
+    val mealType: MealType,
+    val foodType: FoodTypeEnum,
+    val petFoodId: UUID?,
+    val amount: Double?
 )
 
 @Entity(tableName = "pet_food")

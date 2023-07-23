@@ -14,6 +14,7 @@ import com.patrykandpatrick.vico.core.marker.Marker
 import com.patrykandpatrick.vico.core.marker.MarkerVisibilityChangeListener
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -135,6 +136,61 @@ class PetDetailsWeightDashboardViewModel @Inject constructor(
                     petsDashboardRepository.deletePetWeight(it)
                 }
             }
+        }
+    }
+
+    fun onWeightItemClicked(item: ListDateEntry) {
+        val selectedMeals = _successUiState.value.selectedWeightItems
+        if (selectedMeals.isNotEmpty()) {
+            val outputList = selectedMeals.find {
+                it.id == item.id
+            }?.let {
+                selectedMeals.minus(it)
+            } ?: selectedMeals.plus(item)
+            _successUiState.update {
+                it.copy(
+                    selectedWeightItems = outputList,
+                    weightHistoryList = it.weightHistoryList.map { weight -> if(weight.id == item.id)  weight.copy(isClicked = !weight.isClicked) else weight}
+                )
+            }
+        }
+    }
+
+    fun onWeightItemLongClicked(item: ListDateEntry) {
+        val selectedMeals = _successUiState.value.selectedWeightItems
+        val outputList = selectedMeals.find {
+            it.id == item.id
+        }?.let {
+            selectedMeals.minus(it)
+        } ?: selectedMeals.plus(item)
+        _successUiState.update {
+            it.copy(
+                selectedWeightItems = outputList,
+                weightHistoryList = it.weightHistoryList.map { weight -> if(weight.id == item.id) weight.copy(isClicked = !weight.isClicked) else weight}
+            )
+        }
+    }
+
+    fun clearSelectedWeightItems (delay: Long) {
+        viewModelScope.launch {
+            delay(delay)
+            _successUiState.update { success ->
+                success.copy(
+                    selectedWeightItems = emptyList(),
+                    weightHistoryList = success.weightHistoryList.map { it.copy(isClicked = false) }
+                )
+            }
+        }
+    }
+
+    fun deletePetWeights() {
+        viewModelScope.launch(Dispatchers.IO) {
+            _successUiState.value.selectedWeightItems.forEach {weight ->
+                petsDashboardRepository.getWeight(weight.id.toString())?.let {
+                    petsDashboardRepository.deletePetWeight(it)
+                }
+            }
+            clearSelectedWeightItems(0)
         }
     }
 

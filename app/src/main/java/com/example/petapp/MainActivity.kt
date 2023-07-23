@@ -39,7 +39,8 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     PetAppScreen(
-                        requestCameraPermission = ::requestCameraPermission
+                        requestCameraPermission = ::requestCameraPermission,
+                        requestPostNotificationPermission = ::requestPostNotificationPermission
                     )
                 }
             }
@@ -52,7 +53,7 @@ class MainActivity : ComponentActivity() {
                 this,
                 android.Manifest.permission.CAMERA
             ) == PackageManager.PERMISSION_GRANTED -> {
-                Log.i("info", "Permission previously granted")
+                Log.i("info", "Camera permission previously granted")
                 showCamera()
             }
 
@@ -62,6 +63,25 @@ class MainActivity : ComponentActivity() {
             ) -> Log.i("info", "Show camera permission dialog")
 
             else -> requestPermissionLauncher.launch(android.Manifest.permission.CAMERA)
+        }
+    }
+
+    private fun requestPostNotificationPermission(postNotification: () -> Unit) {
+        when {
+            ContextCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                Log.i("info", "Post notification permission previously granted")
+                postNotification()
+            }
+
+            ActivityCompat.shouldShowRequestPermissionRationale(
+                this,
+                android.Manifest.permission.POST_NOTIFICATIONS
+            ) -> Log.i("info", "Show post notification permission dialog")
+
+            else -> requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
         }
     }
 }

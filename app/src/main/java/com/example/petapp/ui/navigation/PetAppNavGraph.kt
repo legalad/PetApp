@@ -1,7 +1,6 @@
 package com.example.petapp.ui.navigation
 
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
@@ -58,23 +57,34 @@ fun RootNavGraph(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DefaultScaffold(
-    navController: NavHostController,
+    navigateToSettings: () -> Unit,
+    onSearchIconClicked: () -> Unit,
+    onCancelSearchIconClicked: () -> Unit,
+    isSearchBarActive: Boolean,
+    searchBar: @Composable () -> Unit,
+    floatingActionButton: @Composable () -> Unit,
     content: @Composable (PaddingValues) -> Unit
 ) {
-    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val expanded = remember { mutableStateOf(false) }
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             PetAppTopAppBar(
-                scrollBehavior = scrollBehavior,
                 expanded = expanded.value,
                 onDropdownMenuIconClicked = { expanded.value = true },
                 onDismissRequest = { expanded.value = false },
                 onAccountIconClicked = { /*TODO*/ },
-                onSettingsIconClicked = { navController.navigate(PetAppDestination.SETTINGS_ROUTE.name) })
+                onSettingsIconClicked = navigateToSettings,
+                onCancelSearchIconClicked = onCancelSearchIconClicked,
+                onSearchIconClicked = onSearchIconClicked,
+                isSearchBarActive = isSearchBarActive,
+                searchBar = searchBar,
+                scrollBehavior = scrollBehavior
+            )
         },
+        floatingActionButton = floatingActionButton,
         content = content
     )
 }
@@ -82,6 +92,7 @@ fun DefaultScaffold(
 @Composable
 fun PetAppNavGraph(
     requestCameraPermission: (showCamera: () -> Unit) -> Unit,
+    requestPostNotificationPermission: (postNotification: () -> Unit) -> Unit,
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     startDestination: String = PetAppDestination.DASHBOARD_ROUTE.toString()
@@ -107,14 +118,14 @@ fun PetAppNavGraph(
         }
         composable(PetAppDestination.DASHBOARD_ROUTE.name) {
             val dashboardVieModel = hiltViewModel<DashboardViewModel>()
-            DefaultScaffold(navController = navController) {
-                DashboardScreen(
-                    viewModel = dashboardVieModel,
-                    { navController.navigate(PetAppDestination.PET_MANAGER_ROUTE.name) },
-                    navigateToPetDetailsScreen = { navController.navigate(PetAppDestination.PET_DETAILS_ROUTE.name + "/$it") },
-                    modifier = Modifier.padding(it)
-                )
-            }
+
+            DashboardScreen(
+                viewModel = dashboardVieModel,
+                { navController.navigate(PetAppDestination.PET_MANAGER_ROUTE.name) },
+                navigateToPetDetailsScreen = { navController.navigate(PetAppDestination.PET_DETAILS_ROUTE.name + "/$it") },
+                navigateToSettings = { navController.navigate(PetAppDestination.SETTINGS_ROUTE.name) }
+            )
+
         }
         composable(
             route = PetAppDestination.PET_DETAILS_ROUTE.name + "/{petId}",
@@ -289,7 +300,14 @@ fun PetAppNavGraph(
             PetFoodDashboardScreen(
                 viewModel = petFoodDashboardViewModel,
                 navigateBack = { navController.navigateUp() },
-                navigateToAddMealScreen = { navController.navigate(PetAppDestination.PET_DETAILS_ADD_MEAL.name + "/$it") })
+                navigateToAddMealScreen = { navController.navigate(PetAppDestination.PET_DETAILS_ADD_MEAL.name + "/$it") },
+                navigateToUpdateMealScreen = { petId, mealId ->
+                    navController.navigate(
+                        PetAppDestination.PET_DETAILS_UPDATE_PET.name + "/$petId" + "/$mealId"
+                    )
+                },
+                requestPostNotificationPermission = requestPostNotificationPermission
+            )
 
         }
 
@@ -298,11 +316,26 @@ fun PetAppNavGraph(
             arguments = listOf(navArgument("petId") { type = NavType.StringType })
         ) {
             val addPetMealViewModel = hiltViewModel<PetDetailsAddMealViewModel>()
-            PetDetailsAddMealResultScreen(viewModel = addPetMealViewModel, navigateToPetDetails = {
+            PetDetailsAddMealScreen(viewModel = addPetMealViewModel, navigateToPetDetails = {
                 navController.navigate(
                     PetAppDestination.PET_DETAILS_ROUTE.name + "/$it"
                 )
             }, navigateBack = { navController.navigateUp() })
+        }
+
+        composable(
+            route = PetAppDestination.PET_DETAILS_UPDATE_PET.name + "/{petId}" + "/{mealId}",
+            arguments = listOf(
+                navArgument("petId") { type = NavType.StringType },
+                navArgument("mealId") { type = NavType.StringType }
+            )
+        ) {
+            val addMealViewModel = hiltViewModel<PetDetailsAddMealViewModel>()
+            PetDetailsAddMealScreen(
+                viewModel = addMealViewModel,
+                navigateToPetDetails = { navController.navigateUp() },
+                navigateBack = { navController.navigateUp() }
+            )
         }
     }
 }

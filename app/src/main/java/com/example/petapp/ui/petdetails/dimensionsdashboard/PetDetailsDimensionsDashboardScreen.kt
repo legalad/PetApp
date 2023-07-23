@@ -3,6 +3,9 @@ package com.example.petapp.ui.petdetails.dimensionsdashboard
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -82,39 +85,74 @@ fun PetDimensionsDashboardResultScreen(
             DisplayedDimension.CIRCUIT -> uiState.circuitHistoryListDateEntry.isNotEmpty()
         },
         actions = {
-            when (uiState.displayedDimension) {
-                DisplayedDimension.HEIGHT -> if (uiState.heightHistoryListDateEntry.isNotEmpty()) {
-                    IconButton(onClick = viewModel::onChartIconClicked) {
-                        Icon(
-                            painterResource(id = uiState.dataDisplayedType.chartIconId),
-                            contentDescription = ""
-                        )
+            if (uiState.selectedDimensionsItems.isNotEmpty()) {
+                if (uiState.selectedDimensionsItems.size == 1) IconButton(onClick = {
+                    when (uiState.displayedDimension) {
+                        DisplayedDimension.HEIGHT -> navigateToUpdateHeightScreen(
+                            uiState.petIdString,
+                            uiState.selectedDimensionsItems.first().id.toString()
+                        ).apply {
+                            viewModel.clearSelectedDimensionItems(300)
+                        }
+                        DisplayedDimension.LENGTH -> navigateToUpdateLengthScreen(
+                            uiState.petIdString,
+                            uiState.selectedDimensionsItems.first().id.toString()
+                        ).apply {
+                            viewModel.clearSelectedDimensionItems(300)
+                        }
+                        DisplayedDimension.CIRCUIT -> navigateToUpdateCircuitScreen(
+                            uiState.petIdString,
+                            uiState.selectedDimensionsItems.first().id.toString()
+                        ).apply {
+                            viewModel.clearSelectedDimensionItems(300)
+                        }
+                    }
+
+                }) {
+                    Icon(imageVector = Icons.Default.Edit, contentDescription = "")
+                }
+                IconButton(onClick = {
+                    viewModel.deletePetDimensions()
+                }) {
+                    Icon(imageVector = Icons.Default.Delete, contentDescription = "")
+                }
+            } else {
+                when (uiState.displayedDimension) {
+                    DisplayedDimension.HEIGHT -> if (uiState.heightHistoryListDateEntry.isNotEmpty()) {
+                        IconButton(onClick = viewModel::onChartIconClicked) {
+                            Icon(
+                                painterResource(id = uiState.dataDisplayedType.chartIconId),
+                                contentDescription = ""
+                            )
+                        }
+                    }
+                    DisplayedDimension.LENGTH -> if (uiState.lengthHistoryListDateEntry.isNotEmpty()) {
+                        IconButton(onClick = viewModel::onChartIconClicked) {
+                            Icon(
+                                painterResource(id = uiState.dataDisplayedType.chartIconId),
+                                contentDescription = ""
+                            )
+                        }
+                    }
+                    DisplayedDimension.CIRCUIT -> if (uiState.circuitHistoryListDateEntry.isNotEmpty()) {
+                        IconButton(onClick = viewModel::onChartIconClicked) {
+                            Icon(
+                                painterResource(id = uiState.dataDisplayedType.chartIconId),
+                                contentDescription = ""
+                            )
+                        }
                     }
                 }
-                DisplayedDimension.LENGTH -> if (uiState.lengthHistoryListDateEntry.isNotEmpty()) {
-                    IconButton(onClick = viewModel::onChartIconClicked) {
-                        Icon(
-                            painterResource(id = uiState.dataDisplayedType.chartIconId),
-                            contentDescription = ""
-                        )
-                    }
-                }
-                DisplayedDimension.CIRCUIT -> if (uiState.circuitHistoryListDateEntry.isNotEmpty()) {
-                    IconButton(onClick = viewModel::onChartIconClicked) {
-                        Icon(
-                            painterResource(id = uiState.dataDisplayedType.chartIconId),
-                            contentDescription = ""
-                        )
-                    }
+                IconButton(onClick = viewModel::onDimensionIconClicked) {
+                    Icon(
+                        painterResource(id = uiState.displayedDimension.dimensionIconId),
+                        contentDescription = ""
+                    )
                 }
             }
-            IconButton(onClick = viewModel::onDimensionIconClicked) {
-                Icon(
-                    painterResource(id = uiState.displayedDimension.dimensionIconId),
-                    contentDescription = ""
-                )
-            }
-        }
+        },
+        clearSelectedItems = viewModel::clearSelectedDimensionItems,
+        itemsSelected = uiState.selectedDimensionsItems.isEmpty()
     ) {
         Column(
             modifier = Modifier
@@ -142,7 +180,9 @@ fun PetDimensionsDashboardResultScreen(
                         DataDisplayedType.LIST -> DefaultList(
                             listDateEntryList = uiState.heightHistoryListDateEntry,
                             unit = uiState.unit,
-                            valueFormatterToString = Formatters::getFormattedDimensionUnitString
+                            valueFormatterToString = Formatters::getFormattedDimensionUnitString,
+                            onWeightItemLongClicked = viewModel::onDimensionItemLongClicked,
+                            onWeightItemClicked = viewModel::onDimensionItemClicked
                         )
                     }
                 }
@@ -165,7 +205,9 @@ fun PetDimensionsDashboardResultScreen(
                         DataDisplayedType.LIST -> DefaultList(
                             listDateEntryList = uiState.lengthHistoryListDateEntry,
                             unit = uiState.unit,
-                            valueFormatterToString = Formatters::getFormattedDimensionUnitString
+                            valueFormatterToString = Formatters::getFormattedDimensionUnitString,
+                            onWeightItemLongClicked = viewModel::onDimensionItemLongClicked,
+                            onWeightItemClicked = viewModel::onDimensionItemClicked
                         )
                     }
                 }
@@ -188,7 +230,9 @@ fun PetDimensionsDashboardResultScreen(
                         DataDisplayedType.LIST -> DefaultList(
                             listDateEntryList = uiState.circuitHistoryListDateEntry,
                             unit = uiState.unit,
-                            valueFormatterToString = Formatters::getFormattedDimensionUnitString
+                            valueFormatterToString = Formatters::getFormattedDimensionUnitString,
+                            onWeightItemLongClicked = viewModel::onDimensionItemLongClicked,
+                            onWeightItemClicked = viewModel::onDimensionItemClicked
                         )
                     }
                 }

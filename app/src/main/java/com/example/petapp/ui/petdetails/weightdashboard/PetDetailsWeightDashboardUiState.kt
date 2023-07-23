@@ -7,13 +7,14 @@ import com.example.petapp.R
 import com.patrykandpatrick.vico.core.entry.ChartEntry
 import com.patrykandpatrick.vico.core.entry.ChartEntryModelProducer
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 
 sealed interface PetDetailsWeightDashboardUiState {
     data class Success(
         val petName: String = "",
         val petIdString: String = "",
         val weightHistoryList: List<ListDateEntry> = emptyList(),
+        val selectedWeightItems: List<ListDateEntry> = emptyList(),
         val chartEntryModelProducer: ChartEntryModelProducer = ChartEntryModelProducer(),
         val selectedDateEntry: ChartDateEntry = ChartDateEntry(Instant.now(), 0f, 0f),
         val persistentMarkerX: Float = 10f,
@@ -35,13 +36,14 @@ class ChartDateEntry(
     }
 }
 
-class ListDateEntry(
+data class ListDateEntry(
     val id: UUID,
     val localDate: Instant,
     val changeValue: Double,
     @DrawableRes val changeIconId: Int,
     val changeIconColor: Color,
-    val value: Double
+    val value: Double,
+    val isClicked: Boolean = false
 )
 
 enum class DataDisplayedType (@DrawableRes val chartIconId: Int) {

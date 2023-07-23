@@ -47,9 +47,12 @@ class Formatters {
             context: Context
         ): String {
             return weight?.let {
-                if (unit == UserPreferences.Unit.METRIC) ("${"%.2f".format(it)} " + context.getString(
-                    R.string.util_unit_weight_kg
-                ))
+                if (unit == UserPreferences.Unit.METRIC){
+                    if (weight >= 1) ("${"%.2f".format(it)} " + context.getString(
+                        R.string.util_unit_weight_kg
+                    ))
+                    else ("${"%.0f".format(weight * 1000)} " + context.getString(R.string.util_unit_weight_g))
+                }
                 else ("${"%.2f".format(it)} " + context.getString(R.string.util_unit_weight_pounds))
             } ?: "-.-"
         }

@@ -5,6 +5,9 @@ import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -18,9 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.example.android.datastore.UserPreferences
 import com.example.petapp.R
 import com.example.petapp.model.util.Formatters
-import com.example.petapp.ui.components.ErrorScreen
-import com.example.petapp.ui.components.LoadingScreen
-import com.example.petapp.ui.components.MeasureScaffold
+import com.example.petapp.ui.components.*
 import com.example.petapp.ui.components.charts.rememberMarker
 import com.patrykandpatrick.vico.compose.axis.horizontal.bottomAxis
 import com.patrykandpatrick.vico.compose.axis.vertical.endAxis
@@ -53,14 +54,19 @@ fun PetWeightDashboardScreen(
     when (val uiState = viewModel.uiState.collectAsState().value) {
         PetDetailsWeightDashboardUiState.Loading -> LoadingScreen()
         is PetDetailsWeightDashboardUiState.Success -> {
-            MeasureScaffold(
-                topAppBarTitle = stringResource(
+            val topAppBarTitle = if (uiState.selectedWeightItems.isEmpty()) {
+                stringResource(
                     id = R.string.components_top_app_bar_title_pet_weight,
                     uiState.petName
-                ),
+                )
+            } else {
+                uiState.selectedWeightItems.size.toString()
+            }
+            MeasureScaffold(
+                topAppBarTitle = topAppBarTitle,
                 topAppBarMenuExpanded = uiState.topAppBarMenuExpanded,
                 navigateToAddDataScreen = {
-                    navigateToAddWeightScreen(uiState.petIdString)
+                    navigateToAddWeightScreen(uiState.petIdString).apply { viewModel.clearSelectedWeightItems(300) }
                 },
                 navigateToUpdateDataScreen = {
                     viewModel.getSelectedWeightId()
@@ -69,7 +75,7 @@ fun PetWeightDashboardScreen(
                                 uiState.petIdString,
                                 it
                             )
-                        }
+                        }.apply { viewModel.clearSelectedWeightItems(300) }
                 },
                 deleteDataItem = viewModel::deleteWeightItem,
                 navigateBack = navigateBack,
@@ -77,15 +83,35 @@ fun PetWeightDashboardScreen(
                 dropdownMenuOnDismissRequest = viewModel::dropdownMenuOnDismissRequest,
                 isListNotEmpty = uiState.weightHistoryList.isNotEmpty(),
                 actions = {
-                    if (uiState.weightHistoryList.isNotEmpty()) {
-                        IconButton(onClick = viewModel::onChartIconClicked) {
-                            Icon(
-                                painterResource(id = uiState.dataDisplayedType.chartIconId),
-                                contentDescription = ""
-                            )
+                    if (uiState.selectedWeightItems.isNotEmpty()) {
+                        if (uiState.selectedWeightItems.size == 1) IconButton(onClick = {
+                            navigateToUpdateWeightScreen(
+                                viewModel.getPetId(),
+                                uiState.selectedWeightItems.first().id.toString()
+                            ).apply {
+                                viewModel.clearSelectedWeightItems(300)
+                            }
+                        }) {
+                            Icon(imageVector = Icons.Default.Edit, contentDescription = "")
+                        }
+                        IconButton(onClick = {
+                            viewModel.deletePetWeights()
+                        }) {
+                            Icon(imageVector = Icons.Default.Delete, contentDescription = "")
+                        }
+                    } else {
+                        if (uiState.weightHistoryList.isNotEmpty()) {
+                            IconButton(onClick = viewModel::onChartIconClicked) {
+                                Icon(
+                                    painterResource(id = uiState.dataDisplayedType.chartIconId),
+                                    contentDescription = ""
+                                )
+                            }
                         }
                     }
-                }
+                },
+                clearSelectedItems = viewModel::clearSelectedWeightItems,
+                itemsSelected = uiState.selectedWeightItems.isEmpty()
             ) {
                 PetWeightDashboardResultScreen(
                     uiState = uiState,
@@ -111,29 +137,32 @@ fun PetWeightDashboardResultScreen(
             .fillMaxSize()
             .padding(8.dp), horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        if (uiState.weightHistoryList.isEmpty()) {
+            NoContentPrev()
+        } else {
+            when (uiState.dataDisplayedType) {
+                DataDisplayedType.LINE_CHART -> DefaultChart(
+                    chartModelProducer = uiState.chartEntryModelProducer,
+                    viewModel = viewModel,
+                    persistentMarkerX = uiState.persistentMarkerX,
+                    selectedDateEntry = uiState.selectedDateEntry,
+                    formattedSelectedDateEntry = Formatters.getFormattedWeightUnitString(
+                        weight = uiState.selectedDateEntry.y.toDouble(),
+                        unit = uiState.unit,
+                        context = LocalContext.current
+                    ),
+                    cardIconId = R.drawable.weight_24
+                )
 
-        when (uiState.dataDisplayedType) {
-            DataDisplayedType.LINE_CHART -> DefaultChart(
-                chartModelProducer = uiState.chartEntryModelProducer,
-                viewModel = viewModel,
-                persistentMarkerX = uiState.persistentMarkerX,
-                selectedDateEntry = uiState.selectedDateEntry,
-                formattedSelectedDateEntry = Formatters.getFormattedWeightUnitString(
-                    weight = uiState.selectedDateEntry.y.toDouble(),
+                DataDisplayedType.LIST -> DefaultList(
+                    listDateEntryList = uiState.weightHistoryList,
                     unit = uiState.unit,
-                    context = LocalContext.current
-                ),
-                cardIconId = R.drawable.weight_24
-            )
-
-            DataDisplayedType.LIST -> DefaultList(
-                listDateEntryList = uiState.weightHistoryList,
-                unit = uiState.unit,
-                valueFormatterToString = Formatters::getFormattedWeightUnitString
-            )
-
+                    valueFormatterToString = Formatters::getFormattedWeightUnitString,
+                    onWeightItemClicked = viewModel::onWeightItemClicked,
+                    onWeightItemLongClicked = viewModel::onWeightItemLongClicked
+                )
+            }
         }
-
     }
 }
 
@@ -141,50 +170,70 @@ fun PetWeightDashboardResultScreen(
 fun DefaultList(
     listDateEntryList: List<ListDateEntry>,
     valueFormatterToString: (value: Double, unit: UserPreferences.Unit, context: Context) -> String,
-    unit: UserPreferences.Unit
+    unit: UserPreferences.Unit,
+    onWeightItemClicked: (item: ListDateEntry) -> Unit,
+    onWeightItemLongClicked: (item: ListDateEntry) -> Unit
 ) {
 
     LazyColumn() {
         items(listDateEntryList) { petValue ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp), horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).withLocale(
-                        Locale.getDefault()
-                    ).withZone(ZoneId.systemDefault()).format(petValue.localDate),
-                    modifier = Modifier.weight(1f)
-                )
-                Row(
-                    modifier = Modifier
-                        .width(IntrinsicSize.Max)
-                        .weight(1f),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Row() {
-                        Icon(
-                            painter = painterResource(id = petValue.changeIconId),
-                            contentDescription = null,
-                            tint = petValue.changeIconColor
-                        )
+            ClickableListItem(
+                headlineContent = {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
                         Text(
-                            text = valueFormatterToString(
-                                petValue.changeValue,
-                                unit,
-                                LocalContext.current
-                            )
+                            text = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).withLocale(
+                                Locale.getDefault()
+                            ).withZone(ZoneId.systemDefault()).format(petValue.localDate),
+                            modifier = Modifier.weight(1f)
                         )
-                    }
+                        Row(
+                            modifier = Modifier
+                                .width(IntrinsicSize.Max)
+                                .weight(1f),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row() {
+                                Icon(
+                                    painter = painterResource(id = petValue.changeIconId),
+                                    contentDescription = null,
+                                    tint = petValue.changeIconColor
+                                )
+                                Text(
+                                    text = valueFormatterToString(
+                                        petValue.changeValue,
+                                        unit,
+                                        LocalContext.current
+                                    )
+                                )
+                            }
 
-                    Text(
-                        text = valueFormatterToString(petValue.value, unit, LocalContext.current)
-                    )
-                }
-            }
+                            Text(
+                                text = valueFormatterToString(
+                                    petValue.value,
+                                    unit,
+                                    LocalContext.current
+                                )
+                            )
+                        }
+                    }
+                },
+                supportingContent = null,
+                trailingContent = null,
+                onClick = { onWeightItemClicked(petValue) },
+                onLongClick = { onWeightItemLongClicked(petValue) },
+                isClicked = petValue.isClicked
+            )
+
         }
     }
+    Text(
+        text = stringResource(R.string.tap_and_hold_tooltip),
+        style = MaterialTheme.typography.labelSmall,
+        modifier = Modifier.padding(top = 30.dp)
+    )
 }
 
 @Composable

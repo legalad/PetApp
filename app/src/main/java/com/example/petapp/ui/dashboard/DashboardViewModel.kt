@@ -36,6 +36,7 @@ class DashboardViewModel @Inject constructor(
         _successUiState.update {
             it.copy(
                 pets = dashboard.toPetDashboardUiState(),
+                filteredPets = if (_successUiState.value.searchBarText.isNotEmpty()) dashboard.toPetDashboardUiState().filter { it.petDashboard.name.uppercase() == _successUiState.value.searchBarText.uppercase() } else dashboard.toPetDashboardUiState(),
                 unit = unit
             )
         }
@@ -76,7 +77,7 @@ class DashboardViewModel @Inject constructor(
     }
 
     fun waterIconOnClicked(pet: PetDashboardUiState) {
-        val pets = _successUiState.value.pets.toMutableList()
+        val pets = _successUiState.value.filteredPets.toMutableList()
         val index = pets.indexOf(pet)
         if (pets[index].petStat != PetStatsEnum.THIRST) pets[index] =
             pets[index].copy(petStat = PetStatsEnum.THIRST)
@@ -84,7 +85,7 @@ class DashboardViewModel @Inject constructor(
         if (index != -1) {
             _successUiState.update {
                 it.copy(
-                    pets = pets
+                    filteredPets = pets
                 )
             }
         }
@@ -104,7 +105,7 @@ class DashboardViewModel @Inject constructor(
     }
 
     fun foodIconOnClicked(pet: PetDashboardUiState) {
-        val pets = _successUiState.value.pets.toMutableList()
+        val pets = _successUiState.value.filteredPets.toMutableList()
         val index = pets.indexOf(pet)
         if (pets[index].petStat != PetStatsEnum.HUNGER) pets[index] =
             pets[index].copy(petStat = PetStatsEnum.HUNGER)
@@ -112,14 +113,14 @@ class DashboardViewModel @Inject constructor(
         if (index != -1) {
             _successUiState.update {
                 it.copy(
-                    pets = pets
+                    filteredPets = pets
                 )
             }
         }
     }
 
     fun activityIconOnClicked(pet: PetDashboardUiState) {
-        val pets = _successUiState.value.pets.toMutableList()
+        val pets = _successUiState.value.filteredPets.toMutableList()
         val index = pets.indexOf(pet)
         if (pets[index].petStat != PetStatsEnum.ACTIVITY) pets[index] =
             pets[index].copy(petStat = PetStatsEnum.ACTIVITY)
@@ -127,9 +128,56 @@ class DashboardViewModel @Inject constructor(
         if (index != -1) {
             _successUiState.update {
                 it.copy(
-                    pets = pets
+                    filteredPets = pets
                 )
             }
         }
+    }
+
+    fun searchBarOnQueryChange(value: String) {
+        _successUiState.update { state ->
+            state.copy(
+                searchBarText = value,
+                filteredPets = if(value.isNotEmpty()) state.pets.filter { it.petDashboard.name.uppercase().contains(value.uppercase()) } else state.pets
+            )
+        }
+    }
+
+    fun searchBarOnSearchClicked(value: String) {
+        _successUiState.update {
+            it.copy(
+                isSearchBarActive = false
+            )
+        }
+    }
+
+    fun searchBarOnActiveChange(value: Boolean) {
+        _successUiState.update {
+            it.copy(
+                isSearchBarActive = value
+            )
+        }
+    }
+
+    fun searchBarOnCancelClicked() {
+        searchBarOnQueryChange("")
+        searchBarOnSearchClicked("")
+    }
+
+    fun onSearchIconClicked() {
+        _successUiState.update {
+            it.copy(
+                isSearchBarIconClicked = true
+            )
+        }
+    }
+
+    fun onCancelSearchIconClicked() {
+        _successUiState.update {
+            it.copy(
+                isSearchBarIconClicked = false
+            )
+        }
+        searchBarOnCancelClicked()
     }
 }

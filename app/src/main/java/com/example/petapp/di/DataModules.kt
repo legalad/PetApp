@@ -2,9 +2,7 @@ package com.example.petapp.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.petapp.data.DefaultPetsDashboardRepository
-import com.example.petapp.data.PetsDashboardDatasource
-import com.example.petapp.data.PetsDashboardRepository
+import com.example.petapp.data.*
 import com.example.petapp.data.source.local.PetAppDatabase
 import com.example.petapp.data.source.local.PetDashboardLocalDatasource
 import dagger.Module
@@ -32,6 +30,20 @@ object RepositoryModule {
         return DefaultPetsDashboardRepository(
             petsDashboardLocalDatasource = localDatasource,
             ioDispatcher = ioDispatcher
+        )
+    }
+
+    @Singleton
+    @Provides
+    fun provideWorkManagerReminderRepository(
+        @ApplicationContext applicationContext: Context,
+        petRepository: PetsDashboardRepository,
+        settingsRepository: UserSettingsDataRepository
+    ): WorkManagerReminderRepository {
+        return DefaultWorkManagerReminderRepository(
+            context = applicationContext,
+            petsDashboardRepository = petRepository,
+            settingsDataRepository = settingsRepository
         )
     }
 }

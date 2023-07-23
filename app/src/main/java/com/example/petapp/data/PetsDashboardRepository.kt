@@ -12,6 +12,7 @@ interface PetsDashboardRepository {
     fun getLength(id: String): PetLengthEntity?
 
     fun getCircuit(id: String): PetCircuitEntity?
+    fun getPetMeal(mealId: String): PetMealEntity?
     fun getDashboard(): Flow<Map<PetDashboardView, List<PetMealEntity>>>
 
     fun getPetDetails(petId: String): Flow<PetDetailsView>
