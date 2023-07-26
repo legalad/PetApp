@@ -45,10 +45,10 @@ data class PetFoodEntity(
     val id: UUID
 )
 
-enum class MealType (@StringRes override val nameId: Int) : Menu {
-    BREAKFAST(R.string.util_enums_meal_type_breakfast),
-    LUNCH(R.string.util_enums_meal_type_lunch),
-    DINNER(R.string.util_enums_meal_type_dinner),
-    SNACK(R.string.util_enums_meal_type_snack),
-    NONE(R.string.util_blank)
+enum class MealType (@StringRes override val nameId: Int, override val avatarIconId: Int?) : Menu {
+    BREAKFAST(R.string.util_enums_meal_type_breakfast, R.drawable.breakfast),
+    LUNCH(R.string.util_enums_meal_type_lunch, R.drawable.lunch),
+    DINNER(R.string.util_enums_meal_type_dinner, R.drawable.dinner),
+    SNACK(R.string.util_enums_meal_type_snack, R.drawable.dog_treat),
+    NONE(R.string.util_blank, null)
 }

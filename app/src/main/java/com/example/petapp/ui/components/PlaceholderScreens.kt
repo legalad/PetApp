@@ -17,10 +17,10 @@ import com.example.petapp.R
 @Composable
 fun NoContentPrev() {
     Column (modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-        Image(painter = painterResource(id = R.drawable.lazy_dog), contentDescription = null)
+        Image(painter = painterResource(id = R.drawable.hamster_svg), contentDescription = null)
         Text(
-            text = "No data yet :(",
-            style = MaterialTheme.typography.headlineLarge
+            text = "Patiently waiting for you to enter data..",
+            style = MaterialTheme.typography.labelLarge
         )
     }
 }

@@ -29,7 +29,10 @@ fun Map<PetDashboardView, List<PetMealEntity>>.toPetDashboardUiState(): List<Pet
                 birthDate = it.key.birthDate,
                 waterLastChanged = it.key.waterLastChanged,
                 weight = it.key.weight,
-                imageUri = it.key.imageUri
+                imageUri = it.key.imageUri,
+                gender = it.key.gender,
+                species = it.key.species,
+                breed = it.key.breed
             ),
             petMeals = it.value.sortedBy { selector -> selector.time.hour },
             waterStat = it.key.waterLastChanged?.toPetStatProgressIndicatorEntry(24)?: PetStatProgressIndicatorEntry(1f, Color.Red),

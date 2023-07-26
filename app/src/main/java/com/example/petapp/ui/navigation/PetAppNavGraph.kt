@@ -1,14 +1,16 @@
 package com.example.petapp.ui.navigation
 
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -85,7 +87,13 @@ fun DefaultScaffold(
             )
         },
         floatingActionButton = floatingActionButton,
-        content = content
+        content = {
+            Column (modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Top) {
+                Column(modifier = Modifier.widthIn(max = 500.dp)) {
+                    content(it)
+                }
+            }
+        }
     )
 }
 
@@ -123,6 +131,7 @@ fun PetAppNavGraph(
                 viewModel = dashboardVieModel,
                 { navController.navigate(PetAppDestination.PET_MANAGER_ROUTE.name) },
                 navigateToPetDetailsScreen = { navController.navigate(PetAppDestination.PET_DETAILS_ROUTE.name + "/$it") },
+                navigateToAddMealScreen = { navController.navigate(PetAppDestination.PET_DETAILS_ADD_MEAL.name + "/$it") },
                 navigateToSettings = { navController.navigate(PetAppDestination.SETTINGS_ROUTE.name) }
             )
 

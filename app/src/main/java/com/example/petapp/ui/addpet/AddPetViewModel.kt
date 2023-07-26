@@ -241,6 +241,9 @@ class AddPetViewModel @Inject constructor(
             Species.GUINEA_PIG -> null
             Species.FERRET -> null
             Species.NONE -> null
+            Species.AMPHIBIAN -> null
+            Species.MOUSE -> null
+            Species.TURTLE -> null
         }
         _successUiState.update {
             it.copy(

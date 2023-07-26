@@ -1,6 +1,7 @@
 package com.example.petapp.ui.components
 
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -11,17 +12,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.petapp.R
 
 @Composable
 fun LoadingScreen(modifier: Modifier = Modifier){
-    Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+    Box(
+        modifier = modifier.fillMaxSize()
     ) {
-        LoadingAnimation()
+        Image(painter = painterResource(id = R.drawable.hamster_loading), contentDescription = null, modifier = Modifier.align(
+            Alignment.Center))
+        LoadingAnimation(modifier = Modifier.align(Alignment.Center))
     }
 }
 
@@ -32,6 +36,7 @@ fun ErrorScreen(message: String, modifier: Modifier = Modifier){
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Image(painter = painterResource(id = R.drawable.hamster_error), contentDescription = null)
         Text(text = "Ups! Something went wrong")
         Text(text = message)
     }
@@ -40,7 +45,8 @@ fun ErrorScreen(message: String, modifier: Modifier = Modifier){
 @Composable
 fun LoadingAnimation(
     circleColor: Color = MaterialTheme.colorScheme.primary,
-    animationDelay: Int = 1000
+    animationDelay: Int = 1000,
+    modifier: Modifier = Modifier
 ) {
 
     // circle's scale state
@@ -65,7 +71,7 @@ fun LoadingAnimation(
 
     // animating circle
     Box(
-        modifier = Modifier
+        modifier = modifier
             .size(size = 64.dp)
             .scale(scale = circleScaleAnimate.value)
             .border(

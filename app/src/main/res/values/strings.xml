@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">PetApp</string>
+    <string name="app_name">PetReck</string>
     <string name="expand_button_content_description">See more or less about pet</string>
     <string name="components_forms_text_field_label_pet_name">Name</string>
     <string name="components_forms_text_field_placeholder_pet_name">enter pet name</string>
@@ -108,6 +108,9 @@
     <string name="util_enums_species_fish">Fish</string>
     <string name="util_enums_species_bird">Bird</string>
     <string name="util_enums_species_reptile">Reptile</string>
+    <string name="util_enums_amphibians">Amphibians</string>
+    <string name="util_enums_mouse">Mouse</string>
+    <string name="util_enums_turtle">Turtle</string>
     <string name="util_enums_species_rabbit">Rabbit</string>
     <string name="util_enums_species_hamster">Hamster</string>
     <string name="util_enums_species_guinea_pig">Guinea pig</string>

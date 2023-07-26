@@ -1,6 +1,9 @@
 package com.example.petapp.ui.components
 
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -95,7 +98,39 @@ fun PetAppTopAppBar(
     searchBar: @Composable (() -> Unit)
 
 ) {
-    if (isSearchBarActive) {
+    AnimatedVisibility(
+        visible = isSearchBarActive,
+        enter = slideInHorizontally(),
+        exit = slideOutHorizontally()
+    ) {
+        searchBar()
+    }
+    AnimatedVisibility(visible = !isSearchBarActive,
+        enter = slideInHorizontally(initialOffsetX = { it }),
+        exit = slideOutHorizontally(targetOffsetX = { it })
+    ) {
+        TopAppBar(
+            title = {
+                Logo()
+            },
+            actions = {
+                IconButton(onClick = onSearchIconClicked) {
+                    Icon(Icons.Default.Search, contentDescription = "Search")
+                }
+                TopAppBarDropdownMenu(
+                    expanded = expanded,
+                    onDropdownMenuIconClicked = onDropdownMenuIconClicked,
+                    onDismissRequest = onDismissRequest,
+                    onAccountIconClicked = onAccountIconClicked,
+                    onSettingsIconClicked = onSettingsIconClicked
+                ) {
+
+                }
+            },
+            scrollBehavior = scrollBehavior
+        )
+    }
+    /*if (isSearchBarActive) {
         searchBar()
     } else {
         TopAppBar(
@@ -118,20 +153,20 @@ fun PetAppTopAppBar(
             },
             scrollBehavior = scrollBehavior
         )
-    }
+    }*/
 }
 
 @Composable
 fun Logo() {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(
-            painter = painterResource(id = R.drawable.icons8_cat_footprint_96),
+            painter = painterResource(id = R.drawable.hamster_app),
             contentDescription = "logo",
             tint = Color.Unspecified,
-            modifier = Modifier.padding(end = 5.dp)
+            modifier = Modifier.size(48.dp)
         )
         Text(
-            text = "PetApp",
+            text = stringResource(id = R.string.app_name),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -160,7 +195,8 @@ fun SearchBar(
     Box(
         Modifier
             .fillMaxWidth()
-            .padding(top = 8.dp)) {
+            .padding(top = 8.dp)
+    ) {
         Box(
             Modifier
                 .semantics {
@@ -205,11 +241,16 @@ fun SearchBar(
                     ) { pet ->
                         ListItem(
                             headlineContent = { Text(pet.petDashboard.name) },
-                            supportingContent = { Text("cat") },
+                            supportingContent = { Text(stringResource(id = pet.petDashboard.species.nameId) + " " + "") },
                             leadingContent = {
                                 Icon(
-                                    Icons.Filled.Star,
-                                    contentDescription = null
+                                    painter = painterResource(
+                                        id = pet.petDashboard.species.avatarIconId
+                                            ?: R.drawable.round_female_24
+                                    ),
+                                    contentDescription = null,
+                                    tint = Color.Unspecified,
+                                    modifier = Modifier.size(40.dp)
                                 )
                             },
                             modifier = Modifier.clickable {

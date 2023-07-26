@@ -3,6 +3,7 @@ package com.example.petapp.ui.dashboard
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
@@ -11,10 +12,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.petapp.ui.components.ErrorScreen
-import com.example.petapp.ui.components.LoadingScreen
-import com.example.petapp.ui.components.NoContentPrev
-import com.example.petapp.ui.components.PetItem
+import com.example.petapp.ui.components.*
 import com.example.petapp.ui.navigation.DefaultScaffold
 
 @Composable
@@ -22,6 +20,7 @@ fun DashboardScreen(
     viewModel: DashboardViewModel,
     navigateToAddingPetScreen: () -> Unit,
     navigateToPetDetailsScreen: (petId: String) -> Unit,
+    navigateToAddMealScreen: (String) -> Unit,
     navigateToSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -34,6 +33,7 @@ fun DashboardScreen(
                 viewModel = viewModel,
                 navigateToAddingPetScreen = navigateToAddingPetScreen,
                 navigateToPetDetailsScreen = navigateToPetDetailsScreen,
+                navigateToAddMealScreen = navigateToAddMealScreen,
                 navigateToSettings = navigateToSettings
             )
         }
@@ -47,6 +47,7 @@ fun DashboardResultScreen(
     viewModel: DashboardViewModel,
     navigateToAddingPetScreen: () -> Unit,
     navigateToPetDetailsScreen: (petId: String) -> Unit,
+    navigateToAddMealScreen: (String) -> Unit,
     navigateToSettings: () -> Unit
 ) {
     DefaultScaffold(
@@ -58,20 +59,18 @@ fun DashboardResultScreen(
             com.example.petapp.ui.components.SearchBar(uiState = uiState, viewModel = viewModel)
         },
         floatingActionButton = {
-            SmallFloatingActionButton(onClick = { navigateToAddingPetScreen() }, content = {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add new pet"
-                )
-            })
+            AddSimpleFab {
+                navigateToAddingPetScreen()
+            }
+
         }) { innerPadding ->
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top,
             modifier = Modifier
-                .fillMaxSize()
                 .padding(innerPadding)
+                .fillMaxSize()
         ) {
             Spacer(modifier = Modifier.padding(10.dp))
             if (uiState.pets.isEmpty()) {
@@ -87,7 +86,8 @@ fun DashboardResultScreen(
                             foodIconOnClicked = viewModel::foodIconOnClicked,
                             activityIconOnClicked = viewModel::activityIconOnClicked,
                             navigateToPetDetailsScreen = navigateToPetDetailsScreen,
-                            onWaterChangedIconClicked = viewModel::onWaterChangedIconClicked
+                            onWaterChangedIconClicked = viewModel::onWaterChangedIconClicked,
+                            navigateToAddMealScreen = navigateToAddMealScreen
                         )
                     }
                 }

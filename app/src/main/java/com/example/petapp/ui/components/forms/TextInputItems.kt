@@ -213,15 +213,15 @@ fun MenuOutlinedTextField(
     keyboardOptions: KeyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
     keyboardActions: KeyboardActions = KeyboardActions(onSearch = {
         focusManager.clearFocus()
-    })
+    }
+    )
 ) {
 
     val interactionSource = remember { MutableInteractionSource() }
     val isFocused = interactionSource.collectIsFocusedAsState()
     val inputChanged = remember { mutableStateOf(false) }
-
     Column(modifier = modifier.padding(bottom = 6.dp)) {
-        OutlinedTextField(
+            OutlinedTextField(
             value = fieldValue,
             label = { Text(text = stringResource(id = fieldLabel)) },
             onValueChange = {

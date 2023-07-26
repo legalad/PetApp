@@ -3,11 +3,15 @@ package com.example.petapp.ui.components.forms
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.example.android.datastore.UserPreferences
 import com.example.petapp.R
 import com.example.petapp.model.Menu
@@ -94,7 +98,7 @@ fun ExposedDropdownMenuV2(
                     onValueChanged = { textFieldOnValueChanged(it) },
                     modifier = modifier.menuAnchor(),
                     isError = isError,
-                    supportingText = supportingText
+                    supportingText = supportingText,
                 )
             }
             ExposedDropdownMenu(
@@ -106,7 +110,8 @@ fun ExposedDropdownMenuV2(
                     DropdownMenuItem(
                         text = { Text(stringResource(id = item.nameId)) },
                         onClick = { onDropdownMenuItemClicked(item.ordinal) },
-                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                        leadingIcon = { item.avatarIconId?.let { Icon(painter = painterResource(id = it), contentDescription = null, tint = Color.Unspecified,modifier = Modifier.size(24.dp))}}
                     )
                 }
 
