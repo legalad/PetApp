@@ -1,9 +1,20 @@
 package com.example.petapp.ui.components
 
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
@@ -11,7 +22,17 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -142,6 +163,7 @@ fun AddPetDataScaffold(
     @StringRes supportingText: Int = R.string.components_forms_description_fill_out,
     @StringRes leftButtonStringId: Int = R.string.components_forms_dialog_buttons_cancel,
     @StringRes rightButtonStringId: Int = R.string.components_forms_dialog_buttons_done,
+    @DrawableRes iconId: Int? = null,
     content: @Composable (ColumnScope.() -> Unit)
 ) {
     Scaffold(
@@ -151,7 +173,7 @@ fun AddPetDataScaffold(
                 navigationIcon = {
                     IconButton(onClick = navigateBack) {
                         Icon(
-                            imageVector = Icons.Default.ArrowBack,
+                            imageVector = Icons.Default.Close,
                             contentDescription = stringResource(
                                 id = R.string.components_top_app_bar_navigation_content_description_back
                             )
@@ -159,30 +181,24 @@ fun AddPetDataScaffold(
                     }
                 }
             )
-        },
-        bottomBar = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(4.dp), horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                PetFormsBottomNavButtons(
-                    leftButtonStringId = leftButtonStringId,
-                    rightButtonStringId = rightButtonStringId,
-                    onLeftButtonClicked = onLeftButtonClicked,
-                    onRightButtonClicked = onRightButtonClicked
-                )
-            }
         }
     ) { innerPadding ->
         FormDefaultColumn(
             headline = headline,
             supportingText = supportingText,
             columnOnClicked = hideKeyboard,
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            content()
-        }
+            iconId = iconId,
+            navigation = {
+                PetFormsBottomNavButtons(
+                    leftButtonStringId = leftButtonStringId,
+                    rightButtonStringId = rightButtonStringId,
+                    onLeftButtonClicked = onLeftButtonClicked,
+                    onRightButtonClicked = onRightButtonClicked
+                )
+            },
+            modifier = Modifier.padding(innerPadding),
+            content = content
+        )
     }
 }
 

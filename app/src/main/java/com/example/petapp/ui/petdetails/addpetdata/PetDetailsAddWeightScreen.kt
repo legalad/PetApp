@@ -1,9 +1,9 @@
 package com.example.petapp.ui.petdetails.addpetdata
 
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -12,7 +12,8 @@ import com.example.petapp.ui.addpet.TextFieldUnitPicker
 import com.example.petapp.ui.components.AddPetDataScaffold
 import com.example.petapp.ui.components.ErrorScreen
 import com.example.petapp.ui.components.LoadingScreen
-import com.example.petapp.ui.components.forms.*
+import com.example.petapp.ui.components.forms.OutlinedTextFieldWithLeadingIcon
+import com.example.petapp.ui.components.forms.SingleRowDateTimePicker
 
 @Composable
 fun AddWeightScreen(
@@ -22,6 +23,7 @@ fun AddWeightScreen(
 ) {
     AddPetDataScaffold(
         topAppBarTitleId = R.string.components_forms_top_app_bar_title_pet_weight,
+        iconId = R.drawable.weight_512,
         onRightButtonClicked = {
             if (viewModel.onDoneButtonClicked()) {
                 navigateToPetDetails(

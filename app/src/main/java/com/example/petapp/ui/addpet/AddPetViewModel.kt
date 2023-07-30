@@ -272,6 +272,16 @@ class AddPetViewModel @Inject constructor(
         }
     }
 
+    fun onGeneralOneDoneButtonClicked() {
+        val uiStateValue = _successUiState.value
+        validateGender()
+        validateSpecies()
+        validateBreed()
+
+        if (uiStateValue.isGenderValid && uiStateValue.isGenderChanged && uiStateValue.isSpeciesValid && uiStateValue.isSpeciesChanged) {
+            onNavigateButtonClicked(stage = AddPetScreenStage.GeneralTwo)
+        }
+    }
     fun onGeneralDoneButtonClicked() {
         val uiStateValue = _successUiState.value
 
@@ -286,19 +296,19 @@ class AddPetViewModel @Inject constructor(
         }
     }
 
-    fun onDimensionsDoneButtonClicked() {
+    fun onDimensionsDoneButtonClicked() : Boolean {
         val uiStateValue = _successUiState.value
 
-        if (uiStateValue.isWeightValid && uiStateValue.isWeightChanged
+        return if (uiStateValue.isWeightValid && uiStateValue.isWeightChanged
             && uiStateValue.isHeightValid
             && uiStateValue.isLengthValid
             && uiStateValue.isCircuitValid
         ) {
-            onNavigateButtonClicked(stage = AddPetScreenStage.Final)
-        }
+            createNewPet()
+        } else false
     }
 
-    fun onDoneButtonClicked(): Boolean {
+    private fun createNewPet(): Boolean {
         viewModelScope.launch(Dispatchers.IO) {
             val petUUID: UUID = UUID.randomUUID()
             dashboardRepository.addNewPet(
@@ -648,7 +658,7 @@ class AddPetViewModel @Inject constructor(
     }
 
     override fun validateBreed() {
-        TODO("Not yet implemented")
+
     }
 
     override fun validateWeight() {

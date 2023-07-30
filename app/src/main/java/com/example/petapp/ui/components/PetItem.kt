@@ -333,7 +333,7 @@ fun PetIcon(modifier: Modifier = Modifier, petDashboardView: PetDashboardView) {
             contentScale = ContentScale.Crop,
             painter = rememberAsyncImagePainter(
                 petDashboardView.imageUri
-                    ?: /*petDashboardView.breed?.let { petDashboardView.species.breeds[it] } ?:*/ petDashboardView.species.avatarIconId
+                    ?: petDashboardView.breed?.let { petDashboardView.species.breeds[it].avatarIconId } ?: petDashboardView.species.avatarIconId
             ),
             contentDescription = null
         )

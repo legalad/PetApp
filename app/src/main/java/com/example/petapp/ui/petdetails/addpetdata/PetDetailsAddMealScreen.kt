@@ -23,6 +23,7 @@ fun PetDetailsAddMealScreen(
 ) {
     AddPetDataScaffold(
         topAppBarTitleId = R.string.util_blank,
+        iconId = R.drawable.pet_supplies_512,
         headline = R.string.components_forms_text_field_label_meal,
         onRightButtonClicked = {
             if (viewModel.onDoneButtonCLicked()) {
@@ -57,7 +58,7 @@ fun PetDetailsAddMealResultScreen(
         label = R.string.components_forms_text_field_label_meal,
         options = uiState.mealTypeMenuOptions,
         expanded = uiState.mealTypeMenuExpanded,
-        selectedOption = uiState.mealTypeMenuSelectedOption.nameId,
+        selectedOption = uiState.mealTypeMenuSelectedOption,
         onExpandedChange = viewModel::mealTypeMenuOnExpandedChanged,
         onDropdownMenuItemClicked = viewModel::mealTypeMenuOnDropdownMenuItemClicked,
         onDismissRequest = viewModel::mealTypeMenuOnDismissRequest,

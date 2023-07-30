@@ -23,6 +23,7 @@ fun AddDimensionsScreen(
 ) {
     AddPetDataScaffold(
         topAppBarTitleId = R.string.components_forms_top_app_bar_title_pet_dimensions,
+        iconId = R.drawable.measuring,
         onRightButtonClicked = {
             if (viewModel.onDoneButtonClicked()) navigateToPetDetails(
                 viewModel.getPetId()

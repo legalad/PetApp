@@ -44,6 +44,7 @@ fun SingleRowDateTimePicker(
     onTimePickerDialogConfirmClicked: () -> Unit,
     onTimePickerDialogSwitchIconClicked: () -> Unit
 ) {
+
     Row (modifier = Modifier.fillMaxWidth()){
         DatePicker(
             label = R.string.components_forms_text_field_label_measurement,
@@ -229,4 +230,28 @@ fun DatePickerPrev() {
         onDismissRequest = { openDialog.value = false },
         onConfirmedButtonClicked = { openDialog.value = false },
         onDismissButtonClicked = { openDialog.value = false })
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Composable
+fun SingleRowDateTimePickerPrev() {
+    SingleRowDateTimePicker(
+        datePickerValue = "12.10.2034",
+        datePickerOpenDialog = false,
+        datePickerState = rememberDatePickerState(),
+        datePickerConfirmEnabled = false,
+        datePickerOnValueChanged = {  },
+        datePickerOnTextFieldClicked = {  },
+        datePickerOnDismissRequest = {  },
+        datePickerOnConfirmedButtonClicked = {  },
+        datePickerOnDismissedButtonClicked = { },
+        timePickerState = rememberTimePickerState(),
+        timePickerOpenDialog = false,
+        timePickerShowingPicker = false,
+        onTimePickerTextFieldClicked = {  },
+        onTimePickerDialogCancelClicked = {  },
+        onTimePickerDialogConfirmClicked = {  }) {
+        
+    }
 }

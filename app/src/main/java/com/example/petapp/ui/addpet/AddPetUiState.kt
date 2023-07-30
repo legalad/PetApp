@@ -16,9 +16,10 @@ import java.time.format.FormatStyle
 import java.util.*
 
 sealed interface AddPetScreenStage {
-    object General: AddPetScreenStage
+    object GeneralOne: AddPetScreenStage
+    object GeneralTwo: AddPetScreenStage
     object Dimensions: AddPetScreenStage
-    object Final: AddPetScreenStage
+    object UpdateGeneral: AddPetScreenStage
 }
 
 sealed interface AddPetUiState {
@@ -46,7 +47,7 @@ sealed interface AddPetUiState {
         val lengthFieldValue: String = "",
         val circuitFieldValue: String = "",
         val descriptionFieldValue: String = "",
-        val screenStage: AddPetScreenStage = AddPetScreenStage.General,
+        val screenStage: AddPetScreenStage = AddPetScreenStage.GeneralOne,
         val hideKeyboard: Boolean = false,
         val isNameValid: Boolean = true,
         val isNameChanged: Boolean = false,

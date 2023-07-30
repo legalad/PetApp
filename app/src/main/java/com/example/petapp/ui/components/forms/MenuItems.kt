@@ -72,7 +72,7 @@ fun ExposedDropdownMenuV2(
     @StringRes label: Int,
     options: List<Menu>,
     expanded: Boolean,
-    selectedOption: Int,
+    selectedOption: Menu?,
     onExpandedChange: () -> Unit,
     onDropdownMenuItemClicked: (Int) -> Unit,
     onDismissRequest: () -> Unit,
@@ -93,19 +93,19 @@ fun ExposedDropdownMenuV2(
                 MenuOutlinedTextField(
                     fieldLabel = label,
                     fieldPlaceholder = R.string.util_blank,
-                    fieldValue = stringResource(id = selectedOption),
+                    fieldValue = stringResource(id = selectedOption?.nameId ?: R.string.util_blank),
                     expanded = expanded,
                     onValueChanged = { textFieldOnValueChanged(it) },
                     modifier = modifier.menuAnchor(),
                     isError = isError,
                     supportingText = supportingText,
+                    leadingIconId = selectedOption?.avatarIconId
                 )
             }
             ExposedDropdownMenu(
                 expanded = expanded,
                 onDismissRequest = onDismissRequest
             ) {
-
                 options.dropLast(1).forEach { item ->
                     DropdownMenuItem(
                         text = { Text(stringResource(id = item.nameId)) },

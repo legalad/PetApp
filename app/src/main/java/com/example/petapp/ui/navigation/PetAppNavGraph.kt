@@ -1,5 +1,7 @@
 package com.example.petapp.ui.navigation
 
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -138,7 +140,16 @@ fun PetAppNavGraph(
         }
         composable(
             route = PetAppDestination.PET_DETAILS_ROUTE.name + "/{petId}",
-            arguments = listOf(navArgument("petId") { type = NavType.StringType })
+            arguments = listOf(navArgument("petId") { type = NavType.StringType }),
+            enterTransition = {
+                slideInHorizontally(initialOffsetX = { it })
+            },
+            popExitTransition = {
+                slideOutHorizontally(targetOffsetX = { it })
+            },
+            popEnterTransition = {
+                slideInHorizontally(initialOffsetX = { -it })
+            }
         ) {
             val petDetailsViewModel = hiltViewModel<PetDetailsViewModel>()
             PetDetailsScreen(
@@ -158,7 +169,10 @@ fun PetAppNavGraph(
 
         composable(
             route = PetAppDestination.PET_DETAILS_UPDATE_PET.name + "/{petId}",
-            arguments = listOf(navArgument("petId") { type = NavType.StringType })
+            arguments = listOf(navArgument("petId") { type = NavType.StringType }),
+            popExitTransition = {
+                slideOutHorizontally(targetOffsetX = { it })
+            }
         ) {
             val addPetViewModel = hiltViewModel<AddPetViewModel>()
             UpdatePetScreen(
@@ -168,7 +182,10 @@ fun PetAppNavGraph(
 
         composable(
             route = PetAppDestination.PET_DETAILS_ADD_WEIGHT.name + "/{petId}",
-            arguments = listOf(navArgument("petId") { type = NavType.StringType })
+            arguments = listOf(navArgument("petId") { type = NavType.StringType }),
+            popExitTransition = {
+                slideOutHorizontally(targetOffsetX = { it })
+            }
         ) {
             val petDetailsAddWeightViewModel = hiltViewModel<PetDetailsAddWeightViewModel>()
             AddWeightScreen(viewModel = petDetailsAddWeightViewModel,
@@ -180,7 +197,10 @@ fun PetAppNavGraph(
         }
         composable(
             route = PetAppDestination.PET_DETAILS_ADD_DIMENSIONS.name + "/{petId}",
-            arguments = listOf(navArgument("petId") { type = NavType.StringType })
+            arguments = listOf(navArgument("petId") { type = NavType.StringType }),
+            popExitTransition = {
+                slideOutHorizontally(targetOffsetX = { it })
+            }
         ) {
             val petDetailsAddDimensionsViewModel = hiltViewModel<PetDetailsAddDimensionsViewModel>()
             AddDimensionsScreen(
@@ -196,7 +216,10 @@ fun PetAppNavGraph(
             route = PetAppDestination.PET_DETAILS_UPDATE_WEIGHT.name + "/{petId}" + "/{weightId}",
             arguments = listOf(
                 navArgument("petId") { type = NavType.StringType },
-                navArgument("weightId") { type = NavType.StringType })
+                navArgument("weightId") { type = NavType.StringType }),
+            popExitTransition = {
+                slideOutHorizontally(targetOffsetX = { it })
+            }
         ) {
             val petDetailsAddWeightViewModel = hiltViewModel<PetDetailsAddWeightViewModel>()
             AddWeightScreen(viewModel = petDetailsAddWeightViewModel,
@@ -211,7 +234,10 @@ fun PetAppNavGraph(
             route = PetAppDestination.PET_DETAILS_UPDATE_HEIGHT.name + "/{petId}" + "/{heightId}",
             arguments = listOf(
                 navArgument("petId") { type = NavType.StringType },
-                navArgument("heightId") { type = NavType.StringType })
+                navArgument("heightId") { type = NavType.StringType }),
+            popExitTransition = {
+                slideOutHorizontally(targetOffsetX = { it })
+            }
         ) {
             val petDetailsAddDimensionsViewModel = hiltViewModel<PetDetailsAddDimensionsViewModel>()
             UpdateDimensionsScreen(
@@ -227,7 +253,10 @@ fun PetAppNavGraph(
             route = PetAppDestination.PET_DETAILS_UPDATE_LENGTH.name + "/{petId}" + "/{lengthId}",
             arguments = listOf(
                 navArgument("petId") { type = NavType.StringType },
-                navArgument("lengthId") { type = NavType.StringType })
+                navArgument("lengthId") { type = NavType.StringType }),
+            popExitTransition = {
+                slideOutHorizontally(targetOffsetX = { it })
+            }
         ) {
             val petDetailsAddDimensionsViewModel = hiltViewModel<PetDetailsAddDimensionsViewModel>()
             UpdateDimensionsScreen(
@@ -243,7 +272,10 @@ fun PetAppNavGraph(
             route = PetAppDestination.PET_DETAILS_UPDATE_CIRCUIT.name + "/{petId}" + "/{circuitId}",
             arguments = listOf(
                 navArgument("petId") { type = NavType.StringType },
-                navArgument("circuitId") { type = NavType.StringType })
+                navArgument("circuitId") { type = NavType.StringType }),
+            popExitTransition = {
+                slideOutHorizontally(targetOffsetX = { it })
+            }
         ) {
             val petDetailsAddDimensionsViewModel = hiltViewModel<PetDetailsAddDimensionsViewModel>()
             UpdateDimensionsScreen(
@@ -257,7 +289,10 @@ fun PetAppNavGraph(
 
         composable(
             route = PetAppDestination.PET_DETAILS_WEIGHT_DASHBOARD.name + "/{petId}",
-            arguments = listOf(navArgument("petId") { type = NavType.StringType })
+            arguments = listOf(navArgument("petId") { type = NavType.StringType }),
+            popExitTransition = {
+                slideOutHorizontally(targetOffsetX = { it })
+            }
         ) {
             val petDetailsWeightDashboardViewModel =
                 hiltViewModel<PetDetailsWeightDashboardViewModel>()
@@ -274,7 +309,10 @@ fun PetAppNavGraph(
 
         composable(
             route = PetAppDestination.PET_DETAILS_DIMENSIONS_DASHBOARD.name + "/{petId}",
-            arguments = listOf(navArgument("petId") { type = NavType.StringType })
+            arguments = listOf(navArgument("petId") { type = NavType.StringType }),
+            popExitTransition = {
+                slideOutHorizontally(targetOffsetX = { it })
+            }
         ) {
             val petDetailsWeightDashboardViewModel =
                 hiltViewModel<PetDetailsDimensionsDashboardViewModel>()
@@ -302,7 +340,10 @@ fun PetAppNavGraph(
 
         composable(
             route = PetAppDestination.PET_DETAILS_MEALS_DASHBOARD.name + "/{petId}",
-            arguments = listOf(navArgument("petId") { type = NavType.StringType })
+            arguments = listOf(navArgument("petId") { type = NavType.StringType }),
+            popExitTransition = {
+                slideOutHorizontally(targetOffsetX = { it })
+            }
         ) {
             val petFoodDashboardViewModel =
                 hiltViewModel<PetFoodDashboardViewModel>()
@@ -322,7 +363,10 @@ fun PetAppNavGraph(
 
         composable(
             route = PetAppDestination.PET_DETAILS_ADD_MEAL.name + "/{petId}",
-            arguments = listOf(navArgument("petId") { type = NavType.StringType })
+            arguments = listOf(navArgument("petId") { type = NavType.StringType }),
+            popExitTransition = {
+                slideOutHorizontally(targetOffsetX = { it })
+            }
         ) {
             val addPetMealViewModel = hiltViewModel<PetDetailsAddMealViewModel>()
             PetDetailsAddMealScreen(viewModel = addPetMealViewModel, navigateToPetDetails = {
@@ -337,7 +381,10 @@ fun PetAppNavGraph(
             arguments = listOf(
                 navArgument("petId") { type = NavType.StringType },
                 navArgument("mealId") { type = NavType.StringType }
-            )
+            ),
+            popExitTransition = {
+                slideOutHorizontally(targetOffsetX = { it })
+            }
         ) {
             val addMealViewModel = hiltViewModel<PetDetailsAddMealViewModel>()
             PetDetailsAddMealScreen(
