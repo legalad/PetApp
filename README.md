@@ -28,7 +28,7 @@ Application follows Google recommended modern app architecture, best practices, 
     - UI components consume UI state and notify viewModels of user events
   - placed in ui package
     
-**UI Layer:**
+**Data Layer:**
   - data layer is made of **repositories** each contain at the momemnt one **local data source** (in future also remote data source),
   - local data sources use:
     - SQLite with **Room** library (pets, pantry repositories),
